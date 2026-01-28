@@ -1,0 +1,12 @@
+{
+  "name": "@~/root",
+  "private": true,
+  "type": "module",
+  "workspaces": ["app/*", "lib/*"],
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {},
+  "volta": {
+    "node": "24.13.0"
+  }
+}
