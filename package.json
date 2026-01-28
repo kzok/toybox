@@ -2,10 +2,23 @@
   "name": "@~/root",
   "private": true,
   "type": "module",
-  "workspaces": ["app/*", "lib/*"],
+  "workspaces": [
+    "app/*",
+    "lib/*"
+  ],
   "scripts": {},
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.10",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.2",
+    "typescript": "5.9.3",
+    "vite": "7.3.1",
+    "vitest": "4.0.18"
+  },
   "volta": {
     "node": "24.13.0"
   }
