@@ -1,5 +1,9 @@
 {
   "name": "@~/screencap-decorator",
   "private":true,
-  "scripts": {}
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview",
+    "build": "vite build"
+  }
 }
