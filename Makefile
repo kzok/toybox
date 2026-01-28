@@ -28,12 +28,12 @@ precommit: node_modules
 	npm run test -- --changed --run
 	npm run fmt
 
-.PHONY: dev/screencap-decorator ## start dev server of wad-viewer
-dev/screencap-decorator: node_modules
-	npm run -w @~/screencap-decorator dev
+.PHONY: dev/screencap-deco ## start dev server of screencap-deco
+dev/screencap-deco: node_modules
+	npm run -w @~/screencap-deco dev
 
 .PHONY: build ## build static files for GitHub pages
 build: node_modules
 	rm -fr ./dist && mkdir -p ./dist
-	npm run -w @~/screencap-decorator build
-	mv ./app/screencap-decorator/dist ./dist/screencap-decorator
+	npm run -w @~/screencap-deco build
+	mv ./app/screencap-deco/dist ./dist/screencap-deco

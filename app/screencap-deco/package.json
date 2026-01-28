@@ -1,5 +1,5 @@
 {
-  "name": "@~/screencap-decorator",
+  "name": "@~/screencap-deco",
   "private":true,
   "scripts": {
     "dev": "vite",
