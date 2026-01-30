@@ -1,5 +1,5 @@
 {
-  "name": "@~/screencap-deco",
+  "name": "@~/ss-edit",
   "private":true,
   "scripts": {
     "dev": "vite",
