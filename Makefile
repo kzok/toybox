@@ -24,6 +24,7 @@ help:
 
 .PHONY: check ## do precommit check (type-check, test and lint)
 check: node_modules
+	npm run fmt
 	npm run type-check
 	npm run test -- --changed --run
 
