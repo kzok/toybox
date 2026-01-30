@@ -61,19 +61,19 @@ jobs:
         node-version-file: 'package.json'
         cache: 'npm'
     - run: make build
-  # chromatic:
-  #   runs-on: ubuntu-latest
-  #   needs: cache-npm
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #     with:
-  #       fetch-depth: 0
-  #   - uses: actions/setup-node@v4
-  #     with:
-  #       node-version-file: 'package.json'
-  #       cache: 'npm'
-  #   - run: npm ci
-  #   - uses: chromaui/action@latest
-  #     with:
-  #       projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-  #       onlyChanged: true
+  chromatic:
+    runs-on: ubuntu-latest
+    needs: cache-npm
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: 'package.json'
+        cache: 'npm'
+    - run: npm ci
+    - uses: chromaui/action@latest
+      with:
+        projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        onlyChanged: true

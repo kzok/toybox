@@ -19,15 +19,16 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.13",
-    "@storybook/react-vite": "^10.2.1",
+    "@storybook/react-vite": "10.2.1",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@types/node": "25.0.10",
     "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.2",
+    "chromatic": "13.3.5",
     "jsdom": "27.4.0",
-    "storybook": "^10.2.1",
+    "storybook": "10.2.1",
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vitest": "4.0.18"
