@@ -15,18 +15,17 @@ node_modules: package-lock.json
 
 .PHONY: help ## display this help message
 help:
-	@echo "Makefile as a task runner for local development."
+	@echo "Makefile as a task runner used for local development and CI."
 	@echo ""
 	@echo "Targets:"
 	@grep -E '^\.PHONY: [a-zA-Z_/-]+ ##' $(MAKEFILE_LIST) |\
 		sed -r "s/\.PHONY: //" |\
 		awk 'BEGIN {FS = " ## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: precommit ## do precommit check (type-check, test and lint)
-precommit: node_modules
+.PHONY: check ## do precommit check (type-check, test and lint)
+check: node_modules
 	npm run type-check
 	npm run test -- --changed --run
-	npm run fmt
 
 .PHONY: dev/ss-edit ## start dev server of ss-edit
 dev/ss-edit: node_modules
