@@ -28,12 +28,12 @@ precommit: node_modules
 	npm run test -- --changed --run
 	npm run fmt
 
-.PHONY: dev/screencap-deco ## start dev server of screencap-deco
-dev/screencap-deco: node_modules
-	npm run -w @~/screencap-deco dev
+.PHONY: dev/ss-edit ## start dev server of ss-edit
+dev/ss-edit: node_modules
+	npm run -w @~/ss-edit dev
 
 .PHONY: build ## build static files for GitHub pages
 build: node_modules
 	rm -fr ./dist && mkdir -p ./dist
-	npm run -w @~/screencap-deco build
-	mv ./app/screencap-deco/dist ./dist/screencap-deco
+	npm run -w @~/ss-edit build
+	mv ./app/ss-edit/dist ./dist/ss-edit
