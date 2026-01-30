@@ -1,0 +1,80 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: test
+
+on:
+  push:
+
+jobs:
+  cache-npm:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      id: node
+      with:
+        node-version-file: 'package.json'
+        cache: 'npm'
+    - run: npm ci
+      if: steps.node.outputs.cache-hit != 'true'
+  type-check:
+    runs-on: ubuntu-latest
+    needs: cache-npm
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: 'package.json'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run type-check
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   needs: cache-npm
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: actions/setup-node@v4
+  #     with:
+  #       node-version-file: 'package.json'
+  #       cache: 'npm'
+  #   - run: npm ci
+  #   - run: npm exec -c 'biome lint'
+  #   - run: npm exec -c 'biome format'
+  vitest:
+    runs-on: ubuntu-latest
+    needs: cache-npm
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: 'package.json'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm exec -c 'vitest run'
+  vite-build:
+    runs-on: ubuntu-latest
+    needs: cache-npm
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: 'package.json'
+        cache: 'npm'
+    - run: make build
+  # chromatic:
+  #   runs-on: ubuntu-latest
+  #   needs: cache-npm
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   - uses: actions/setup-node@v4
+  #     with:
+  #       node-version-file: 'package.json'
+  #       cache: 'npm'
+  #   - run: npm ci
+  #   - uses: chromaui/action@latest
+  #     with:
+  #       projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+  #       onlyChanged: true
