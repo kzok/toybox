@@ -7,6 +7,7 @@
     "lib/*"
   ],
   "scripts": {
+    "fmt": "biome check --write .",
     "type-check": "tsc",
     "test": "vitest",
     "storybook": "storybook dev -p 6006",
@@ -17,6 +18,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.13",
     "@storybook/react-vite": "^10.2.1",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",

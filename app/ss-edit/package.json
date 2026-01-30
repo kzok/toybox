@@ -1,6 +1,6 @@
 {
   "name": "@~/ss-edit",
-  "private":true,
+  "private": true,
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
