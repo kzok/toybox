@@ -1,5 +1,5 @@
 {
-  "name": "@~/ss-edit",
+  "name": "@~/app-ss-edit",
   "private": true,
   "scripts": {
     "dev": "vite",
