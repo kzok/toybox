@@ -1,7 +1,7 @@
 import "@~/ui/style";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { UnderConstruction } from "./ui/under-construction";
+import { UnderConstruction } from "./ui/UnderConstruction";
 
 window.addEventListener("load", () => {
   const mountDestination = document.getElementById("root");
