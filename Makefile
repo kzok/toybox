@@ -30,10 +30,10 @@ check: node_modules
 
 .PHONY: dev/ss-edit ## start dev server of ss-edit
 dev/ss-edit: node_modules
-	npm run -w @~/ss-edit dev
+	npm run -w app/ss-edit dev
 
 .PHONY: build ## build static files for GitHub pages
 build: node_modules
 	rm -fr ./dist && mkdir -p ./dist
-	npm run -w @~/ss-edit build
+	npm run -w app/ss-edit build
 	mv ./app/ss-edit/dist ./dist/ss-edit
