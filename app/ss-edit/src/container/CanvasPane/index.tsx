@@ -9,7 +9,6 @@ export const CanvasPane: React.FC<{
   width: number;
   /** canvas height px */
   height: number;
-  /** editor state */
   editorState: EditorState;
 }> = (props) => {
   const elementRef = React.useRef<HTMLCanvasElement>(null);
@@ -18,7 +17,7 @@ export const CanvasPane: React.FC<{
     if (canvas == null) {
       return;
     }
-    renderCanvas(canvas);
+    renderCanvas(canvas, props.editorState);
   }, [props.editorState]);
 
   return (
