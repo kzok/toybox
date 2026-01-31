@@ -1,7 +1,6 @@
 import type { Preview } from "@storybook/react-vite";
 import "./preview.css";
-// TODO: move this style to a shared module.
-import "../app/ss-edit/src/utils/styles/index.css";
+import "@~/ui/style";
 
 const preview: Preview = {
   parameters: {

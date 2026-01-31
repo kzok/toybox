@@ -1,4 +1,4 @@
-import "./utils/styles/index.css";
+import "@~/ui/style";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { UnderConstruction } from "./ui/under-construction";
