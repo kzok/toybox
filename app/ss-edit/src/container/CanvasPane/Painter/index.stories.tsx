@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { type Draft, produce } from "immer";
-import { type Editor, INITIAL_EDITOR_STATE } from "../../../store/editor";
+import { type EditorState, INITIAL_EDITOR_STATE } from "../../../store/editor";
 import { Painter } from "./index";
 
 const meta: Meta = {
@@ -12,7 +12,7 @@ const meta: Meta = {
 
 export default meta;
 
-const emptyEditorState: Editor.State = produce(INITIAL_EDITOR_STATE, (draft) => {
+const emptyEditorState: EditorState = produce(INITIAL_EDITOR_STATE, (draft) => {
   draft.view.canvas = { width: 500, height: 500 };
 });
 

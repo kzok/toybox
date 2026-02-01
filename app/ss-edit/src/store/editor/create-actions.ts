@@ -34,5 +34,17 @@ export const createActions = (store: Store) => {
         draft.view.canvas.height = height;
       });
     },
+    /**
+     * scroll in canvas
+     * @param deltaX movement X in canvas
+     * @param deltaY movement Y in canvas
+     */
+    scroll: (deltaX: number, deltaY: number): void => {
+      updateAtom(editorAtoms.state, (draft) => {
+        // TODO: take zoom scale into account.
+        draft.view.offset[0] -= deltaX;
+        draft.view.offset[1] -= deltaY;
+      });
+    },
   } as const;
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../store/AppProvider";
-import { type Editor, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
+import { type EditorState, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
 import { CanvasPane } from "./index";
 
 const meta: Meta = {
@@ -19,9 +19,9 @@ const createStory = ({
   recipe,
 }: Readonly<{
   storyName?: string;
-  recipe?: (draft: Draft<Editor.State>) => void;
+  recipe?: (draft: Draft<EditorState>) => void;
 }>): StoryObj<typeof meta> => {
-  let state: Editor.State = INITIAL_EDITOR_STATE;
+  let state: EditorState = INITIAL_EDITOR_STATE;
   if (recipe) {
     state = produce(state, (draft) => {
       recipe(draft);

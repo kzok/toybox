@@ -1,8 +1,8 @@
 import { atom } from "jotai";
-import type { Editor } from "./types";
+import type { EditorState } from "./types";
 
 /** initial state */
-export const INITIAL_EDITOR_STATE: Editor.State = {
+export const INITIAL_EDITOR_STATE: EditorState = {
   view: { canvas: { width: 0, height: 0 }, offset: [0, 0] },
   items: [],
 };

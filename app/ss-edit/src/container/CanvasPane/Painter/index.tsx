@@ -1,5 +1,5 @@
 import React from "react";
-import type { Editor } from "../../../store/editor";
+import type { EditorState } from "../../../store/editor";
 import styles from "./index.module.css";
 import { renderCanvas } from "./render-canvas";
 
@@ -7,7 +7,7 @@ import { renderCanvas } from "./render-canvas";
  * an actual <canvas/> elements to render the application state.
  */
 export const Painter: React.FC<{
-  state: Editor.State;
+  state: EditorState;
 }> = (props) => {
   const elementRef = React.useRef<HTMLCanvasElement>(null);
   React.useLayoutEffect(() => {
