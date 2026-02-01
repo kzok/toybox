@@ -3,6 +3,9 @@ import type { Editor } from "../../../store/editor";
 import styles from "./index.module.css";
 import { renderCanvas } from "./render-canvas";
 
+/**
+ * an actual <canvas/> elements to render the application state.
+ */
 export const Painter: React.FC<{
   state: Editor.State;
 }> = (props) => {
