@@ -5,19 +5,9 @@ import { editorAtoms, useEditorActions } from "../../store/editor";
 import styles from "./index.module.css";
 import { Painter } from "./Painter";
 
-/**
- * a canvas pane of the application.
- */
-export const CanvasPane = React.memo((props: { className?: string | undefined }) => {
-  const elementRef = React.useRef<HTMLDivElement>(null);
+const ConnectedPainter = React.memo(() => {
   const state = useAtomValue(editorAtoms.state);
-  useResizeObserver(elementRef);
-
-  return (
-    <div ref={elementRef} className={clsx(styles.container, props.className)}>
-      <Painter state={state} />
-    </div>
-  );
+  return <Painter state={state} />;
 });
 
 /**
@@ -45,3 +35,17 @@ const useResizeObserver = <T extends Element>(elementRef: React.RefObject<T | nu
     };
   }, []);
 };
+
+/**
+ * a canvas pane of the application.
+ */
+export const CanvasPane = React.memo((props: { className?: string | undefined }) => {
+  const elementRef = React.useRef<HTMLDivElement>(null);
+  useResizeObserver(elementRef);
+
+  return (
+    <div ref={elementRef} className={clsx(styles.container, props.className)}>
+      <ConnectedPainter />
+    </div>
+  );
+});
