@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import React from "react";
 import { editorAtoms, useEditorActions } from "../../store/editor";
@@ -7,7 +8,7 @@ import { Painter } from "./Painter";
 /**
  * a canvas pane of the application.
  */
-export const CanvasPane = React.memo(() => {
+export const CanvasPane = React.memo((props: { className?: string | undefined }) => {
   const elementRef = React.useRef<HTMLDivElement>(null);
   const state = useAtomValue(editorAtoms.state);
   const actions = useEditorActions();
@@ -32,7 +33,7 @@ export const CanvasPane = React.memo(() => {
   }, []);
 
   return (
-    <div ref={elementRef} className={styles.container}>
+    <div ref={elementRef} className={clsx(styles.container, props.className)}>
       <Painter state={state} />
     </div>
   );
