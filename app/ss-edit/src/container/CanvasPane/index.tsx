@@ -11,8 +11,21 @@ import { Painter } from "./Painter";
 export const CanvasPane = React.memo((props: { className?: string | undefined }) => {
   const elementRef = React.useRef<HTMLDivElement>(null);
   const state = useAtomValue(editorAtoms.state);
-  const actions = useEditorActions();
+  useResizeObserver(elementRef);
 
+  return (
+    <div ref={elementRef} className={clsx(styles.container, props.className)}>
+      <Painter state={state} />
+    </div>
+  );
+});
+
+/**
+ * call specified action when resized.
+ * @param elementRef ref object for an element
+ */
+const useResizeObserver = <T extends Element>(elementRef: React.RefObject<T | null>): void => {
+  const actions = useEditorActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -31,10 +44,4 @@ export const CanvasPane = React.memo((props: { className?: string | undefined })
       observer.disconnect();
     };
   }, []);
-
-  return (
-    <div ref={elementRef} className={clsx(styles.container, props.className)}>
-      <Painter state={state} />
-    </div>
-  );
-});
+};
