@@ -1,4 +1,5 @@
 import type { Editor } from "../../../store/editor";
+import { Point2D } from "../../../utils/geometry";
 
 /**
  * @param canvas
@@ -6,8 +7,13 @@ import type { Editor } from "../../../store/editor";
  */
 export const renderCanvas = (canvas: HTMLCanvasElement, state: Editor.State): void => {
   const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.reset();
   renderBackground(ctx, canvas.width, canvas.height);
+  ctx.translate(
+    ...Point2D.new(...state.view.offset)
+      .invert()
+      .tuple(),
+  );
   for (let i = state.items.length - 1; i >= 0; i -= 1) {
     const item = state.items[i]!;
     renderLine(ctx, item);

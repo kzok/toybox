@@ -60,6 +60,7 @@ export const Empty = createStory({});
 
 export const Example1 = createStory({
   recipe: (draft) => {
+    draft.view.offset = [-100, -100];
     draft.items = [
       {
         kind: "line",

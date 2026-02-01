@@ -3,7 +3,7 @@ import type { Editor } from "./types";
 
 /** initial state */
 export const INITIAL_EDITOR_STATE: Editor.State = {
-  view: { canvas: { width: 0, height: 0 } },
+  view: { canvas: { width: 0, height: 0 }, offset: [0, 0] },
   items: [],
 };
 

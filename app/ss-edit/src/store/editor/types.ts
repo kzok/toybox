@@ -22,6 +22,8 @@ export namespace Editor {
   export type View = Readonly<{
     /** actual <canvas/> size px */
     canvas: Readonly<{ width: number; height: number }>;
+    /** current view offset */
+    offset: Coordinate2D;
   }>;
 
   /** editor state */
