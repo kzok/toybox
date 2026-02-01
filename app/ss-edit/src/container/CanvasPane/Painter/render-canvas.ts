@@ -1,10 +1,10 @@
-import type { EditorState, LineItem } from "../../../store/editor";
+import type { Editor } from "../../../store/editor";
 
 /**
  * @param canvas
  * @param state
  */
-export const renderCanvas = (canvas: HTMLCanvasElement, state: EditorState): void => {
+export const renderCanvas = (canvas: HTMLCanvasElement, state: Editor.State): void => {
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   renderBackground(ctx, canvas.width, canvas.height);
@@ -46,12 +46,12 @@ const renderBackground = (ctx: CanvasRenderingContext2D, width: number, height: 
  * @param ctx
  * @param lineItem
  */
-const renderLine = (ctx: CanvasRenderingContext2D, item: LineItem): void => {
+const renderLine = (ctx: CanvasRenderingContext2D, item: Editor.Item.Line): void => {
   ctx.lineCap = "round";
   ctx.strokeStyle = item.color;
   ctx.lineWidth = item.width;
   ctx.beginPath();
-  ctx.moveTo(item.head.x, item.head.y);
-  ctx.lineTo(item.tail.x, item.tail.y);
+  ctx.moveTo(...item.head);
+  ctx.lineTo(...item.tail);
   ctx.stroke();
 };

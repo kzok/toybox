@@ -1,14 +1,10 @@
 import React from "react";
-import type { EditorState } from "../../../store/editor";
+import type { Editor } from "../../../store/editor";
 import styles from "./index.module.css";
 import { renderCanvas } from "./render-canvas";
 
 export const Painter: React.FC<{
-  /** canvas width px */
-  width: number;
-  /** canvas height px */
-  height: number;
-  editorState: EditorState;
+  state: Editor.State;
 }> = (props) => {
   const elementRef = React.useRef<HTMLCanvasElement>(null);
   React.useLayoutEffect(() => {
@@ -16,15 +12,15 @@ export const Painter: React.FC<{
     if (canvas == null) {
       return;
     }
-    renderCanvas(canvas, props.editorState);
-  }, [props.editorState]);
+    renderCanvas(canvas, props.state);
+  }, [props.state]);
 
   return (
     <canvas
       className={styles.container}
       ref={elementRef}
-      width={props.width}
-      height={props.height}
+      width={props.state.view.canvas.width}
+      height={props.state.view.canvas.height}
     />
   );
 };
