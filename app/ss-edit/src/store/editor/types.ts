@@ -3,7 +3,7 @@
  */
 export type Coordinate2D = readonly [number, number];
 
-export namespace Editor {
+export namespace EditorState {
   export namespace Item {
     /** drawing line */
     export type Line = Readonly<{
@@ -22,11 +22,15 @@ export namespace Editor {
   export type View = Readonly<{
     /** actual <canvas/> size px */
     canvas: Readonly<{ width: number; height: number }>;
-  }>;
-
-  /** editor state */
-  export type State = Readonly<{
-    view: View;
-    items: readonly Item[];
+    /** current view offset */
+    offset: Coordinate2D;
   }>;
 }
+
+/** entire editor state */
+export type EditorState = Readonly<{
+  /** state about view in <canvas/> */
+  view: EditorState.View;
+  /** state about paintable items */
+  items: readonly EditorState.Item[];
+}>;
