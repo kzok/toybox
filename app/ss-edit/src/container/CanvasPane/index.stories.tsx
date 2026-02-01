@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { type Draft, produce } from "immer";
+import type { EditorState } from "../../store/editor/";
 import { CanvasPane } from "./index";
-import type { EditorState } from "./types";
 
 const meta: Meta = {
   component: CanvasPane,

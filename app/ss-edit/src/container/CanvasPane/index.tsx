@@ -1,8 +1,7 @@
 import React from "react";
-
+import type { EditorState } from "../../store/editor/";
 import styles from "./index.module.css";
 import { renderCanvas } from "./render-canvas";
-import type { EditorState } from "./types";
 
 export const CanvasPane: React.FC<{
   /** canvas width px */
