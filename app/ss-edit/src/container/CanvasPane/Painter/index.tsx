@@ -1,9 +1,9 @@
 import React from "react";
-import type { EditorState } from "../../store/editor/";
+import type { EditorState } from "../../../store/editor";
 import styles from "./index.module.css";
 import { renderCanvas } from "./render-canvas";
 
-export const CanvasPane: React.FC<{
+export const Painter: React.FC<{
   /** canvas width px */
   width: number;
   /** canvas height px */
@@ -11,7 +11,7 @@ export const CanvasPane: React.FC<{
   editorState: EditorState;
 }> = (props) => {
   const elementRef = React.useRef<HTMLCanvasElement>(null);
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const canvas = elementRef.current;
     if (canvas == null) {
       return;

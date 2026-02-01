@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { type Draft, produce } from "immer";
-import type { EditorState } from "../../store/editor/";
-import { CanvasPane } from "./index";
+import type { EditorState } from "../../../store/editor";
+import { Painter } from "./index";
 
 const meta: Meta = {
-  component: CanvasPane,
+  component: Painter,
   parameters: {
     layout: "fullscreen",
   },
@@ -16,7 +16,7 @@ const emptyEditorState: EditorState = {
   items: [],
 };
 
-type TargetProps = React.ComponentProps<typeof CanvasPane>;
+type TargetProps = React.ComponentProps<typeof Painter>;
 
 const createStory = ({
   storyName,
@@ -32,7 +32,7 @@ const createStory = ({
     });
   }
   const result: StoryObj<typeof meta> = {
-    render: () => <CanvasPane {...props} />,
+    render: () => <Painter {...props} />,
   };
   if (storyName) {
     result.storyName = storyName;

@@ -1,4 +1,4 @@
-import type { EditorState, LineItem } from "../../store/editor/";
+import type { EditorState, LineItem } from "../../../store/editor";
 
 /**
  * @param canvas
