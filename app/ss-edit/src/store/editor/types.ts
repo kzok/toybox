@@ -1,18 +1,32 @@
-export type Point2D = Readonly<{
-  x: number;
-  y: number;
-}>;
+/**
+ * a 2D coordinate expressing (x, y) or (width, height)
+ */
+export type Coordinate2D = readonly [number, number];
 
-export type LineItem = Readonly<{
-  kind: "line";
-  head: Point2D;
-  tail: Point2D;
-  color: string;
-  width: number;
-}>;
+export namespace Editor {
+  export namespace Item {
+    /** drawing line */
+    export type Line = Readonly<{
+      kind: "line";
+      head: Coordinate2D;
+      tail: Coordinate2D;
+      color: string;
+      width: number;
+    }>;
+  }
 
-export type Item = LineItem;
+  /** editor item */
+  export type Item = Item.Line;
 
-export type EditorState = Readonly<{
-  items: readonly Item[];
-}>;
+  /** editor view */
+  export type View = Readonly<{
+    /** actual <canvas/> size px */
+    canvas: Readonly<{ width: number; height: number }>;
+  }>;
+
+  /** editor state */
+  export type State = Readonly<{
+    view: View;
+    items: readonly Item[];
+  }>;
+}

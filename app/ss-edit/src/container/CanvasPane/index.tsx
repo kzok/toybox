@@ -1,30 +1,40 @@
+import clsx from "clsx";
+import { useAtomValue } from "jotai";
 import React from "react";
-import type { EditorState } from "../../store/editor/";
+import { editorAtoms, useEditorActions } from "../../store/editor";
 import styles from "./index.module.css";
-import { renderCanvas } from "./render-canvas";
+import { Painter } from "./Painter";
 
-export const CanvasPane: React.FC<{
-  /** canvas width px */
-  width: number;
-  /** canvas height px */
-  height: number;
-  editorState: EditorState;
-}> = (props) => {
-  const elementRef = React.useRef<HTMLCanvasElement>(null);
-  React.useEffect(() => {
-    const canvas = elementRef.current;
-    if (canvas == null) {
+/**
+ * a canvas pane of the application.
+ */
+export const CanvasPane = React.memo((props: { className?: string | undefined }) => {
+  const elementRef = React.useRef<HTMLDivElement>(null);
+  const state = useAtomValue(editorAtoms.state);
+  const actions = useEditorActions();
+
+  React.useLayoutEffect(() => {
+    const element = elementRef.current;
+    if (element == null) {
       return;
     }
-    renderCanvas(canvas, props.editorState);
-  }, [props.editorState]);
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target !== element) {
+          continue;
+        }
+        actions.updateCanvasSize(entry.contentRect.width, entry.contentRect.height);
+      }
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
-    <canvas
-      className={styles.container}
-      ref={elementRef}
-      width={props.width}
-      height={props.height}
-    />
+    <div ref={elementRef} className={clsx(styles.container, props.className)}>
+      <Painter state={state} />
+    </div>
   );
-};
+});
