@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { type Draft, produce } from "immer";
+import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../store/AppProvider";
+import { type Editor, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
 import { CanvasPane } from "./index";
 
 const meta: Meta = {
@@ -11,26 +14,60 @@ const meta: Meta = {
 
 export default meta;
 
-const Wrapper: React.FC<{ children: React.ReactNode }> = (props) => (
-  <AppProvider>
-    <div
-      style={{
-        display: "inline-grid",
-        width: 500,
-        height: 500,
-        alignItems: "stretch",
-        justifyItems: "stretch",
-      }}
-    >
-      {props.children}
-    </div>
-  </AppProvider>
-);
-
-export const Empty: StoryObj = {
-  render: () => (
-    <Wrapper>
-      <CanvasPane />
-    </Wrapper>
-  ),
+const createStory = ({
+  storyName,
+  recipe,
+}: Readonly<{
+  storyName?: string;
+  recipe?: (draft: Draft<Editor.State>) => void;
+}>): StoryObj<typeof meta> => {
+  let state: Editor.State = INITIAL_EDITOR_STATE;
+  if (recipe) {
+    state = produce(state, (draft) => {
+      recipe(draft);
+    });
+  }
+  const Wrapper: React.FC = () => {
+    useHydrateAtoms([[editorAtoms.state, state]]);
+    return (
+      <div
+        style={{
+          display: "inline-grid",
+          width: 500,
+          height: 500,
+          alignItems: "stretch",
+          justifyItems: "stretch",
+        }}
+      >
+        <CanvasPane />
+      </div>
+    );
+  };
+  const result: StoryObj<typeof meta> = {
+    render: () => (
+      <AppProvider>
+        <Wrapper />
+      </AppProvider>
+    ),
+  };
+  if (storyName) {
+    result.storyName = storyName;
+  }
+  return result;
 };
+
+export const Empty = createStory({});
+
+export const Example1 = createStory({
+  recipe: (draft) => {
+    draft.items = [
+      {
+        kind: "line",
+        color: "#ffff00",
+        width: 5,
+        head: [50, 50],
+        tail: [450, 450],
+      },
+    ];
+  },
+});
