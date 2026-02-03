@@ -58,7 +58,49 @@ const createStory = ({
 
 export const Empty = createStory({});
 
-export const Example1 = createStory({
+export const LineItems = createStory({
+  recipe: (draft) => {
+    draft.items = [
+      {
+        kind: "line",
+        color: "#ffffcc",
+        width: 5,
+        head: [-50, 150],
+        tail: [400, 550],
+      },
+      {
+        kind: "line",
+        color: "#ffff66",
+        width: 5,
+        head: [0, 250],
+        tail: [450, 450],
+      },
+      {
+        kind: "line",
+        color: "#ffff00",
+        width: 5,
+        head: [50, 350],
+        tail: [500, 350],
+      },
+      {
+        kind: "line",
+        color: "#999900",
+        width: 5,
+        head: [100, 450],
+        tail: [550, 250],
+      },
+      {
+        kind: "line",
+        color: "#333300",
+        width: 5,
+        head: [150, 550],
+        tail: [600, 150],
+      },
+    ];
+  },
+});
+
+export const ViewOffset = createStory({
   recipe: (draft) => {
     draft.view.offset = [-100, -100];
     draft.items = [
