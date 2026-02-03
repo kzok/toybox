@@ -3,7 +3,7 @@ import type { EditorState } from "./types";
 
 /** initial state */
 export const INITIAL_EDITOR_STATE: EditorState = {
-  view: { canvas: { width: 0, height: 0 }, offset: [0, 0] },
+  view: { size: { width: 0, height: 0 }, offset: [0, 0] },
   items: [],
 };
 

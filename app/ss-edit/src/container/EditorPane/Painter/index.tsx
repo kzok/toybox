@@ -39,14 +39,9 @@ export const Painter = React.memo(() => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={view.canvas.width}
-      height={view.canvas.height}
-      viewBox={[
-        view.offset[0].toString(),
-        view.offset[1].toString(),
-        view.canvas.width,
-        view.canvas.height,
-      ].join(" ")}
+      width={view.size.width}
+      height={view.size.height}
+      viewBox={`${view.offset[0]} ${view.offset[1]} ${view.size.width} ${view.size.height}`}
     >
       <title>canvas view</title>
       {...children}

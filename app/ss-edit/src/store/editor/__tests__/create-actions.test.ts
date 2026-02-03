@@ -13,8 +13,8 @@ describe(createActions, () => {
       actions.updateCanvasSize(100, 200);
       expect(store.get(editorAtoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.view.canvas.width = 100;
-          draft.view.canvas.height = 200;
+          draft.view.size.width = 100;
+          draft.view.size.height = 200;
         }),
       );
     });

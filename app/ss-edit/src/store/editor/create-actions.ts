@@ -30,8 +30,8 @@ export const createActions = (store: Store) => {
      */
     updateCanvasSize: (width: number, height: number): void => {
       updateAtom(editorAtoms.state, (draft) => {
-        draft.view.canvas.width = width;
-        draft.view.canvas.height = height;
+        draft.view.size.width = width;
+        draft.view.size.height = height;
       });
     },
     /**
