@@ -8,7 +8,6 @@ import { Point2D } from "../../../utils/geometry";
 export const renderCanvas = (canvas: HTMLCanvasElement, state: EditorState): void => {
   const ctx = canvas.getContext("2d")!;
   ctx.reset();
-  renderBackground(ctx, canvas.width, canvas.height);
   ctx.translate(
     ...Point2D.new(...state.view.offset)
       .invert()
@@ -17,34 +16,6 @@ export const renderCanvas = (canvas: HTMLCanvasElement, state: EditorState): voi
   for (let i = state.items.length - 1; i >= 0; i -= 1) {
     const item = state.items[i]!;
     renderLine(ctx, item);
-  }
-};
-
-const BACKGROUND = {
-  /** background cell size px */
-  SIZE: 10,
-  /** background cell color */
-  COLOR: "#ccc",
-} as const;
-
-/**
- * @param ctx
- * @param width
- * @param height
- */
-const renderBackground = (ctx: CanvasRenderingContext2D, width: number, height: number): void => {
-  ctx.fillStyle = BACKGROUND.COLOR;
-  ctx.lineWidth = 0;
-  for (let x = 0; x <= Math.floor(width / BACKGROUND.SIZE); x += 1) {
-    for (let y = 0; y <= Math.floor(height / BACKGROUND.SIZE); y += 1) {
-      if ((x + y) % 2 === 0) {
-        continue;
-      }
-      const startX = x * BACKGROUND.SIZE;
-      const startY = y * BACKGROUND.SIZE;
-      ctx.beginPath();
-      ctx.fillRect(startX, startY, BACKGROUND.SIZE, BACKGROUND.SIZE);
-    }
   }
 };
 
