@@ -44,6 +44,7 @@ class PointerEventHandler {
    * @param e
    */
   readonly onPointerMove = (e: PointerEvent): void => {
+    e.preventDefault();
     if (e.buttons <= 0) {
       return; // no button pressed.
     }
@@ -51,7 +52,8 @@ class PointerEventHandler {
     this.updateStatus({ mode: "scroll" });
     this.actions.scroll(e.movementX, e.movementY);
   };
-  readonly onPointerUp = (): void => {
+  readonly onPointerUp = (e: PointerEvent): void => {
+    e.preventDefault();
     this.updateStatus(TRACKING_STATUS_NONE);
   };
 }
