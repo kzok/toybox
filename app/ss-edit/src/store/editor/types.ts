@@ -20,8 +20,8 @@ export namespace EditorState {
 
   /** editor view */
   export type View = Readonly<{
-    /** actual <canvas/> size px */
-    canvas: Readonly<{ width: number; height: number }>;
+    /** actual <svg/> size px */
+    size: Readonly<{ width: number; height: number }>;
     /** current view offset */
     offset: Coordinate2D;
   }>;

@@ -3,16 +3,20 @@ import type { EditorState } from "./types";
 
 /** initial state */
 export const INITIAL_EDITOR_STATE: EditorState = {
-  view: { canvas: { width: 0, height: 0 }, offset: [0, 0] },
+  view: { size: { width: 0, height: 0 }, offset: [0, 0] },
   items: [],
 };
 
 /** atoms for editor state-machine */
 export const editorAtoms = (() => {
-  /**
-   * (primitive) entire editor state.
-   */
+  /** (primitive) entire editor state. */
   const state = atom(INITIAL_EDITOR_STATE);
 
-  return { state } as const;
+  return {
+    state,
+    /** state.view */
+    view: atom((get) => get(state).view),
+    /** state.items */
+    items: atom((get) => get(state).items),
+  } as const;
 })();
