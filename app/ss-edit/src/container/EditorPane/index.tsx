@@ -15,7 +15,7 @@ const ConnectedPainter = React.memo(() => {
 /**
  * a canvas pane of the application.
  */
-export const CanvasPane = React.memo((props: { className?: string | undefined }) => {
+export const EditorPane = React.memo((props: { className?: string | undefined }) => {
   const elementRef = React.useRef<HTMLDivElement>(null);
   useResizeObserver(elementRef);
   usePointerEvents(elementRef);

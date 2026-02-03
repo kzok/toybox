@@ -3,10 +3,10 @@ import { type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../store/AppProvider";
 import { type EditorState, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
-import { CanvasPane } from "./index";
+import { EditorPane } from "./index";
 
 const meta: Meta = {
-  component: CanvasPane,
+  component: EditorPane,
   parameters: {
     layout: "fullscreen",
   },
@@ -39,7 +39,7 @@ const createStory = ({
           justifyItems: "stretch",
         }}
       >
-        <CanvasPane />
+        <EditorPane />
       </div>
     );
   };
