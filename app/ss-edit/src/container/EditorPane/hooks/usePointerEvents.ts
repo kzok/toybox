@@ -1,7 +1,7 @@
 import React from "react";
 import { type EditorActions, useEditorActions } from "../../../store/editor";
 
-type TrackingStatus = { mode: "none" } | { mode: "scroll" };
+type TrackingStatus = Readonly<{ mode: "none" } | { mode: "scroll" }>;
 
 const TRACKING_STATUS_NONE: TrackingStatus = { mode: "none" };
 const DATA_ATTR_POINTER_MODE = "data-pointer-mode";
@@ -44,16 +44,22 @@ class PointerEventHandler {
    * @param e
    */
   readonly onPointerMove = (e: PointerEvent): void => {
-    e.preventDefault();
-    if (e.buttons <= 0) {
-      return; // no button pressed.
+    if (e.buttons === 1) {
+      // main (left) button
+      e.preventDefault();
+      e.stopPropagation();
+      this.element.setPointerCapture(e.pointerId);
+      this.updateStatus({ mode: "scroll" });
+      this.actions.scroll(e.movementX, e.movementY);
+      return;
     }
-    this.element.setPointerCapture(e.pointerId);
-    this.updateStatus({ mode: "scroll" });
-    this.actions.scroll(e.movementX, e.movementY);
   };
+  /**
+   * @param e
+   */
   readonly onPointerUp = (e: PointerEvent): void => {
     e.preventDefault();
+    e.stopPropagation();
     this.updateStatus(TRACKING_STATUS_NONE);
   };
 }
