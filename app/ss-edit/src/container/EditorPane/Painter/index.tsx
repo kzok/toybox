@@ -23,9 +23,7 @@ const renderItem = (item: EditorState.Item): React.ReactNode => {
   }
 };
 
-/** actual <svg/> element to render the application state. */
-export const Painter = React.memo(() => {
-  const view = useAtomValue(editorAtoms.view);
+const PaintedItems = React.memo(() => {
   const items = useAtomValue(editorAtoms.items);
 
   const children = React.useMemo(() => {
@@ -36,10 +34,18 @@ export const Painter = React.memo(() => {
     return result;
   }, [items]);
 
+  return children;
+});
+
+/** actual <svg/> element to render the application state. */
+export const Painter = React.memo(() => {
+  const view = useAtomValue(editorAtoms.view);
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={view.size.width} height={view.size.height}>
       <title>canvas view</title>
-      <g transform={`translate(${-view.offset[0]} ${-view.offset[1]})`}>{...children}</g>
+      <g transform={`translate(${-view.offset[0]} ${-view.offset[1]})`}>
+        <PaintedItems />
+      </g>
     </svg>
   );
 });
