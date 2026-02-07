@@ -7,6 +7,22 @@ const TRACKING_STATUS_NONE: TrackingStatus = { mode: "none" };
 const DATA_ATTR_POINTER_MODE = "data-pointer-mode";
 
 /**
+ * @param e
+ * @return `true` means it supposed to be trackpad.
+ */
+const isTrackpad = (e: WheelEvent): boolean => {
+  const isPixelMode = e.deltaMode === WheelEvent.DOM_DELTA_PIXEL;
+  const deltaY = Math.abs(e.deltaY);
+  if (isPixelMode && deltaY < 50) {
+    return true;
+  } else if (!isPixelMode || deltaY % 100 === 0 || deltaY % 120 === 0) {
+    return false;
+  } else {
+    return deltaY < 50; // fallback
+  }
+};
+
+/**
  * pointer event handlers via DOM API
  * @note
  * Considering possible performance degration due to event frequency,
@@ -68,6 +84,9 @@ class PointerEventHandler {
    * @param e
    */
   readonly onWheel = (e: WheelEvent): void => {
+    if (isTrackpad(e) && !e.ctrlKey) {
+      return; // ignore trackpad scroll.
+    }
     e.preventDefault();
     e.stopPropagation();
     this.actions.zoom((scale) => {
