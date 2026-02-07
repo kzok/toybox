@@ -1,8 +1,7 @@
 import { type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
-import { Point2D } from "../../utils/geometry";
+import { Point2D, type Tuple2D } from "../../utils/geometry";
 import { editorAtoms } from "./atoms";
-import type { Coordinate2D } from "./types";
 
 type Store = Pick<ReturnType<typeof createStore>, "get" | "set">;
 
@@ -54,7 +53,7 @@ export const createActions = (store: Store) => {
      * zoom in canvas
      * @param next next scale
      */
-    zoom: (cursor: Coordinate2D, next: number | ((_: number) => number)): void => {
+    zoom: (cursor: Tuple2D, next: number | ((_: number) => number)): void => {
       updateAtom(editorAtoms.state, (draft) => {
         // next scale
         let scale = typeof next === "number" ? next : next(draft.view.scale);

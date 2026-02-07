@@ -1,32 +1,28 @@
-/**
- * a 2D coordinate expressing (x, y) or (width, height)
- */
-export type Coordinate2D = readonly [number, number];
+import type { Tuple2D } from "../../utils/geometry";
 
 export namespace EditorState {
-  export namespace Item {
-    /** drawing line */
-    export type Line = Readonly<{
-      kind: "line";
-      head: Coordinate2D;
-      tail: Coordinate2D;
-      color: string;
-      width: number;
-    }>;
-  }
-
-  /** editor item */
-  export type Item = Item.Line;
-
   /** editor view */
   export type View = Readonly<{
     /** actual <svg/> size px */
     size: Readonly<{ width: number; height: number }>;
     /** current view offset */
-    offset: Coordinate2D;
+    offset: Tuple2D;
     /** scale */
     scale: number;
   }>;
+
+  /** editor item */
+  export type Item = Item.Line;
+  export namespace Item {
+    /** drawing line */
+    export type Line = Readonly<{
+      kind: "line";
+      head: Tuple2D;
+      tail: Tuple2D;
+      color: string;
+      width: number;
+    }>;
+  }
 }
 
 /** entire editor state */
