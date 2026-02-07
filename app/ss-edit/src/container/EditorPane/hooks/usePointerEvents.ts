@@ -24,12 +24,14 @@ class PointerEventHandler {
   ) {
     this.element.addEventListener("pointermove", this.onPointerMove);
     this.element.addEventListener("pointerup", this.onPointerUp);
+    this.element.addEventListener("wheel", this.onWheel);
     this.updateStatus(this.status);
   }
   /** remove event listeners */
   cleanup(): void {
     this.element.removeEventListener("pointermove", this.onPointerMove);
     this.element.removeEventListener("pointerup", this.onPointerUp);
+    this.element.removeEventListener("wheel", this.onWheel);
   }
   /**
    * @param status next tracking status
@@ -61,6 +63,20 @@ class PointerEventHandler {
     e.preventDefault();
     e.stopPropagation();
     this.updateStatus(TRACKING_STATUS_NONE);
+  };
+  /**
+   * @param e
+   */
+  readonly onWheel = (e: WheelEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.actions.zoom((scale) => {
+      scale = 1.3 ** (e.deltaY * -0.01) * scale;
+      if (0.9 < scale && scale < 1.1) {
+        return 1; // snap to 100%
+      }
+      return scale;
+    });
   };
 }
 
