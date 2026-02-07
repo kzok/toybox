@@ -100,16 +100,45 @@ export const LineItems = createStory({
   },
 });
 
-export const ViewOffset = createStory({
+export const OffsetAndScale = createStory({
   recipe: (draft) => {
-    draft.view.offset = [-100, -100];
+    draft.view.scale = 2;
+    draft.view.offset = [1200, 1300];
     draft.items = [
+      {
+        kind: "line",
+        color: "#ffffcc",
+        width: 5,
+        head: [950, 1150],
+        tail: [1400, 1550],
+      },
+      {
+        kind: "line",
+        color: "#ffff66",
+        width: 5,
+        head: [1000, 1250],
+        tail: [1450, 1450],
+      },
       {
         kind: "line",
         color: "#ffff00",
         width: 5,
-        head: [50, 50],
-        tail: [450, 450],
+        head: [1150, 1350],
+        tail: [1500, 1350],
+      },
+      {
+        kind: "line",
+        color: "#999900",
+        width: 5,
+        head: [1100, 1450],
+        tail: [1550, 1250],
+      },
+      {
+        kind: "line",
+        color: "#333300",
+        width: 5,
+        head: [1150, 1550],
+        tail: [1600, 1150],
       },
     ];
   },

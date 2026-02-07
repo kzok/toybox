@@ -24,6 +24,8 @@ export namespace EditorState {
     size: Readonly<{ width: number; height: number }>;
     /** current view offset */
     offset: Coordinate2D;
+    /** scale */
+    scale: number;
   }>;
 }
 

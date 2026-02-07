@@ -1,10 +1,26 @@
 import React from "react";
 import { type EditorActions, useEditorActions } from "../../../store/editor";
 
-type TrackingStatus = { mode: "none" } | { mode: "scroll" };
+type TrackingStatus = Readonly<{ mode: "none" } | { mode: "scroll" }>;
 
 const TRACKING_STATUS_NONE: TrackingStatus = { mode: "none" };
 const DATA_ATTR_POINTER_MODE = "data-pointer-mode";
+
+/**
+ * @param e
+ * @return `true` means it supposed to be trackpad.
+ */
+const isTrackpad = (e: WheelEvent): boolean => {
+  const isPixelMode = e.deltaMode === WheelEvent.DOM_DELTA_PIXEL;
+  const deltaY = Math.abs(e.deltaY);
+  if (isPixelMode && deltaY < 50) {
+    return true;
+  } else if (!isPixelMode || deltaY % 100 === 0 || deltaY % 120 === 0) {
+    return false;
+  } else {
+    return deltaY < 50; // fallback
+  }
+};
 
 /**
  * pointer event handlers via DOM API
@@ -24,12 +40,14 @@ class PointerEventHandler {
   ) {
     this.element.addEventListener("pointermove", this.onPointerMove);
     this.element.addEventListener("pointerup", this.onPointerUp);
+    this.element.addEventListener("wheel", this.onWheel);
     this.updateStatus(this.status);
   }
   /** remove event listeners */
   cleanup(): void {
     this.element.removeEventListener("pointermove", this.onPointerMove);
     this.element.removeEventListener("pointerup", this.onPointerUp);
+    this.element.removeEventListener("wheel", this.onWheel);
   }
   /**
    * @param status next tracking status
@@ -44,17 +62,41 @@ class PointerEventHandler {
    * @param e
    */
   readonly onPointerMove = (e: PointerEvent): void => {
-    e.preventDefault();
-    if (e.buttons <= 0) {
-      return; // no button pressed.
+    if (e.buttons === 1) {
+      // main (left) button
+      e.preventDefault();
+      e.stopPropagation();
+      this.element.setPointerCapture(e.pointerId);
+      this.updateStatus({ mode: "scroll" });
+      this.actions.scroll(e.movementX, e.movementY);
+      return;
     }
-    this.element.setPointerCapture(e.pointerId);
-    this.updateStatus({ mode: "scroll" });
-    this.actions.scroll(e.movementX, e.movementY);
   };
+  /**
+   * @param e
+   */
   readonly onPointerUp = (e: PointerEvent): void => {
     e.preventDefault();
+    e.stopPropagation();
     this.updateStatus(TRACKING_STATUS_NONE);
+  };
+  /**
+   * @param e
+   */
+  readonly onWheel = (e: WheelEvent): void => {
+    if (isTrackpad(e) && !e.ctrlKey) {
+      return; // ignore trackpad scroll.
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    const cursor = [e.offsetX, e.offsetY] as const;
+    this.actions.zoom(cursor, (scale) => {
+      scale = 1.3 ** (e.deltaY * -0.01) * scale;
+      if (0.9 < scale && scale < 1.1) {
+        return 1; // snap to 100%
+      }
+      return scale;
+    });
   };
 }
 
