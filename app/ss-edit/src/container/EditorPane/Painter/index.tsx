@@ -1,6 +1,7 @@
 import { useAtomValue } from "jotai";
 import React from "react";
 import { type EditorState, editorAtoms } from "../../../store/editor";
+import { LineItem } from "../../../ui/EditorItem";
 
 /**
  * @param item
@@ -9,17 +10,7 @@ import { type EditorState, editorAtoms } from "../../../store/editor";
 const renderItem = (item: EditorState.Item): React.ReactNode => {
   switch (item.kind) {
     case "line":
-      return (
-        <line
-          x1={item.head[0]}
-          y1={item.head[1]}
-          x2={item.tail[0]}
-          y2={item.tail[1]}
-          stroke={item.color}
-          strokeWidth={item.width}
-          strokeLinecap="round"
-        />
-      );
+      return <LineItem item={item} />;
   }
 };
 
