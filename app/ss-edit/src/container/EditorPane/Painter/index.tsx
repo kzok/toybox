@@ -44,7 +44,7 @@ export const Painter = React.memo(() => {
     <svg xmlns="http://www.w3.org/2000/svg" width={view.size.width} height={view.size.height}>
       <title>canvas view</title>
       <g
-        transform={`translate(${-view.offset[0]} ${-view.offset[1]}) scale(${view.scale.toFixed(2)})`}
+        transform={`scale(${view.scale.toFixed(2)}) translate(${(-view.offset[0]).toFixed(2)} ${(-view.offset[1]).toFixed(2)})`}
       >
         <PaintedItems />
       </g>
