@@ -4,23 +4,7 @@ import { type EditorActions, useEditorActions } from "../../../store/editor";
 type TrackingStatus = Readonly<{ mode: "none" } | { mode: "scroll" }>;
 
 const TRACKING_STATUS_NONE: TrackingStatus = { mode: "none" };
-const DATA_ATTR_POINTER_MODE = "data-pointer-mode";
-
-/**
- * @param e
- * @return `true` means it supposed to be trackpad.
- */
-const isTrackpad = (e: WheelEvent): boolean => {
-  const isPixelMode = e.deltaMode === WheelEvent.DOM_DELTA_PIXEL;
-  const deltaY = Math.abs(e.deltaY);
-  if (isPixelMode && deltaY < 50) {
-    return true;
-  } else if (!isPixelMode || deltaY % 100 === 0 || deltaY % 120 === 0) {
-    return false;
-  } else {
-    return deltaY < 50; // fallback
-  }
-};
+const DATA_ATTR_POINTER_MODE = "data-cursor";
 
 /**
  * pointer event handlers via DOM API
@@ -61,6 +45,25 @@ class PointerEventHandler {
   /**
    * @param e
    */
+  handleWheelScroll(e: WheelEvent): void {
+    this.actions.scroll(-e.deltaX, -e.deltaY);
+  }
+  /**
+   * @param e
+   */
+  handleWheelZoom(e: WheelEvent): void {
+    const cursor = [e.offsetX, e.offsetY] as const;
+    this.actions.zoom(cursor, (scale) => {
+      scale = 1.3 ** (e.deltaY * -0.01) * scale;
+      if (0.9 < scale && scale < 1.1) {
+        return 1; // snap to 100%
+      }
+      return scale;
+    });
+  }
+  /**
+   * @param e
+   */
   readonly onPointerMove = (e: PointerEvent): void => {
     if (e.buttons === 1) {
       // main (left) button
@@ -84,19 +87,13 @@ class PointerEventHandler {
    * @param e
    */
   readonly onWheel = (e: WheelEvent): void => {
-    if (isTrackpad(e) && !e.ctrlKey) {
-      return; // ignore trackpad scroll.
-    }
     e.preventDefault();
     e.stopPropagation();
-    const cursor = [e.offsetX, e.offsetY] as const;
-    this.actions.zoom(cursor, (scale) => {
-      scale = 1.3 ** (e.deltaY * -0.01) * scale;
-      if (0.9 < scale && scale < 1.1) {
-        return 1; // snap to 100%
-      }
-      return scale;
-    });
+    if (e.ctrlKey) {
+      this.handleWheelZoom(e);
+    } else {
+      this.handleWheelScroll(e);
+    }
   };
 }
 
