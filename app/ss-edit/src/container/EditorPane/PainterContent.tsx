@@ -39,6 +39,8 @@ const ConnectedItem = React.memo<{
   const actions = useEditorActions();
   const onClick = React.useCallback(
     (e: React.MouseEvent): void => {
+      e.preventDefault();
+      e.stopPropagation();
       actions.selectItem(props.item.id, e.ctrlKey || e.shiftKey);
     },
     [props.item],

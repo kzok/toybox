@@ -94,5 +94,13 @@ export const createActions = (store: Store) => {
         draft.mode = { kind: "select", selectedIds };
       });
     },
+    /**
+     * clear mode state
+     */
+    clearMode: (): void => {
+      updateAtom(editorAtoms.state, (draft) => {
+        draft.mode = { kind: "select", selectedIds: [] };
+      });
+    },
   } as const;
 };

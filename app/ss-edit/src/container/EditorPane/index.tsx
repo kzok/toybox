@@ -4,6 +4,7 @@ import React from "react";
 import { editorAtoms } from "../../store/editor";
 import { usePointerEvents } from "./hooks/usePointerEvents";
 import { useResizeObserver } from "./hooks/useResizeObserver";
+import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
 import { ModeContent } from "./ModeContent";
 import { PainterContent } from "./PainterContent";
@@ -12,10 +13,16 @@ import { PainterContent } from "./PainterContent";
 export const EditorPane = React.memo((props: { className?: string | undefined }) => {
   const elementRef = React.useRef<HTMLDivElement>(null);
   useResizeObserver(elementRef);
-  usePointerEvents(elementRef);
+  useWheelEvent(elementRef);
+  const { isDragging, ...otherPointerEventHandlers } = usePointerEvents();
 
   return (
-    <div ref={elementRef} className={clsx(styles.container, props.className)}>
+    <div
+      ref={elementRef}
+      className={clsx(styles.container, props.className)}
+      data-cursor={isDragging ? "scroll" : "none"}
+      {...otherPointerEventHandlers}
+    >
       <Painter />
       <ModeOverlay />
     </div>
