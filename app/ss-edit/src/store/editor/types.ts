@@ -1,5 +1,14 @@
 import type { Tuple2D } from "../../utils/geometry";
 
+/** entire editor state */
+export type EditorState = Readonly<{
+  /** current editor action mode */
+  mode: EditorState.Mode;
+  /** state about view in <canvas/> */
+  view: EditorState.View;
+  /** state about paintable items */
+  items: readonly EditorState.Item[];
+}>;
 export namespace EditorState {
   /** editor view */
   export type View = Readonly<{
@@ -24,12 +33,15 @@ export namespace EditorState {
       width: number;
     }>;
   }
-}
 
-/** entire editor state */
-export type EditorState = Readonly<{
-  /** state about view in <canvas/> */
-  view: EditorState.View;
-  /** state about paintable items */
-  items: readonly EditorState.Item[];
-}>;
+  /** editor mode */
+  export type Mode = Mode.Select;
+  export namespace Mode {
+    /** selection mode */
+    export type Select = Readonly<{
+      kind: "select";
+      /** selected item Ids */
+      selectedIds: readonly string[];
+    }>;
+  }
+}

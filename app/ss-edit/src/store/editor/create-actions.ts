@@ -68,5 +68,31 @@ export const createActions = (store: Store) => {
         draft.view.offset = offset;
       });
     },
+    /**
+     * @param id
+     * @param multi
+     */
+    selectItem: (id: string, multi: boolean = false): void => {
+      updateAtom(editorAtoms.state, (draft) => {
+        let selectedIds: string[] = [];
+        if (multi) {
+          // multi selection
+          if (draft.mode.kind === "select") {
+            selectedIds = draft.mode.selectedIds;
+          }
+          if (selectedIds.includes(id)) {
+            // remove it if already included.
+            selectedIds = selectedIds.filter((el) => el !== id);
+          } else {
+            // add it otherwise.
+            selectedIds.push(id);
+          }
+        } else {
+          // single selection
+          selectedIds = [id];
+        }
+        draft.mode = { kind: "select", selectedIds };
+      });
+    },
   } as const;
 };
