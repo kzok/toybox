@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { type Draft, produce } from "immer";
+import { castDraft, type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
+import { expect, userEvent, waitFor } from "storybook/test";
 import { AppProvider } from "../../store/AppProvider";
 import { type EditorState, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
+import { Point2D, type Tuple2D } from "../../utils/geometry";
 import { randomId } from "../../utils/misc";
 import { EditorPane } from "./index";
 
@@ -15,12 +17,55 @@ const meta: Meta = {
 
 export default meta;
 
+/**
+ * @param offset
+ * @returns example line items
+ */
+const lineItems = (offset: Tuple2D = [0, 0]): EditorState.Item.Line[] => {
+  const base = [
+    {
+      color: "#ffffcc",
+      head: [-50, 150],
+      tail: [400, 550],
+    },
+    {
+      color: "#ffff66",
+      head: [0, 250],
+      tail: [450, 450],
+    },
+    {
+      color: "#ffff00",
+      head: [50, 350],
+      tail: [500, 350],
+    },
+    {
+      color: "#999900",
+      head: [100, 450],
+      tail: [550, 250],
+    },
+    {
+      color: "#333300",
+      head: [150, 550],
+      tail: [600, 150],
+    },
+  ] as const;
+  return base
+    .map((item): EditorState.Item.Line => ({ ...item, kind: "line", id: randomId(), width: 5 }))
+    .map((item) => {
+      const head = Point2D.new(item.head).add(offset).tuple();
+      const tail = Point2D.new(item.tail).add(offset).tuple();
+      return { ...item, head, tail };
+    });
+};
+
 const createStory = ({
   storyName,
   recipe,
+  play,
 }: Readonly<{
   storyName?: string;
   recipe?: (draft: Draft<EditorState>) => void;
+  play?: StoryObj<typeof meta>["play"];
 }>): StoryObj<typeof meta> => {
   let state: EditorState = INITIAL_EDITOR_STATE;
   if (recipe) {
@@ -54,6 +99,9 @@ const createStory = ({
   if (storyName) {
     result.storyName = storyName;
   }
+  if (play) {
+    result.play = play;
+  }
   return result;
 };
 
@@ -61,48 +109,7 @@ export const Empty = createStory({});
 
 export const LineItems = createStory({
   recipe: (draft) => {
-    draft.items = [
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#ffffcc",
-        width: 5,
-        head: [-50, 150],
-        tail: [400, 550],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#ffff66",
-        width: 5,
-        head: [0, 250],
-        tail: [450, 450],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#ffff00",
-        width: 5,
-        head: [50, 350],
-        tail: [500, 350],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#999900",
-        width: 5,
-        head: [100, 450],
-        tail: [550, 250],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#333300",
-        width: 5,
-        head: [150, 550],
-        tail: [600, 150],
-      },
-    ];
+    draft.items = castDraft(lineItems());
   },
 });
 
@@ -110,47 +117,19 @@ export const OffsetAndScale = createStory({
   recipe: (draft) => {
     draft.view.scale = 2;
     draft.view.offset = [1200, 1300];
-    draft.items = [
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#ffffcc",
-        width: 5,
-        head: [950, 1150],
-        tail: [1400, 1550],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#ffff66",
-        width: 5,
-        head: [1000, 1250],
-        tail: [1450, 1450],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#ffff00",
-        width: 5,
-        head: [1150, 1350],
-        tail: [1500, 1350],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#999900",
-        width: 5,
-        head: [1100, 1450],
-        tail: [1550, 1250],
-      },
-      {
-        kind: "line",
-        id: randomId(),
-        color: "#333300",
-        width: 5,
-        head: [1150, 1550],
-        tail: [1600, 1150],
-      },
-    ];
+    draft.items = castDraft(lineItems([1000, 1000]));
+  },
+});
+
+export const SelectMode = createStory({
+  recipe: (draft) => {
+    draft.items = castDraft(lineItems());
+  },
+  play: async ({ canvasElement }) => {
+    const firstLine = canvasElement.querySelector("line")!;
+    userEvent.click(firstLine);
+    await waitFor(() => {
+      expect(firstLine.closest("g")).toHaveAttribute("aria-selected", "true");
+    });
   },
 });
