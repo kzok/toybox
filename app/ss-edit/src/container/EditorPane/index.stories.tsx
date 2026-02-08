@@ -3,6 +3,7 @@ import { type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../store/AppProvider";
 import { type EditorState, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
+import { randomId } from "../../utils/misc";
 import { EditorPane } from "./index";
 
 const meta: Meta = {
@@ -63,6 +64,7 @@ export const LineItems = createStory({
     draft.items = [
       {
         kind: "line",
+        id: randomId(),
         color: "#ffffcc",
         width: 5,
         head: [-50, 150],
@@ -70,6 +72,7 @@ export const LineItems = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#ffff66",
         width: 5,
         head: [0, 250],
@@ -77,6 +80,7 @@ export const LineItems = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#ffff00",
         width: 5,
         head: [50, 350],
@@ -84,6 +88,7 @@ export const LineItems = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#999900",
         width: 5,
         head: [100, 450],
@@ -91,6 +96,7 @@ export const LineItems = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#333300",
         width: 5,
         head: [150, 550],
@@ -107,6 +113,7 @@ export const OffsetAndScale = createStory({
     draft.items = [
       {
         kind: "line",
+        id: randomId(),
         color: "#ffffcc",
         width: 5,
         head: [950, 1150],
@@ -114,6 +121,7 @@ export const OffsetAndScale = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#ffff66",
         width: 5,
         head: [1000, 1250],
@@ -121,6 +129,7 @@ export const OffsetAndScale = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#ffff00",
         width: 5,
         head: [1150, 1350],
@@ -128,6 +137,7 @@ export const OffsetAndScale = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#999900",
         width: 5,
         head: [1100, 1450],
@@ -135,6 +145,7 @@ export const OffsetAndScale = createStory({
       },
       {
         kind: "line",
+        id: randomId(),
         color: "#333300",
         width: 5,
         head: [1150, 1550],

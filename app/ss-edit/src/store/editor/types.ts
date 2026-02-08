@@ -17,6 +17,7 @@ export namespace EditorState {
     /** drawing line */
     export type Line = Readonly<{
       kind: "line";
+      id: string;
       head: Tuple2D;
       tail: Tuple2D;
       color: string;
