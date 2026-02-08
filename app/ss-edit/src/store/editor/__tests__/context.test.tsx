@@ -14,7 +14,7 @@ describe(useEditorActions, () => {
     });
   });
 
-  describe("without Provider", () => {
+  describe("with Provider", () => {
     it("doesnt throw an error.", () => {
       const renderTarget = () =>
         renderHook(() => useEditorActions(), {

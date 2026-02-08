@@ -1,4 +1,6 @@
-type PointerArg = readonly [number, number] | Readonly<Record<"x" | "y", number>>;
+import type { Tuple2D } from "./types";
+
+type PointerArg = Tuple2D | Readonly<Record<"x" | "y", number>>;
 
 /**
  * @param arg non-asserted parameter

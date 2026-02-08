@@ -1,8 +1,7 @@
 import { type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
-import { Point2D } from "../../utils/geometry";
+import { Point2D, type Tuple2D } from "../../utils/geometry";
 import { editorAtoms } from "./atoms";
-import type { Coordinate2D } from "./types";
 
 type Store = Pick<ReturnType<typeof createStore>, "get" | "set">;
 
@@ -54,7 +53,7 @@ export const createActions = (store: Store) => {
      * zoom in canvas
      * @param next next scale
      */
-    zoom: (cursor: Coordinate2D, next: number | ((_: number) => number)): void => {
+    zoom: (cursor: Tuple2D, next: number | ((_: number) => number)): void => {
       updateAtom(editorAtoms.state, (draft) => {
         // next scale
         let scale = typeof next === "number" ? next : next(draft.view.scale);
@@ -67,6 +66,40 @@ export const createActions = (store: Store) => {
         const offset = Point2D.new(draft.view.offset).scale(scaleDelta, scaleOrigin).tuple();
         draft.view.scale = scale;
         draft.view.offset = offset;
+      });
+    },
+    /**
+     * @param id
+     * @param multi
+     */
+    selectItem: (id: string, multi: boolean = false): void => {
+      updateAtom(editorAtoms.state, (draft) => {
+        let selectedIds: string[] = [];
+        if (multi) {
+          // multi selection
+          if (draft.mode.kind === "select") {
+            selectedIds = draft.mode.selectedIds;
+          }
+          if (selectedIds.includes(id)) {
+            // remove it if already included.
+            selectedIds = selectedIds.filter((el) => el !== id);
+          } else {
+            // add it otherwise.
+            selectedIds.push(id);
+          }
+        } else {
+          // single selection
+          selectedIds = [id];
+        }
+        draft.mode = { kind: "select", selectedIds };
+      });
+    },
+    /**
+     * clear mode state
+     */
+    clearMode: (): void => {
+      updateAtom(editorAtoms.state, (draft) => {
+        draft.mode = { kind: "select", selectedIds: [] };
       });
     },
   } as const;
