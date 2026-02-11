@@ -17,6 +17,10 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "a11y": {
+        // enable interaction with SVG elements
+        "noStaticElementInteractions": "off"
+      },
       "style": {
         "useNodejsImportProtocol": "error",
         // allow non-null assertion
