@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import React from "react";
 import { editorAtoms } from "../../store/editor";
-import { usePointerEvents } from "./hooks/usePointerEvents";
+import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
@@ -19,7 +19,7 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
     <div
       ref={elementRef}
       className={clsx(styles.container, props.className)}
-      {...usePointerEvents()}
+      {...usePointerActions()}
     >
       <Painter />
       <ModeOverlay />

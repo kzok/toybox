@@ -1,29 +1,16 @@
 import React from "react";
+import { usePointerEvents } from "../../../hooks/usePointerEvents";
 import { useEditorActions } from "../../../store/editor";
 
-type Result = {
-  onClick: React.MouseEventHandler<HTMLElement>;
-  onPointerMove: React.PointerEventHandler<HTMLElement>;
-  onPointerUp: React.PointerEventHandler<HTMLElement>;
-};
-
 /**
- * register pointer event handlers
+ * @returns React event handlers
  */
-export const usePointerEvents = (): Result => {
+export const usePointerActions = () => {
   const actions = useEditorActions();
 
   return {
-    onClick: React.useCallback(
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        actions.clearMode();
-      },
-      [actions],
-    ),
-    onPointerMove: React.useCallback(
-      (e) => {
+    ...usePointerEvents({
+      onPointerMove: (e) => {
         if (e.buttons === 1) {
           // main (left) button
           e.preventDefault();
@@ -34,9 +21,13 @@ export const usePointerEvents = (): Result => {
           return;
         }
       },
-      [actions],
-    ),
-    onPointerUp: React.useCallback(
+      onClick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        actions.clearMode();
+      },
+    }),
+    onPointerUp: React.useCallback<React.PointerEventHandler>(
       (e) => {
         e.preventDefault();
         e.stopPropagation();
