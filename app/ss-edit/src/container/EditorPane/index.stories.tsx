@@ -129,7 +129,7 @@ export const SelectMode = createStory({
     const firstLine = canvasElement.querySelector("line")!;
     userEvent.click(firstLine);
     await waitFor(() => {
-      expect(firstLine.closest("g")).toHaveAttribute("aria-selected", "true");
+      expect(firstLine.closest("g")).toHaveAttribute("data-selected", "true");
     });
   },
 });
