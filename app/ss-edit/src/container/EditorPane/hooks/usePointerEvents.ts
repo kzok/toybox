@@ -2,7 +2,6 @@ import React from "react";
 import { useEditorActions } from "../../../store/editor";
 
 type Result = {
-  isDragging: boolean;
   onClick: React.MouseEventHandler<HTMLElement>;
   onPointerMove: React.PointerEventHandler<HTMLElement>;
   onPointerUp: React.PointerEventHandler<HTMLElement>;
@@ -13,10 +12,8 @@ type Result = {
  */
 export const usePointerEvents = (): Result => {
   const actions = useEditorActions();
-  const [isDragging, setIsDragging] = React.useState(false);
 
   return {
-    isDragging,
     onClick: React.useCallback(
       (e) => {
         e.preventDefault();
@@ -32,20 +29,20 @@ export const usePointerEvents = (): Result => {
           e.preventDefault();
           e.stopPropagation();
           e.currentTarget.setPointerCapture(e.pointerId);
-          setIsDragging(true);
+          e.currentTarget.setAttribute("data-scrolling", "");
           actions.scroll(e.movementX, e.movementY);
           return;
         }
       },
-      [actions, setIsDragging],
+      [actions],
     ),
     onPointerUp: React.useCallback(
       (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsDragging(false);
+        e.currentTarget.removeAttribute("data-scrolling");
       },
-      [actions, setIsDragging],
+      [actions],
     ),
   };
 };

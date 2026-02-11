@@ -16,11 +16,9 @@
   background-size: calc(var(--bg-size) * 2) calc(var(--bg-size) * 2);
   background-color: #fff;
 
-  &[data-cursor="none"] {
-    cursor: grab;
-  }
+  cursor: grab;
 
-  &[data-cursor="scroll"] {
+  &[data-scrolling] {
     cursor: grabbing;
   }
 }
