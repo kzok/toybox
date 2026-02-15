@@ -1,4 +1,5 @@
 import React from "react";
+import { Point2D } from "../utils/geometry";
 
 type Params<E> = {
   preventDefault?: boolean;
@@ -29,8 +30,10 @@ export const usePointerEvents = <E extends Element = HTMLElement>(params: Params
   paramsRef.current = params;
 
   return React.useMemo(() => {
-    /** if pointermove fired between pointerdown and click. */
-    let moved = false;
+    /** [x,y] position of last "pointerdown" */
+    let downP: Point2D | null = null;
+    /** [x,y] position of last "pointermove" */
+    let moveP: Point2D | null = null;
 
     return {
       onPointerDown: (e) => {
@@ -38,7 +41,8 @@ export const usePointerEvents = <E extends Element = HTMLElement>(params: Params
           e.preventDefault();
           e.stopPropagation();
         }
-        moved = false;
+        downP = Point2D.new(e.clientX, e.clientY);
+        moveP = null;
         paramsRef.current.onPointerDown?.(e);
       },
       onPointerMove: (e) => {
@@ -46,7 +50,7 @@ export const usePointerEvents = <E extends Element = HTMLElement>(params: Params
           e.preventDefault();
           e.stopPropagation();
         }
-        moved = true;
+        moveP = Point2D.new(e.clientX, e.clientY);
         paramsRef.current.onPointerMove?.(e);
       },
       onClick: (e) => {
@@ -54,7 +58,11 @@ export const usePointerEvents = <E extends Element = HTMLElement>(params: Params
           e.preventDefault();
           e.stopPropagation();
         }
-        if (moved) return; // dragged. ignore click.
+        if (downP && moveP) {
+          if (downP.distance(moveP) > 2) {
+            return; // dragged. ignore click.
+          }
+        }
         paramsRef.current.onClick?.(e);
       },
     };

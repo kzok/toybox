@@ -60,4 +60,12 @@ export class Point2D {
   tuple(): [number, number] {
     return [this.x, this.y];
   }
+  /**
+   * @param another another point
+   * @returns distance (px)
+   */
+  distance(another: PointerArg): number {
+    const anotherP = alignArg(another);
+    return Math.sqrt((this.x - anotherP[0]) ** 2 + (this.y - anotherP[1]) ** 2);
+  }
 }

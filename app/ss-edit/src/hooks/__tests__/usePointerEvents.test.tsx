@@ -33,8 +33,8 @@ describe(usePointerEvents, () => {
 
         const target = await screen.findByRole("button");
         await userEvent.pointer([
-          { target, keys: "[MouseLeft>]" },
-          { target, coords: { offsetX: 10, offsetY: 10 } },
+          { target, keys: "[MouseLeft>]", coords: { clientX: 0, clientY: 0 } },
+          { target, coords: { clientX: 100, clientY: 100 } },
           { target, keys: "[/MouseLeft]" },
         ]);
         expect(onPointerDown).toHaveBeenCalled();
