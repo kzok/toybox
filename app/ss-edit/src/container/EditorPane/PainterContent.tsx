@@ -2,7 +2,6 @@ import { useAtomValue } from "jotai";
 import React from "react";
 import { type EditorState, editorAtoms, useEditorActions } from "../../store/editor";
 import { LineItem } from "../../ui/EditorItem";
-import styles from "./PainterContent.module.css";
 
 /** svg elements for painter content */
 export const PainterContent = React.memo(() => {
@@ -45,17 +44,8 @@ const ConnectedItem = React.memo<{
     },
     [props.item],
   );
-  const gProps = React.useMemo(
-    (): React.SVGProps<SVGGElement> => ({
-      className: styles.item,
-      onClick,
-      "aria-selected": props.selected,
-    }),
-    [props.selected, onClick],
-  );
-
   switch (props.item.kind) {
     case "line":
-      return <LineItem item={props.item} gProps={gProps} />;
+      return <LineItem item={props.item} selected={props.selected} onClick={onClick} />;
   }
 });

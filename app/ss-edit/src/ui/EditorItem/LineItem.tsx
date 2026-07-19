@@ -1,12 +1,13 @@
 import type React from "react";
 import type { EditorState } from "../../store/editor";
+import styles from "./LineItem.module.css";
 
 /** svg elements for Line item. */
 export const LineItem: React.FC<{
   item: EditorState.Item.Line;
-  gProps?: React.SVGProps<SVGGElement>;
+  selected?: boolean | undefined;
+  onClick?: React.SVGAttributes<SVGGElement>["onClick"];
 }> = (props) => {
-  const children: React.ReactNode[] = [];
   const baseLineProps: React.ComponentProps<"line"> = {
     x1: props.item.head[0],
     y1: props.item.head[1],
@@ -14,8 +15,9 @@ export const LineItem: React.FC<{
     y2: props.item.tail[1],
     strokeLinecap: "round",
   };
-  children.push(
-    <line {...baseLineProps} stroke={props.item.color} strokeWidth={props.item.width} />,
+  return (
+    <g className={styles.group} data-selected={props.selected} onClick={props.onClick}>
+      <line {...baseLineProps} stroke={props.item.color} strokeWidth={props.item.width} />
+    </g>
   );
-  return <g {...props.gProps}>{...children}</g>;
 };

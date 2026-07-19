@@ -1,7 +1,7 @@
-.item {
+.group {
   cursor: pointer;
 
-  &[aria-selected] {
+  &[data-selected] {
     filter: drop-shadow(0 0 2px #006dea);
   }
 }

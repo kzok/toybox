@@ -47,4 +47,10 @@ describe("Point2D", () => {
       expect(Point2D.new(10, 20).invert().tuple()).toStrictEqual([-10, -20]);
     });
   });
+
+  describe("distance()", () => {
+    it("inverts the point.", () => {
+      expect(Point2D.new(10, 10).distance([40, 50])).toBe(50);
+    });
+  });
 });

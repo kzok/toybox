@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import React from "react";
 import { editorAtoms } from "../../store/editor";
-import { usePointerEvents } from "./hooks/usePointerEvents";
+import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
@@ -14,14 +14,12 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
   const elementRef = React.useRef<HTMLDivElement>(null);
   useResizeObserver(elementRef);
   useWheelEvent(elementRef);
-  const { isDragging, ...otherPointerEventHandlers } = usePointerEvents();
 
   return (
     <div
       ref={elementRef}
       className={clsx(styles.container, props.className)}
-      data-cursor={isDragging ? "scroll" : "none"}
-      {...otherPointerEventHandlers}
+      {...usePointerActions()}
     >
       <Painter />
       <ModeOverlay />
