@@ -1,7 +1,7 @@
 import { type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
 import { Point2D, type Tuple2D } from "../../utils/geometry";
-import { editorAtoms } from "./atoms";
+import type { Atoms } from "./atoms";
 
 type Store = Pick<ReturnType<typeof createStore>, "get" | "set">;
 
@@ -12,7 +12,7 @@ const ZOOM_MAX = 2.0;
  * @param store
  * @returns actions
  */
-export const createActions = (store: Store) => {
+export const createActions = (store: Store, atoms: Atoms) => {
   /**
    * @param atom
    * @param recipe
@@ -33,7 +33,7 @@ export const createActions = (store: Store) => {
      * @param height canvas height
      */
     updateCanvasSize: (width: number, height: number): void => {
-      updateAtom(editorAtoms.state, (draft) => {
+      updateAtom(atoms.state, (draft) => {
         draft.view.size.width = width;
         draft.view.size.height = height;
       });
@@ -44,7 +44,7 @@ export const createActions = (store: Store) => {
      * @param deltaY movement Y in canvas
      */
     scroll: (deltaX: number, deltaY: number): void => {
-      updateAtom(editorAtoms.state, (draft) => {
+      updateAtom(atoms.state, (draft) => {
         draft.view.offset[0] -= deltaX / draft.view.scale;
         draft.view.offset[1] -= deltaY / draft.view.scale;
       });
@@ -54,7 +54,7 @@ export const createActions = (store: Store) => {
      * @param next next scale
      */
     zoom: (cursor: Tuple2D, next: number | ((_: number) => number)): void => {
-      updateAtom(editorAtoms.state, (draft) => {
+      updateAtom(atoms.state, (draft) => {
         // next scale
         let scale = typeof next === "number" ? next : next(draft.view.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);
@@ -73,7 +73,7 @@ export const createActions = (store: Store) => {
      * @param multi
      */
     selectItem: (id: string, multi: boolean = false): void => {
-      updateAtom(editorAtoms.state, (draft) => {
+      updateAtom(atoms.state, (draft) => {
         let selectedIds: string[] = [];
         if (multi) {
           // multi selection
@@ -98,9 +98,11 @@ export const createActions = (store: Store) => {
      * clear mode state
      */
     clearMode: (): void => {
-      updateAtom(editorAtoms.state, (draft) => {
+      updateAtom(atoms.state, (draft) => {
         draft.mode = { kind: "select", selectedIds: [] };
       });
     },
   } as const;
 };
+
+export type Actions = ReturnType<typeof createActions>;

@@ -1,7 +1,6 @@
 import clsx from "clsx";
-import { useAtomValue } from "jotai";
 import React from "react";
-import { editorAtoms } from "../../store/editor";
+import { selectors } from "../../store/editor";
 import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
@@ -28,7 +27,7 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
 });
 
 const Painter = React.memo(() => {
-  const view = useAtomValue(editorAtoms.view);
+  const view = selectors.useEditorView();
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={view.size.width} height={view.size.height}>
       <title>canvas view</title>
@@ -40,7 +39,7 @@ const Painter = React.memo(() => {
 });
 
 const ModeOverlay = React.memo(() => {
-  const view = useAtomValue(editorAtoms.view);
+  const view = selectors.useEditorView();
 
   return (
     <svg
@@ -59,7 +58,7 @@ const ModeOverlay = React.memo(() => {
 
 /** <g/> element to set view box */
 const ViewBoxG = (props: React.PropsWithChildren) => {
-  const { scale, offset } = useAtomValue(editorAtoms.view);
+  const { scale, offset } = selectors.useEditorView();
   const transform = React.useMemo(() => {
     return [
       `scale(${scale.toFixed(2)})`,

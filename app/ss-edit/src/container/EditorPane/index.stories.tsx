@@ -3,7 +3,7 @@ import { castDraft, type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { expect, userEvent, waitFor } from "storybook/test";
 import { AppProvider } from "../../store/AppProvider";
-import { type EditorState, editorAtoms, INITIAL_EDITOR_STATE } from "../../store/editor";
+import { type EditorState, INITIAL_EDITOR_STATE, useEditorAtoms } from "../../store/editor";
 import { Point2D, type Tuple2D } from "../../utils/geometry";
 import { randomId } from "../../utils/misc";
 import { EditorPane } from "./index";
@@ -74,7 +74,8 @@ const createStory = ({
     });
   }
   const Wrapper: React.FC = () => {
-    useHydrateAtoms([[editorAtoms.state, state]]);
+    const atoms = useEditorAtoms();
+    useHydrateAtoms([[atoms.state, state]]);
     return (
       <div
         style={{

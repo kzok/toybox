@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Point2D } from "../point-2d";
+import { Point2D } from "../point2d";
 
 describe("Point2D", () => {
   describe("new()", () => {

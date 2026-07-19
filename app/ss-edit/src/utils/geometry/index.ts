@@ -1,2 +1,2 @@
-export * from "./point-2d";
+export * from "./point2d";
 export * from "./types";

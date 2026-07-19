@@ -1,6 +1,6 @@
 import { Provider as JotaiProvider } from "jotai";
 import React, { StrictMode } from "react";
-import { EditorActionsProvider } from "./editor/context";
+import { EditorProvider } from "./editor/context";
 
 /** React component having only `children` in `props`. */
 type Wrapper = React.FC<{ children: React.ReactNode }>;
@@ -20,4 +20,4 @@ const concat = (...wrappers: Wrapper[]): Wrapper => {
   };
 };
 
-export const AppProvider = concat(StrictMode, JotaiProvider, EditorActionsProvider);
+export const AppProvider = concat(StrictMode, JotaiProvider, EditorProvider);
