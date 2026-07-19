@@ -1,12 +1,11 @@
-import { useAtomValue } from "jotai";
 import React from "react";
-import { type EditorState, editorAtoms, useEditorActions } from "../../store/editor";
+import { type EditorState, selectors, useEditorActions } from "../../store/editor";
 import { LineItem } from "../../ui/EditorItem";
 
 /** svg elements for painter content */
 export const PainterContent = React.memo(() => {
-  const items = useAtomValue(editorAtoms.items);
-  const mode = useAtomValue(editorAtoms.mode);
+  const items = selectors.useEditorItems();
+  const mode = selectors.useEditorMode();
   const children = React.useMemo(() => {
     if (mode.kind === "select") {
       const nonSelectedChlidren: React.ReactNode[] = [];

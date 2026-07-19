@@ -8,8 +8,10 @@ export const INITIAL_EDITOR_STATE: EditorState = {
   items: [],
 };
 
-/** atoms for editor state-machine */
-export const editorAtoms = (() => {
+/**
+ * @returns atoms for editor state-machine
+ */
+export const createAtoms = () => {
   /** (primitive) entire editor state. */
   const state = atom(INITIAL_EDITOR_STATE);
 
@@ -22,4 +24,6 @@ export const editorAtoms = (() => {
     /** state.items */
     items: atom((get) => get(state).items),
   } as const;
-})();
+};
+
+export type Atoms = ReturnType<typeof createAtoms>;

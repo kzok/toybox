@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { Provider } from "jotai";
 import { describe, expect, it } from "vitest";
-import { EditorActionsProvider, useEditorActions } from "../context";
+import { EditorProvider, useEditorActions } from "../context";
 
 describe(useEditorActions, () => {
   describe("without Provider", () => {
@@ -20,7 +20,7 @@ describe(useEditorActions, () => {
         renderHook(() => useEditorActions(), {
           wrapper: ({ children }) => (
             <Provider>
-              <EditorActionsProvider>{children}</EditorActionsProvider>
+              <EditorProvider>{children}</EditorProvider>
             </Provider>
           ),
         });
