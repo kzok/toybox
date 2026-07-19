@@ -28,8 +28,8 @@ check: node_modules
 	npm run type-check
 	npm run test -- --changed --run
 
-.PHONY: dev/ss-edit ## start dev server of ss-edit
-dev/ss-edit: node_modules
+.PHONY: dev-ss-edit ## start dev server of ss-edit
+dev-ss-edit: node_modules
 	npm run -w app/ss-edit dev
 
 .PHONY: build ## build static files for GitHub pages
