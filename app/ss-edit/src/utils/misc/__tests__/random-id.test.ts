@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { randomId } from "../random-id";
+import { randomId } from "../randomId";
 
 describe(randomId, () => {
   it("generates an unique ID.", () => {
