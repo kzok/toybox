@@ -14,6 +14,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@fluentui/react-components": "9.74.4",
     "clsx": "2.1.1",
     "immer": "11.1.3",
     "jotai": "2.17.0",
