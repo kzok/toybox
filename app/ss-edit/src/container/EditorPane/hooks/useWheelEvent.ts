@@ -49,13 +49,13 @@ class PointerEventHandler {
    */
   private handleWheelZoom(e: WheelEvent): void {
     const cursor = [e.offsetX, e.offsetY] as const;
-    this.actions.zoom(cursor, (scale) => {
+    this.actions.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {
         return 1; // snap to 100%
       }
       return scale;
-    });
+    }, cursor);
   }
   /**
    * @param e

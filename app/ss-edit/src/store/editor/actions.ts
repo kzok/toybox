@@ -53,7 +53,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
      * zoom in canvas
      * @param next next scale
      */
-    zoom: (cursor: Tuple2D, next: number | ((_: number) => number)): void => {
+    zoom: (next: number | ((_: number) => number), cursor: Tuple2D = [0, 0]): void => {
       updateAtom(atoms.state, (draft) => {
         // next scale
         let scale = typeof next === "number" ? next : next(draft.view.scale);

@@ -27,9 +27,8 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
 });
 
 const Painter = React.memo(() => {
-  const view = selectors.useEditorView();
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={view.size.width} height={view.size.height}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
       <title>canvas view</title>
       <ViewBoxG>
         <PainterContent />

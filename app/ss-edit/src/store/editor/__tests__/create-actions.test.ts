@@ -44,27 +44,27 @@ describe(createActions, () => {
     it("updates view.scale.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.zoom([0, 0], 1.2);
+      actions.zoom(1.2, [0, 0]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.view.scale = 1.2;
         }),
       );
-      actions.zoom([0, 0], (s) => s + 0.1);
+      actions.zoom((s) => s + 0.1, [0, 0]);
       expect(store.get(atoms.view).scale).toBe(1.3);
     });
 
     it("has minimum scale.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.zoom([0, 0], 0);
+      actions.zoom(0, [0, 0]);
       expect(store.get(atoms.view).scale).toBe(0.27);
     });
 
     it("has maximum scale.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.zoom([0, 0], 100);
+      actions.zoom(100, [0, 0]);
       expect(store.get(atoms.view).scale).toBe(2);
     });
   });
