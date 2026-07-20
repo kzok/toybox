@@ -2,6 +2,22 @@ import React from "react";
 import { type EditorActions, useEditorActions } from "../../../store/editor";
 
 /**
+ * register wheel event handler
+ * @param elementRef ref object for an element
+ */
+export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
+  const actions = useEditorActions();
+  React.useLayoutEffect(() => {
+    const element = elementRef.current;
+    if (element == null) {
+      return;
+    }
+    const handler = new PointerEventHandler(element, actions);
+    return () => handler.cleanup();
+  }, []);
+};
+
+/**
  * Wheel event handlers via DOM API
  * @note React onWheel callback didn't work.
  */
@@ -54,19 +70,3 @@ class PointerEventHandler {
     }
   };
 }
-
-/**
- * register wheel event handler
- * @param elementRef ref object for an element
- */
-export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
-  const actions = useEditorActions();
-  React.useLayoutEffect(() => {
-    const element = elementRef.current;
-    if (element == null) {
-      return;
-    }
-    const handler = new PointerEventHandler(element, actions);
-    return () => handler.cleanup();
-  }, []);
-};
