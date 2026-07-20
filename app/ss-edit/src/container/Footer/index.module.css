@@ -1,0 +1,26 @@
+.container {
+  padding: 2px 8px;
+  border-top: 1px solid var(--border-gray-color);
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.separator {
+  display: inline-block;
+  border-left: 1px solid var(--border-gray-color);
+  height: 100%;
+}
+
+.zoom {
+  flex: 0 0 auto;
+}
+
+.offset {
+  flex: 0 0 auto;
+}

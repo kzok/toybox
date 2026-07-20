@@ -19,4 +19,7 @@ body {
 
   min-width: 800px;
   min-height: 600px;
+
+  background: var(--bg-color);
+  color: var(--main-text-color);
 }

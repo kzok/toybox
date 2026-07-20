@@ -1,6 +1,6 @@
 import "@~/ui/style";
 import { createRoot } from "react-dom/client";
-import { UnderConstruction } from "./ui/UnderConstruction";
+import { App } from "./container/App";
 
 window.addEventListener("load", () => {
   const mountDestination = document.getElementById("root");
@@ -9,5 +9,5 @@ window.addEventListener("load", () => {
     return; // do nothing.
   }
   const root = createRoot(mountDestination);
-  root.render(<UnderConstruction />);
+  root.render(<App />);
 });

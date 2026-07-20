@@ -1,0 +1,8 @@
+:root {
+  /** background color */
+  --bg-color: #fff;
+  /** border color */
+  --border-gray-color: #d6d6d6;
+  /** main text color */
+  --main-text-color: #242424;
+}
