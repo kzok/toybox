@@ -1,6 +1,6 @@
 import "@~/ui/style";
 import { createRoot } from "react-dom/client";
-import { App } from "./container/App";
+import { App } from "./app";
 
 window.addEventListener("load", () => {
   const mountDestination = document.getElementById("root");

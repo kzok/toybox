@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { castDraft, type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { expect, userEvent, waitFor } from "storybook/test";
-import { AppProvider } from "../../store/AppProvider";
+import { AppProvider } from "../../app/AppProvider";
 import { type EditorState, INITIAL_EDITOR_STATE, useEditorAtoms } from "../../store/editor";
 import { Point2D, type Tuple2D } from "../../utils/geometry";
 import { randomId } from "../../utils/misc";

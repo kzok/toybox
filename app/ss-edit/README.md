@@ -4,9 +4,10 @@ An image editor specialized for editing screenshots.
 
 ## Folder structure
 
+- `src/app/`
+  - The application root component. Entry point of the application.
 - `src/container/`
   - React components wired to application state managements.
-  - Virtually entry point of the application.
 - `src/ui/`
   - Presentational components shared across this app.
 - `src/store/`
