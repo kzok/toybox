@@ -1,6 +1,6 @@
 import { type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
-import { Point2D, type Tuple2D } from "../../utils/geometry";
+import { Point2D, type Tuple2D } from "../utils/geometry";
 import type { Atoms } from "./atoms";
 
 type Store = Pick<ReturnType<typeof createStore>, "get" | "set">;

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { selectors } from "../../store/editor";
+import { selectors } from "../../store";
 import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";

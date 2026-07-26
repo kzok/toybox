@@ -1,6 +1,6 @@
 import React from "react";
 import { usePointerEvents } from "../../../hooks/usePointerEvents";
-import { useEditorActions } from "../../../store/editor";
+import { useEditorActions } from "../../../store";
 
 /**
  * @returns React event handlers

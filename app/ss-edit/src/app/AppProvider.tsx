@@ -2,7 +2,7 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { Provider as JotaiProvider } from "jotai";
 import type React from "react";
 import { StrictMode } from "react";
-import { EditorProvider } from "../store/editor/context";
+import { StoreProvider } from "../store/context";
 
 export const AppProvider: React.FC<{
   className?: string | undefined;
@@ -11,7 +11,7 @@ export const AppProvider: React.FC<{
   <StrictMode>
     <FluentProvider className={className} theme={webLightTheme}>
       <JotaiProvider>
-        <EditorProvider>{children}</EditorProvider>
+        <StoreProvider>{children}</StoreProvider>
       </JotaiProvider>
     </FluentProvider>
   </StrictMode>
