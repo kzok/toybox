@@ -1,5 +1,5 @@
 import React from "react";
-import { type EditorActions, useEditorActions } from "../../../store/editor";
+import { type EditorActions, useEditorActions } from "../../../store";
 
 /**
  * register wheel event handler

@@ -1,8 +1,8 @@
 import { atom } from "jotai";
-import type { EditorState } from "./types";
+import type { PageState } from "./types";
 
 /** initial state */
-export const INITIAL_EDITOR_STATE: EditorState = {
+export const INITIAL_EDITOR_STATE: PageState = {
   mode: { kind: "select", selectedIds: [] },
   view: { size: { width: 0, height: 0 }, offset: [0, 0], scale: 1 },
   items: [],

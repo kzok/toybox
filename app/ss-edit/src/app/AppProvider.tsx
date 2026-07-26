@@ -1,0 +1,18 @@
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { Provider as JotaiProvider } from "jotai";
+import type React from "react";
+import { StrictMode } from "react";
+import { StoreProvider } from "../store/context";
+
+export const AppProvider: React.FC<{
+  className?: string | undefined;
+  children: React.ReactNode;
+}> = ({ className, children }) => (
+  <StrictMode>
+    <FluentProvider className={className} theme={webLightTheme}>
+      <JotaiProvider>
+        <StoreProvider>{children}</StoreProvider>
+      </JotaiProvider>
+    </FluentProvider>
+  </StrictMode>
+);

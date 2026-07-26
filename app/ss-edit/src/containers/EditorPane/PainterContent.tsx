@@ -1,5 +1,5 @@
 import React from "react";
-import { type EditorState, selectors, useEditorActions } from "../../store/editor";
+import { type PageState, selectors, useEditorActions } from "../../store";
 import { LineItem } from "../../ui/EditorItem";
 
 /** svg elements for painter content */
@@ -31,7 +31,7 @@ export const PainterContent = React.memo(() => {
 });
 
 const ConnectedItem = React.memo<{
-  item: EditorState.Item;
+  item: PageState.Item;
   selected?: boolean | undefined;
 }>((props) => {
   const actions = useEditorActions();

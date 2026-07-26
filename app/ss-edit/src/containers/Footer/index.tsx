@@ -10,7 +10,7 @@ import {
 import { ZoomIn16Regular } from "@fluentui/react-icons";
 import clsx from "clsx";
 import React from "react";
-import { selectors, useEditorActions } from "../../store/editor";
+import { selectors, useEditorActions } from "../../store";
 import styles from "./index.module.css";
 
 /** a footer of main view */

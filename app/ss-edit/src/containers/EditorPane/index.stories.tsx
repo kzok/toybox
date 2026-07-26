@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { castDraft, type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { expect, userEvent, waitFor } from "storybook/test";
-import { AppProvider } from "../../store/AppProvider";
-import { type EditorState, INITIAL_EDITOR_STATE, useEditorAtoms } from "../../store/editor";
+import { AppProvider } from "../../app/AppProvider";
+import { INITIAL_EDITOR_STATE, type PageState, useEditorAtoms } from "../../store";
 import { Point2D, type Tuple2D } from "../../utils/geometry";
 import { randomId } from "../../utils/misc";
 import { EditorPane } from "./index";
@@ -21,7 +21,7 @@ export default meta;
  * @param offset
  * @returns example line items
  */
-const lineItems = (offset: Tuple2D = [0, 0]): EditorState.Item.Line[] => {
+const lineItems = (offset: Tuple2D = [0, 0]): PageState.Item.Line[] => {
   const base = [
     {
       color: "#ffffcc",
@@ -50,7 +50,7 @@ const lineItems = (offset: Tuple2D = [0, 0]): EditorState.Item.Line[] => {
     },
   ] as const;
   return base
-    .map((item): EditorState.Item.Line => ({ ...item, kind: "line", id: randomId(), width: 5 }))
+    .map((item): PageState.Item.Line => ({ ...item, kind: "line", id: randomId(), width: 5 }))
     .map((item) => {
       const head = Point2D.new(item.head).add(offset).tuple();
       const tail = Point2D.new(item.tail).add(offset).tuple();
@@ -64,10 +64,10 @@ const createStory = ({
   play,
 }: Readonly<{
   storyName?: string;
-  recipe?: (draft: Draft<EditorState>) => void;
+  recipe?: (draft: Draft<PageState>) => void;
   play?: StoryObj<typeof meta>["play"];
 }>): StoryObj<typeof meta> => {
-  let state: EditorState = INITIAL_EDITOR_STATE;
+  let state: PageState = INITIAL_EDITOR_STATE;
   if (recipe) {
     state = produce(state, (draft) => {
       recipe(draft);

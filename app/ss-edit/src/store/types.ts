@@ -1,15 +1,15 @@
-import type { Tuple2D } from "../../utils/geometry";
+import type { Tuple2D } from "../utils/geometry";
 
-/** entire editor state */
-export type EditorState = Readonly<{
+/** entire page state */
+export type PageState = Readonly<{
   /** current editor action mode */
-  mode: EditorState.Mode;
+  mode: PageState.Mode;
   /** state about view in <canvas/> */
-  view: EditorState.View;
+  view: PageState.View;
   /** state about paintable items */
-  items: readonly EditorState.Item[];
+  items: readonly PageState.Item[];
 }>;
-export namespace EditorState {
+export namespace PageState {
   /** editor view */
   export type View = Readonly<{
     /** actual <svg/> size px */

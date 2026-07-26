@@ -1,5 +1,5 @@
 import React from "react";
-import { selectors } from "../../store/editor";
+import { selectors } from "../../store";
 
 /** svg elements for mode action */
 export const ModeContent = React.memo(() => {

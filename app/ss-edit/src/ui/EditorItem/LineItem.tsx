@@ -1,10 +1,10 @@
 import type React from "react";
-import type { EditorState } from "../../store/editor";
+import type { PageState } from "../../store";
 import styles from "./LineItem.module.css";
 
 /** svg elements for Line item. */
 export const LineItem: React.FC<{
-  item: EditorState.Item.Line;
+  item: PageState.Item.Line;
   selected?: boolean | undefined;
   onClick?: React.SVGAttributes<SVGGElement>["onClick"];
 }> = (props) => {

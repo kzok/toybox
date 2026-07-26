@@ -10,7 +10,7 @@ type ContextValue = Readonly<{ atoms: Atoms; actions: Actions }>;
 
 const context = React.createContext<ContextValue | null>(null);
 
-export const EditorProvider: React.FC<{ children: React.ReactNode }> = (props) => {
+export const StoreProvider: React.FC<{ children: React.ReactNode }> = (props) => {
   const store = useStore();
   const contextValue = React.useMemo((): ContextValue => {
     const atoms = createAtoms();

@@ -1,5 +1,5 @@
 import React from "react";
-import { useEditorActions } from "../../../store/editor";
+import { useEditorActions } from "../../../store";
 
 /**
  * call specified action when resized.
