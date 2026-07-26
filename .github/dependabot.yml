@@ -9,8 +9,13 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    cooldown:
+      default-days: 14
+      semver-major-days: 30
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
