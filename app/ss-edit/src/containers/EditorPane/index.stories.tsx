@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { castDraft, type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { expect, userEvent, waitFor } from "storybook/test";
