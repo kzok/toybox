@@ -1,6 +1,6 @@
 import React from "react";
+import { LineItem } from "../../components/EditorItem";
 import { type PageState, selectors, useEditorActions } from "../../store";
-import { LineItem } from "../../ui/EditorItem";
 
 /** svg elements for painter content */
 export const PainterContent = React.memo(() => {
