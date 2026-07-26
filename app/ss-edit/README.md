@@ -6,7 +6,7 @@ An image editor specialized for editing screenshots.
 
 - `src/app/`
   - The application root component. Entry point of the application.
-- `src/container/`
+- `src/containers/`
   - React components wired to application state managements.
 - `src/ui/`
   - Presentational components shared across this app.

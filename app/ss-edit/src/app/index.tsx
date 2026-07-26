@@ -1,5 +1,5 @@
-import { EditorPane } from "../container/EditorPane";
-import { Footer } from "../container/Footer";
+import { EditorPane } from "../containers/EditorPane";
+import { Footer } from "../containers/Footer";
 import { AppProvider } from "./AppProvider";
 import styles from "./index.module.css";
 
