@@ -8,7 +8,7 @@ An image editor specialized for editing screenshots.
   - The application root component. Entry point of the application.
 - `src/containers/`
   - React components wired to application state managements.
-- `src/ui/`
+- `src/components/`
   - Presentational components shared across this app.
 - `src/store/`
   - Jotai-based application state management.
