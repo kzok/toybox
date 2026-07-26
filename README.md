@@ -2,20 +2,25 @@
 
 My personal frontend playground.
 
-## :palm_tree: structure
+## Workspace structure
 
 This repo adopts monorepo structure.
 Sub-packages are located in the following folders.
 
 - `app/`
-  - applications hosted with GitHub pages.
+  - Applications hosted on GitHub Pages, built with Vite.
 - `lib/`
-  - shared modules for applications or other shared modules.
+  - Shared modules used only by applications or other modules.
 
-## :computer: development
+## Workspace conventions
 
-`Makefile` is used as a task runner.
+- Packages are named `@~/<name>` (e.g. `@~/ui`) and are `private`.
+- Root `tsconfig.json` and `biome.jsonc` generally apply across all workspaces.
+- Vitest test files live in `__tests__/*.test.*.ts{,x}`.
+- Component-scoped styles use CSS Modules, colocated as `<name>.module.css` next to the component and imported as `styles`.
+- Global styles are defined in `@~/ui`.
 
-```bash
-make
-```
+## How to develop
+
+`Makefile` is used as a task runner on top of npm scripts.
+Please run `make` with no args to show help message.
