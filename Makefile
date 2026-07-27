@@ -36,4 +36,3 @@ dev-ss-edit: node_modules
 build: node_modules
 	rm -fr ./dist && mkdir -p ./dist
 	npm run -w app/ss-edit build
-	mv ./app/ss-edit/dist ./dist/ss-edit
