@@ -21,18 +21,8 @@ export namespace PageState {
   }>;
 
   /** editor item */
-  export type Item = Item.Line;
-  export namespace Item {
-    /** drawing line */
-    export type Line = Readonly<{
-      kind: "line";
-      id: string;
-      head: Tuple2D;
-      tail: Tuple2D;
-      color: string;
-      width: number;
-    }>;
-  }
+  export type Item = never;
+  export namespace Item {}
 
   /** editor mode */
   export type Mode = Mode.Select;
