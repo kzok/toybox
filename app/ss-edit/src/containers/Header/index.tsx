@@ -1,0 +1,49 @@
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+} from "@fluentui/react-components";
+import clsx from "clsx";
+import React from "react";
+import { pickImageFile } from "../../utils/misc";
+import styles from "./index.module.css";
+
+/** a header of main view */
+export const Header = React.memo<{
+  className?: string | undefined;
+}>((props) => (
+  <div className={clsx(props.className, styles.container)}>
+    <FileMenu />
+  </div>
+));
+
+const FileMenu = React.memo(() => {
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <MenuButton className={styles.fileMenu} appearance="transparent" size="small">
+          Edit
+        </MenuButton>
+      </MenuTrigger>
+
+      <MenuPopover>
+        <MenuList>
+          <MenuItem
+            onClick={async () => {
+              const picked = await pickImageFile();
+              if (picked == null) {
+                return; // cancelled.
+              }
+              // TODO: implement this action.
+            }}
+          >
+            Add image
+          </MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+});
