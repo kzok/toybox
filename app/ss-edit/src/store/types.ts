@@ -10,11 +10,11 @@ export type PageState = Readonly<{
 export namespace PageState {
   /** editor pane view */
   export type View = Readonly<{
-    /** actual editor pane size px */
-    paneSize: Readonly<{ width: number; height: number }>;
-    /** current view offset */
-    offset: Tuple2D;
-    /** scale */
+    /** actual editor pane size px in [width, height] */
+    paneSize: Tuple2D;
+    /** offset (from center point, NOT top-left) */
+    centerOffset: Tuple2D;
+    /** scale multiplier */
     scale: number;
   }>;
 

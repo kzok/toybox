@@ -30,8 +30,8 @@ const Painter = React.memo(() => {
     <canvas
       ref={canvasRef}
       className={styles.canvas}
-      width={view.paneSize.width}
-      height={view.paneSize.height}
+      width={view.paneSize[0]}
+      height={view.paneSize[1]}
     />
   );
 });

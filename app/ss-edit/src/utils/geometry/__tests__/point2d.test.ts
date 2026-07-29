@@ -28,6 +28,17 @@ describe("Point2D", () => {
     });
   });
 
+  describe("subtract()", () => {
+    it("subtracts the point.", () => {
+      const p1 = Point2D.new(100, 200);
+      const p2 = p1.subtract([100, 0]);
+      const p3 = p2.subtract(Point2D.new([0, 200]));
+      expect(p1.tuple()).toStrictEqual([100, 200]);
+      expect(p2.tuple()).toStrictEqual([0, 200]);
+      expect(p3.tuple()).toStrictEqual([0, 0]);
+    });
+  });
+
   describe("scale()", () => {
     it("scales the point.", () => {
       expect(Point2D.new(0, 0).scale(3.0).tuple()).toStrictEqual([0, 0]);

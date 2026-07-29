@@ -1,4 +1,4 @@
-import { type Draft, produce } from "immer";
+import { castDraft, type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
 import { Point2D, type Tuple2D } from "../utils/geometry";
 import type { Atoms } from "./atoms";
@@ -29,13 +29,11 @@ export const createActions = (store: Store, atoms: Atoms) => {
   return {
     /**
      * update editor pane size
-     * @param width
-     * @param height
+     * @param paneSize [width, height]
      */
-    updatePaneSize: (width: number, height: number): void => {
+    updatePaneSize: (paneSize: Tuple2D): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.paneSize.width = width;
-        draft.editorView.paneSize.height = height;
+        draft.editorView.paneSize = castDraft(paneSize);
       });
     },
     /**
@@ -45,27 +43,33 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     scroll: (deltaX: number, deltaY: number): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.offset[0] -= deltaX / draft.editorView.scale;
-        draft.editorView.offset[1] -= deltaY / draft.editorView.scale;
+        draft.editorView.centerOffset[0] -= deltaX / draft.editorView.scale;
+        draft.editorView.centerOffset[1] -= deltaY / draft.editorView.scale;
       });
     },
     /**
      * zoom in canvas
      * @param next next scale
+     * @param cursor cursor offset from centerOffset
      */
-    zoom: (next: number | ((_: number) => number), cursor: Tuple2D = [0, 0]): void => {
+    zoom: (next: number | ((_: number) => number), cursor?: Tuple2D): void => {
       updateAtom(atoms.state, (draft) => {
+        const halfPaneSize = Point2D.new(draft.editorView.paneSize).scale(0.5).tuple();
+        cursor = cursor ?? halfPaneSize;
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);
         // next offset
         const scaleDelta = draft.editorView.scale / scale;
         const scaleOrigin = Point2D.new(cursor)
+          .subtract(halfPaneSize)
           .scale(1 / draft.editorView.scale)
-          .add(draft.editorView.offset);
-        const offset = Point2D.new(draft.editorView.offset).scale(scaleDelta, scaleOrigin).tuple();
+          .add(draft.editorView.centerOffset);
+        const offset = Point2D.new(draft.editorView.centerOffset)
+          .scale(scaleDelta, scaleOrigin)
+          .tuple();
         draft.editorView.scale = scale;
-        draft.editorView.offset = offset;
+        draft.editorView.centerOffset = offset;
       });
     },
     /**

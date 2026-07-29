@@ -4,7 +4,7 @@ import type { PageState } from "./types";
 /** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
   editorMode: { kind: "select", selectedIds: [] },
-  editorView: { paneSize: { width: 0, height: 0 }, offset: [0, 0], scale: 1 },
+  editorView: { paneSize: [0, 0], centerOffset: [0, 0], scale: 1 },
   editorItems: [],
 };
 
@@ -14,15 +14,18 @@ export const INITIAL_EDITOR_STATE: PageState = {
 export const createAtoms = () => {
   /** (primitive) entire editor state. */
   const state = atom(INITIAL_EDITOR_STATE);
+  /** state.editorMode */
+  const editorMode = atom((get) => get(state).editorMode);
+  /** state.editorView */
+  const editorView = atom((get) => get(state).editorView);
+  /** state.editorItems */
+  const editorItems = atom((get) => get(state).editorItems);
 
   return {
     state,
-    /** state.editorMode */
-    editorMode: atom((get) => get(state).editorMode),
-    /** state.editorView */
-    editorView: atom((get) => get(state).editorView),
-    /** state.editorItems */
-    editorItems: atom((get) => get(state).editorItems),
+    editorMode,
+    editorView,
+    editorItems,
   } as const;
 };
 

@@ -16,11 +16,10 @@ describe(createActions, () => {
     it("updates view.canvas.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.updatePaneSize(100, 200);
+      actions.updatePaneSize([100, 200]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.editorView.paneSize.width = 100;
-          draft.editorView.paneSize.height = 200;
+          draft.editorView.paneSize = [100, 200];
         }),
       );
     });
@@ -33,8 +32,8 @@ describe(createActions, () => {
       actions.scroll(100, 200);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.editorView.offset[0] -= 100;
-          draft.editorView.offset[1] -= 200;
+          draft.editorView.centerOffset[0] -= 100;
+          draft.editorView.centerOffset[1] -= 200;
         }),
       );
     });
