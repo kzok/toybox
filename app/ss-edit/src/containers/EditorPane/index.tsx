@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import { createRenderer } from "../../features/renderer";
 import { selectors } from "../../store";
 import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
@@ -24,8 +25,20 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
 });
 
 const Painter = React.memo(() => {
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const rendererRef = React.useRef<ReturnType<typeof createRenderer>>(null);
+  const canvasRef = React.useCallback<React.RefCallback<HTMLCanvasElement>>((element) => {
+    if (element == null) {
+      rendererRef.current = null;
+      return;
+    }
+    rendererRef.current = createRenderer(element);
+  }, []);
   const view = selectors.useEditorView();
+  const items = selectors.useEditorItems();
+  React.useLayoutEffect(() => {
+    rendererRef.current?.(items, view);
+  }, [view, items]);
+
   return (
     <canvas
       ref={canvasRef}
