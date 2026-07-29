@@ -2,6 +2,7 @@ import { castDraft, type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
 import { Point2D, type Tuple2D } from "../utils/geometry";
 import type { Atoms } from "./atoms";
+import type { PageState } from "./types";
 
 type Store = Pick<ReturnType<typeof createStore>, "get" | "set">;
 
@@ -70,6 +71,23 @@ export const createActions = (store: Store, atoms: Atoms) => {
           .tuple();
         draft.editorView.scale = scale;
         draft.editorView.centerOffset = offset;
+      });
+    },
+    /**
+     * add an image item on center of editor pane.
+     * @param data ImageBitmap
+     */
+    addImageItem: (data: ImageBitmap): void => {
+      const newItem: PageState.Item.Image = {
+        kind: "image",
+        id: crypto.randomUUID(),
+        data,
+        offset: Point2D.new(-data.width / 2, -data.height / 2)
+          .add(store.get(atoms.editorView).centerOffset)
+          .tuple(),
+      };
+      updateAtom(atoms.state, (draft) => {
+        draft.editorItems.push(castDraft(newItem));
       });
     },
     /**

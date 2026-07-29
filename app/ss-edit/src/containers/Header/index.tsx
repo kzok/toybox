@@ -8,6 +8,7 @@ import {
 } from "@fluentui/react-components";
 import clsx from "clsx";
 import React from "react";
+import { useEditorActions } from "../../store/context";
 import { pickImageFile } from "../../utils/misc";
 import styles from "./index.module.css";
 
@@ -21,6 +22,7 @@ export const Header = React.memo<{
 ));
 
 const FileMenu = React.memo(() => {
+  const actions = useEditorActions();
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
@@ -37,7 +39,7 @@ const FileMenu = React.memo(() => {
               if (picked == null) {
                 return; // cancelled.
               }
-              // TODO: implement this action.
+              actions.addImageItem(picked.image);
             }}
           >
             Add image

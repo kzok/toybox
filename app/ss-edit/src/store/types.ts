@@ -19,8 +19,18 @@ export namespace PageState {
   }>;
 
   /** editor item */
-  export type Item = never;
-  export namespace Item {}
+  export type Item = Item.Image;
+  export namespace Item {
+    /** image item */
+    export type Image = Readonly<{
+      kind: "image";
+      id: string;
+      /** image data */
+      data: ImageBitmap;
+      /** top-left offset */
+      offset: Tuple2D;
+    }>;
+  }
 
   /** editor mode */
   export type Mode = Mode.Select;
