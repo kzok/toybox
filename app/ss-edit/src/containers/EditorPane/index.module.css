@@ -13,3 +13,8 @@
     cursor: grabbing;
   }
 }
+
+.canvas {
+  position: absolute;
+  pointer-events: none;
+}

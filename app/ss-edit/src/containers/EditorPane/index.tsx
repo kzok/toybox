@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import { selectors } from "../../store";
 import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
@@ -23,5 +24,14 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
 });
 
 const Painter = React.memo(() => {
-  return null; // TODO: implement with canvas
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const view = selectors.useEditorView();
+  return (
+    <canvas
+      ref={canvasRef}
+      className={styles.canvas}
+      width={view.paneSize.width}
+      height={view.paneSize.height}
+    />
+  );
 });

@@ -2,18 +2,16 @@ import type { Tuple2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
-  /** current editor action mode */
-  mode: PageState.Mode;
-  /** state about view in <canvas/> */
-  view: PageState.View;
-  /** state about paintable items */
-  items: readonly PageState.Item[];
+  editorMode: PageState.Mode;
+  editorView: PageState.View;
+  editorItems: readonly PageState.Item[];
 }>;
+
 export namespace PageState {
-  /** editor view */
+  /** editor pane view */
   export type View = Readonly<{
-    /** actual <svg/> size px */
-    size: Readonly<{ width: number; height: number }>;
+    /** actual editor pane size px */
+    paneSize: Readonly<{ width: number; height: number }>;
     /** current view offset */
     offset: Tuple2D;
     /** scale */

@@ -1,9 +1,9 @@
 import { useAtomValue } from "jotai";
 import { useEditorAtoms } from "./context";
 
-const useEditorMode = () => useAtomValue(useEditorAtoms().mode);
-const useEditorView = () => useAtomValue(useEditorAtoms().view);
-const useEditorItems = () => useAtomValue(useEditorAtoms().items);
+const useEditorMode = () => useAtomValue(useEditorAtoms().editorMode);
+const useEditorView = () => useAtomValue(useEditorAtoms().editorView);
+const useEditorItems = () => useAtomValue(useEditorAtoms().editorItems);
 
 export const selectors = {
   useEditorMode,

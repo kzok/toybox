@@ -28,14 +28,14 @@ export const createActions = (store: Store, atoms: Atoms) => {
 
   return {
     /**
-     * update canvas size
-     * @param width canvas width
-     * @param height canvas height
+     * update editor pane size
+     * @param width
+     * @param height
      */
-    updateCanvasSize: (width: number, height: number): void => {
+    updatePaneSize: (width: number, height: number): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.view.size.width = width;
-        draft.view.size.height = height;
+        draft.editorView.paneSize.width = width;
+        draft.editorView.paneSize.height = height;
       });
     },
     /**
@@ -45,8 +45,8 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     scroll: (deltaX: number, deltaY: number): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.view.offset[0] -= deltaX / draft.view.scale;
-        draft.view.offset[1] -= deltaY / draft.view.scale;
+        draft.editorView.offset[0] -= deltaX / draft.editorView.scale;
+        draft.editorView.offset[1] -= deltaY / draft.editorView.scale;
       });
     },
     /**
@@ -56,16 +56,16 @@ export const createActions = (store: Store, atoms: Atoms) => {
     zoom: (next: number | ((_: number) => number), cursor: Tuple2D = [0, 0]): void => {
       updateAtom(atoms.state, (draft) => {
         // next scale
-        let scale = typeof next === "number" ? next : next(draft.view.scale);
+        let scale = typeof next === "number" ? next : next(draft.editorView.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);
         // next offset
-        const scaleDelta = draft.view.scale / scale;
+        const scaleDelta = draft.editorView.scale / scale;
         const scaleOrigin = Point2D.new(cursor)
-          .scale(1 / draft.view.scale)
-          .add(draft.view.offset);
-        const offset = Point2D.new(draft.view.offset).scale(scaleDelta, scaleOrigin).tuple();
-        draft.view.scale = scale;
-        draft.view.offset = offset;
+          .scale(1 / draft.editorView.scale)
+          .add(draft.editorView.offset);
+        const offset = Point2D.new(draft.editorView.offset).scale(scaleDelta, scaleOrigin).tuple();
+        draft.editorView.scale = scale;
+        draft.editorView.offset = offset;
       });
     },
     /**
@@ -77,8 +77,8 @@ export const createActions = (store: Store, atoms: Atoms) => {
         let selectedIds: string[] = [];
         if (multi) {
           // multi selection
-          if (draft.mode.kind === "select") {
-            selectedIds = draft.mode.selectedIds;
+          if (draft.editorMode.kind === "select") {
+            selectedIds = draft.editorMode.selectedIds;
           }
           if (selectedIds.includes(id)) {
             // remove it if already included.
@@ -91,7 +91,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
           // single selection
           selectedIds = [id];
         }
-        draft.mode = { kind: "select", selectedIds };
+        draft.editorMode = { kind: "select", selectedIds };
       });
     },
     /**
@@ -99,7 +99,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     clearMode: (): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.mode = { kind: "select", selectedIds: [] };
+        draft.editorMode = { kind: "select", selectedIds: [] };
       });
     },
   } as const;
