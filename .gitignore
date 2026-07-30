@@ -144,3 +144,5 @@ storybook-static
 chromatic.log
 chromatic-build-*.xml
 chromatic-diagnostics.json
+
+TODO.md
