@@ -3,8 +3,8 @@ import React from "react";
 import { type Actions, createActions } from "./actions";
 import { type Atoms, createAtoms } from "./atoms";
 
-export type EditorActions = Actions;
-export type EditorAtoms = Atoms;
+export type PageActions = Actions;
+export type PageAtoms = Atoms;
 
 type ContextValue = Readonly<{ atoms: Atoms; actions: Actions }>;
 
@@ -22,14 +22,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = (props) =>
 };
 
 /**
- * @returns editor atoms.
+ * @returns page atoms.
  */
-export const useEditorAtoms = (): Atoms => useContextValue().atoms;
+export const usePageAtoms = (): Atoms => useContextValue().atoms;
 
 /**
- * @returns editor actions.
+ * @returns page actions.
  */
-export const useEditorActions = (): Actions => useContextValue().actions;
+export const usePageActions = (): Actions => useContextValue().actions;
 
 const useContextValue = () => {
   const contextValue = React.useContext(context);

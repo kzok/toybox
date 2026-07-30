@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 import { createRenderer } from "../../features/renderer";
-import { selectors } from "../../store";
+import { pageCtx } from "../../store";
 import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
@@ -33,8 +33,8 @@ const Painter = React.memo(() => {
     }
     rendererRef.current = createRenderer(element);
   }, []);
-  const view = selectors.useEditorView();
-  const items = selectors.useEditorItems();
+  const view = pageCtx.useEditorView();
+  const items = pageCtx.useEditorItems();
   React.useLayoutEffect(() => {
     rendererRef.current?.(items, view);
   }, [view, items]);

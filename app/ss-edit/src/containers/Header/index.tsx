@@ -8,7 +8,7 @@ import {
 } from "@fluentui/react-components";
 import clsx from "clsx";
 import React from "react";
-import { useEditorActions } from "../../store/context";
+import { usePageActions } from "../../store/context";
 import { pickImageFile } from "../../utils/misc";
 import styles from "./index.module.css";
 
@@ -22,7 +22,7 @@ export const Header = React.memo<{
 ));
 
 const FileMenu = React.memo(() => {
-  const actions = useEditorActions();
+  const actions = usePageActions();
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>

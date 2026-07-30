@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { type Draft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
-import { INITIAL_EDITOR_STATE, type PageState, useEditorAtoms } from "../../store";
+import { INITIAL_EDITOR_STATE, type PageState, usePageAtoms } from "../../store";
 import { EditorPane } from "./index";
 
 const meta: Meta = {
@@ -30,7 +30,7 @@ const createStory = ({
     });
   }
   const Wrapper: React.FC = () => {
-    const atoms = useEditorAtoms();
+    const atoms = usePageAtoms();
     useHydrateAtoms([[atoms.state, state]]);
     return (
       <div
