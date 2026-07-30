@@ -2,18 +2,18 @@ import type { Tuple2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
-  editorMode: PageState.Mode;
   editorView: PageState.View;
+  editorMode: PageState.Mode;
   editorItems: readonly PageState.Item[];
 }>;
 
 export namespace PageState {
-  /** editor pane view */
+  /** editor view state */
   export type View = Readonly<{
-    /** actual editor pane size px in [width, height] */
-    paneSize: Tuple2D;
-    /** offset (from center point, NOT top-left) */
-    centerOffset: Tuple2D;
+    /** actual canvas size px in [width, height] */
+    canvasSize: Tuple2D;
+    /** offset */
+    offset: Tuple2D;
     /** scale multiplier */
     scale: number;
   }>;
@@ -32,7 +32,7 @@ export namespace PageState {
     }>;
   }
 
-  /** editor mode */
+  /** editor mode state */
   export type Mode = Mode.Select;
   export namespace Mode {
     /** selection mode */

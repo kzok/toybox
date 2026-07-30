@@ -64,11 +64,11 @@ const formatZoomLevel = (scale: number): string => `${(scale * 100).toFixed()}%`
 const ZOOM_ITEMS: readonly number[] = [2, 1.5, 1, 0.5];
 
 const Offset = React.memo(() => {
-  const { centerOffset } = selectors.useEditorView();
+  const { offset } = selectors.useEditorView();
 
   return (
     <Button className={styles.offset} appearance="subtle" size="small" title="Offset">
-      ({centerOffset[0].toFixed()},{centerOffset[1].toFixed()})
+      ({offset[0].toFixed()},{offset[1].toFixed()})
     </Button>
   );
 });

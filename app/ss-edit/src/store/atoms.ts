@@ -4,7 +4,7 @@ import type { PageState } from "./types";
 /** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
   editorMode: { kind: "select", selectedIds: [] },
-  editorView: { paneSize: [0, 0], centerOffset: [0, 0], scale: 1 },
+  editorView: { canvasSize: [0, 0], offset: [0, 0], scale: 1 },
   editorItems: [],
 };
 

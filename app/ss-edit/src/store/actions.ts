@@ -34,7 +34,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     updatePaneSize: (paneSize: Tuple2D): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.paneSize = castDraft(paneSize);
+        draft.editorView.canvasSize = castDraft(paneSize);
       });
     },
     /**
@@ -44,8 +44,8 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     scroll: (deltaX: number, deltaY: number): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.centerOffset[0] -= deltaX / draft.editorView.scale;
-        draft.editorView.centerOffset[1] -= deltaY / draft.editorView.scale;
+        draft.editorView.offset[0] -= deltaX / draft.editorView.scale;
+        draft.editorView.offset[1] -= deltaY / draft.editorView.scale;
       });
     },
     /**
@@ -55,7 +55,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     zoom: (next: number | ((_: number) => number), cursor?: Tuple2D): void => {
       updateAtom(atoms.state, (draft) => {
-        const halfPaneSize = Point2D.new(draft.editorView.paneSize).scale(0.5).tuple();
+        const halfPaneSize = Point2D.new(draft.editorView.canvasSize).scale(0.5).tuple();
         cursor = cursor ?? halfPaneSize;
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
@@ -65,12 +65,10 @@ export const createActions = (store: Store, atoms: Atoms) => {
         const scaleOrigin = Point2D.new(cursor)
           .subtract(halfPaneSize)
           .scale(1 / draft.editorView.scale)
-          .add(draft.editorView.centerOffset);
-        const offset = Point2D.new(draft.editorView.centerOffset)
-          .scale(scaleDelta, scaleOrigin)
-          .tuple();
+          .add(draft.editorView.offset);
+        const offset = Point2D.new(draft.editorView.offset).scale(scaleDelta, scaleOrigin).tuple();
         draft.editorView.scale = scale;
-        draft.editorView.centerOffset = offset;
+        draft.editorView.offset = offset;
       });
     },
     /**
@@ -83,7 +81,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
         id: crypto.randomUUID(),
         data,
         offset: Point2D.new(-data.width / 2, -data.height / 2)
-          .add(store.get(atoms.editorView).centerOffset)
+          .add(store.get(atoms.editorView).offset)
           .tuple(),
       };
       updateAtom(atoms.state, (draft) => {

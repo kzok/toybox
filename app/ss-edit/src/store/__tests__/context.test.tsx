@@ -10,7 +10,7 @@ describe(useEditorActions, () => {
         renderHook(() => useEditorActions(), {
           wrapper: ({ children }) => <Provider>{children}</Provider>,
         });
-      expect(() => renderTarget()).toThrowError("Please wrap the component with <Provider/>.");
+      expect(() => renderTarget()).toThrow("Please wrap the component with <Provider/>.");
     });
   });
 
@@ -24,7 +24,7 @@ describe(useEditorActions, () => {
             </Provider>
           ),
         });
-      expect(() => renderTarget()).not.toThrowError();
+      expect(() => renderTarget()).not.toThrow();
     });
   });
 });

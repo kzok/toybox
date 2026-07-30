@@ -22,10 +22,10 @@ export const createRenderer = (element: HTMLCanvasElement): Renderer => {
     ctx.reset();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.scale(view.scale, view.scale);
-    const paneOffset = Point2D.new(view.paneSize)
+    const paneOffset = Point2D.new(view.canvasSize)
       .scale(0.5)
       .scale(1 / view.scale);
-    const offset = paneOffset.subtract(view.centerOffset).tuple();
+    const offset = paneOffset.subtract(view.offset).tuple();
     ctx.translate(...offset);
     for (const item of items) {
       switch (item.kind) {

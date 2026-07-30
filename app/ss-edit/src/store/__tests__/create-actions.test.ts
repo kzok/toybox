@@ -19,7 +19,7 @@ describe(createActions, () => {
       actions.updatePaneSize([100, 200]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.editorView.paneSize = [100, 200];
+          draft.editorView.canvasSize = [100, 200];
         }),
       );
     });
@@ -32,8 +32,8 @@ describe(createActions, () => {
       actions.scroll(100, 200);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.editorView.centerOffset[0] -= 100;
-          draft.editorView.centerOffset[1] -= 200;
+          draft.editorView.offset[0] -= 100;
+          draft.editorView.offset[1] -= 200;
         }),
       );
     });
