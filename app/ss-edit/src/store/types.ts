@@ -2,39 +2,37 @@ import type { Tuple2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
-  /** current editor action mode */
-  mode: PageState.Mode;
-  /** state about view in <canvas/> */
-  view: PageState.View;
-  /** state about paintable items */
-  items: readonly PageState.Item[];
+  editorView: PageState.View;
+  editorMode: PageState.Mode;
+  editorItems: readonly PageState.Item[];
 }>;
+
 export namespace PageState {
-  /** editor view */
+  /** editor view state */
   export type View = Readonly<{
-    /** actual <svg/> size px */
-    size: Readonly<{ width: number; height: number }>;
-    /** current view offset */
+    /** actual canvas size px in [width, height] */
+    canvasSize: Tuple2D;
+    /** offset */
     offset: Tuple2D;
-    /** scale */
+    /** scale multiplier */
     scale: number;
   }>;
 
   /** editor item */
-  export type Item = Item.Line;
+  export type Item = Item.Image;
   export namespace Item {
-    /** drawing line */
-    export type Line = Readonly<{
-      kind: "line";
+    /** image item */
+    export type Image = Readonly<{
+      kind: "image";
       id: string;
-      head: Tuple2D;
-      tail: Tuple2D;
-      color: string;
-      width: number;
+      /** image data */
+      data: ImageBitmap;
+      /** top-left offset */
+      offset: Tuple2D;
     }>;
   }
 
-  /** editor mode */
+  /** editor mode state */
   export type Mode = Mode.Select;
   export namespace Mode {
     /** selection mode */

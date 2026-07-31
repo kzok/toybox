@@ -1,12 +1,12 @@
 import React from "react";
-import { type EditorActions, useEditorActions } from "../../../store";
+import { type PageActions, usePageActions } from "../../../store";
 
 /**
  * register wheel event handler
  * @param elementRef ref object for an element
  */
 export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
-  const actions = useEditorActions();
+  const actions = usePageActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -28,7 +28,7 @@ class PointerEventHandler {
    */
   constructor(
     readonly element: HTMLElement,
-    readonly actions: EditorActions,
+    readonly actions: PageActions,
   ) {
     this.element.addEventListener("wheel", this.onWheel);
   }

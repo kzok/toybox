@@ -1,12 +1,11 @@
 import clsx from "clsx";
 import React from "react";
-import { selectors } from "../../store";
+import { createRenderer } from "../../features/renderer";
+import { pageCtx } from "../../store";
 import { usePointerActions } from "./hooks/usePointerActions";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
-import { ModeContent } from "./ModeContent";
-import { PainterContent } from "./PainterContent";
 
 /** an editor canvas pane of the application. */
 export const EditorPane = React.memo((props: { className?: string | undefined }) => {
@@ -21,48 +20,31 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
       {...usePointerActions()}
     >
       <Painter />
-      <ModeOverlay />
     </div>
   );
 });
 
 const Painter = React.memo(() => {
+  const rendererRef = React.useRef<ReturnType<typeof createRenderer>>(null);
+  const canvasRef = React.useCallback<React.RefCallback<HTMLCanvasElement>>((element) => {
+    if (element == null) {
+      rendererRef.current = null;
+      return;
+    }
+    rendererRef.current = createRenderer(element);
+  }, []);
+  const view = pageCtx.useEditorView();
+  const items = pageCtx.useEditorItems();
+  React.useLayoutEffect(() => {
+    rendererRef.current?.(items, view);
+  }, [view, items]);
+
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-      <title>canvas view</title>
-      <ViewBoxG>
-        <PainterContent />
-      </ViewBoxG>
-    </svg>
+    <canvas
+      ref={canvasRef}
+      className={styles.canvas}
+      width={view.canvasSize[0]}
+      height={view.canvasSize[1]}
+    />
   );
 });
-
-const ModeOverlay = React.memo(() => {
-  const view = selectors.useEditorView();
-
-  return (
-    <svg
-      className={styles.modeOverlay}
-      xmlns="http://www.w3.org/2000/svg"
-      width={view.size.width}
-      height={view.size.height}
-    >
-      <title>mode view</title>
-      <ViewBoxG>
-        <ModeContent />
-      </ViewBoxG>
-    </svg>
-  );
-});
-
-/** <g/> element to set view box */
-const ViewBoxG = (props: React.PropsWithChildren) => {
-  const { scale, offset } = selectors.useEditorView();
-  const transform = React.useMemo(() => {
-    return [
-      `scale(${scale.toFixed(2)})`,
-      `translate(${(-offset[0]).toFixed(2)} ${(-offset[1]).toFixed(2)})`,
-    ].join(" ");
-  }, [scale, offset]);
-  return <g transform={transform}>{props.children}</g>;
-};

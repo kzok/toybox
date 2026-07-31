@@ -39,6 +39,15 @@ export class Point2D {
     return new Point2D(this.x + x, this.y + y);
   }
   /**
+   * @param x
+   * @param y
+   * @returns subtracted point
+   */
+  subtract(arg: PointerArg): Point2D {
+    const [x, y] = alignArg(arg);
+    return new Point2D(this.x - x, this.y - y);
+  }
+  /**
    * @param scale
    * @returns scaled point
    */

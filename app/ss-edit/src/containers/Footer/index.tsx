@@ -10,7 +10,7 @@ import {
 import { ZoomIn16Regular } from "@fluentui/react-icons";
 import clsx from "clsx";
 import React from "react";
-import { selectors, useEditorActions } from "../../store";
+import { pageCtx, usePageActions } from "../../store";
 import styles from "./index.module.css";
 
 /** a footer of main view */
@@ -29,8 +29,8 @@ export const Footer = React.memo<{
 const Separator = () => <span className={styles.separator} />;
 
 const Zoom = React.memo(() => {
-  const { scale } = selectors.useEditorView();
-  const actions = useEditorActions();
+  const { scale } = pageCtx.useEditorView();
+  const actions = usePageActions();
 
   return (
     <Menu>
@@ -64,7 +64,7 @@ const formatZoomLevel = (scale: number): string => `${(scale * 100).toFixed()}%`
 const ZOOM_ITEMS: readonly number[] = [2, 1.5, 1, 0.5];
 
 const Offset = React.memo(() => {
-  const { offset } = selectors.useEditorView();
+  const { offset } = pageCtx.useEditorView();
 
   return (
     <Button className={styles.offset} appearance="subtle" size="small" title="Offset">

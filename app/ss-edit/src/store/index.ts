@@ -1,4 +1,4 @@
 export * from "./atoms";
 export * from "./context";
-export * from "./selectors";
+export * as pageCtx from "./hooks";
 export * from "./types";

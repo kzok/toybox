@@ -1,5 +1,5 @@
 import React from "react";
-import { useEditorActions } from "../../../store";
+import { usePageActions } from "../../../store";
 
 /**
  * call specified action when resized.
@@ -8,7 +8,7 @@ import { useEditorActions } from "../../../store";
 export const useResizeObserver = <T extends Element>(
   elementRef: React.RefObject<T | null>,
 ): void => {
-  const actions = useEditorActions();
+  const actions = usePageActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -19,7 +19,7 @@ export const useResizeObserver = <T extends Element>(
         if (entry.target !== element) {
           continue;
         }
-        actions.updateCanvasSize(entry.contentRect.width, entry.contentRect.height);
+        actions.updatePaneSize([entry.contentRect.width, entry.contentRect.height]);
       }
     });
     observer.observe(element);
