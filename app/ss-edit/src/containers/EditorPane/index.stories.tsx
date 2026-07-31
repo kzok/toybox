@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { type Draft, produce } from "immer";
+import { castDraft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
 import { INITIAL_EDITOR_STATE, type PageState, usePageAtoms } from "../../store";
+import testImage350x240 from "../../test/350x240.png";
 import { EditorPane } from "./index";
 
 const meta: Meta = {
@@ -14,21 +15,29 @@ const meta: Meta = {
 
 export default meta;
 
-const createStory = ({
-  storyName,
-  recipe,
-  play,
-}: Readonly<{
-  storyName?: string;
-  recipe?: (draft: Draft<PageState>) => void;
-  play?: StoryObj<typeof meta>["play"];
-}>): StoryObj<typeof meta> => {
-  let state: PageState = INITIAL_EDITOR_STATE;
-  if (recipe) {
-    state = produce(state, (draft) => {
-      recipe(draft);
+export const Empty: StoryObj<typeof meta> = {
+  render: () => renderEditor(INITIAL_EDITOR_STATE),
+};
+
+export const ImageItem: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) => {
+    const image = loaded.image as ImageBitmap;
+    const state = produce(INITIAL_EDITOR_STATE, (draft) => {
+      draft.editorItems.push(
+        castDraft({
+          kind: "image",
+          id: "story-image",
+          data: image,
+          offset: [-image.width / 2, -image.height / 2],
+        } satisfies PageState.Item.Image),
+      );
     });
-  }
+    return renderEditor(state);
+  },
+};
+
+const renderEditor = (state: PageState): React.ReactElement => {
   const Wrapper: React.FC = () => {
     const atoms = usePageAtoms();
     useHydrateAtoms([[atoms.state, state]]);
@@ -46,20 +55,18 @@ const createStory = ({
       </div>
     );
   };
-  const result: StoryObj<typeof meta> = {
-    render: () => (
-      <AppProvider>
-        <Wrapper />
-      </AppProvider>
-    ),
-  };
-  if (storyName) {
-    result.storyName = storyName;
-  }
-  if (play) {
-    result.play = play;
-  }
-  return result;
+  return (
+    <AppProvider>
+      <Wrapper />
+    </AppProvider>
+  );
 };
 
-export const Empty = createStory({});
+/**
+ * decodes an image asset URL into an `ImageBitmap` for use as item data.
+ * @param src image asset URL
+ */
+const loadImageBitmap = (src: string): Promise<ImageBitmap> =>
+  fetch(src)
+    .then((res) => res.blob())
+    .then((blob) => createImageBitmap(blob));
