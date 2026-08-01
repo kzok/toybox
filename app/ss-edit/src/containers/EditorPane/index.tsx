@@ -6,6 +6,7 @@ import { convertPointerEvents } from "../../utils/react";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
+import { SelectMode } from "./SelectMode";
 
 /** an editor canvas pane of the application. */
 export const EditorPane = React.memo((props: { className?: string | undefined }) => {
@@ -20,6 +21,9 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
       {...usePointerActions()}
     >
       <Painter />
+      <div className={styles.overlay}>
+        <EditorOverlayContent />
+      </div>
     </div>
   );
 });
@@ -81,4 +85,16 @@ const Painter = React.memo(() => {
       height={view.canvasSize[1]}
     />
   );
+});
+
+const EditorOverlayContent = React.memo(() => {
+  const editorMode = pageCtx.useEditorMode();
+
+  switch (editorMode.kind) {
+    case "select":
+      return <SelectMode editorMode={editorMode} />;
+    default:
+      editorMode.kind satisfies never;
+      return null;
+  }
 });
