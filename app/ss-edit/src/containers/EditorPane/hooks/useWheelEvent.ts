@@ -48,7 +48,8 @@ class PointerEventHandler {
    * @param e
    */
   private handleWheelZoom(e: WheelEvent): void {
-    const cursor = [e.offsetX, e.offsetY] as const;
+    const rect = this.element.getBoundingClientRect();
+    const cursor = [e.clientX - rect.left, e.clientY - rect.top] as const;
     this.actions.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {
