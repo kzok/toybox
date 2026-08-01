@@ -1,13 +1,13 @@
 import { renderHook } from "@testing-library/react";
 import { Provider } from "jotai";
 import { describe, expect, it } from "vitest";
-import { StoreProvider, usePageActions } from "../context";
+import { StoreProvider, useContextValue } from "../context";
 
-describe(usePageActions, () => {
+describe(useContextValue, () => {
   describe("without Provider", () => {
     it("throws an error.", () => {
       const renderTarget = () =>
-        renderHook(() => usePageActions(), {
+        renderHook(() => useContextValue(), {
           wrapper: ({ children }) => <Provider>{children}</Provider>,
         });
       expect(() => renderTarget()).toThrow("Please wrap the component with <Provider/>.");
@@ -17,7 +17,7 @@ describe(usePageActions, () => {
   describe("with Provider", () => {
     it("doesnt throw an error.", () => {
       const renderTarget = () =>
-        renderHook(() => usePageActions(), {
+        renderHook(() => useContextValue(), {
           wrapper: ({ children }) => (
             <Provider>
               <StoreProvider>{children}</StoreProvider>

@@ -1,12 +1,12 @@
 import React from "react";
-import { type PageActions, usePageActions } from "../../../store";
+import { type PageActions, pageCtx } from "../../../store";
 
 /**
  * register wheel event handler
  * @param elementRef ref object for an element
  */
 export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
-  const actions = usePageActions();
+  const actions = pageCtx.usePageActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {

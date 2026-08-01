@@ -10,7 +10,7 @@ import {
 import { ZoomIn16Regular } from "@fluentui/react-icons";
 import clsx from "clsx";
 import React from "react";
-import { pageCtx, usePageActions } from "../../store";
+import { pageCtx } from "../../store";
 import styles from "./index.module.css";
 
 /** a footer of main view */
@@ -30,7 +30,7 @@ const Separator = () => <span className={styles.separator} />;
 
 const Zoom = React.memo(() => {
   const { scale } = pageCtx.useEditorView();
-  const actions = usePageActions();
+  const actions = pageCtx.usePageActions();
 
   return (
     <Menu>

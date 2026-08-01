@@ -1,12 +1,12 @@
 import React from "react";
 import { usePointerEvents } from "../../../hooks/usePointerEvents";
-import { usePageActions } from "../../../store";
+import { pageCtx } from "../../../store";
 
 /**
  * @returns React event handlers
  */
 export const usePointerActions = () => {
-  const actions = usePageActions();
+  const actions = pageCtx.usePageActions();
 
   return {
     ...usePointerEvents({

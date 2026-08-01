@@ -1,5 +1,8 @@
 import { useAtomValue } from "jotai";
-import { usePageAtoms } from "./context";
+import { type PageActions, type PageAtoms, useContextValue } from "./context";
+
+export const usePageAtoms = (): PageAtoms => useContextValue().atoms;
+export const usePageActions = (): PageActions => useContextValue().actions;
 
 export const useEditorMode = () => useAtomValue(usePageAtoms().editorMode);
 export const useEditorView = () => useAtomValue(usePageAtoms().editorView);

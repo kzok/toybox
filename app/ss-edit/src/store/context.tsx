@@ -21,17 +21,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = (props) =>
   return <context.Provider value={contextValue}>{props.children}</context.Provider>;
 };
 
-/**
- * @returns page atoms.
- */
-export const usePageAtoms = (): Atoms => useContextValue().atoms;
-
-/**
- * @returns page actions.
- */
-export const usePageActions = (): Actions => useContextValue().actions;
-
-const useContextValue = () => {
+export const useContextValue = () => {
   const contextValue = React.useContext(context);
   if (contextValue == null) {
     throw new Error("Please wrap the component with <Provider/>.");
