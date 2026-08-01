@@ -1,5 +1,5 @@
 import React from "react";
-import { usePageActions } from "../../../store";
+import { pageCtx } from "../../../store";
 
 /**
  * call specified action when resized.
@@ -8,7 +8,7 @@ import { usePageActions } from "../../../store";
 export const useResizeObserver = <T extends Element>(
   elementRef: React.RefObject<T | null>,
 ): void => {
-  const actions = usePageActions();
+  const actions = pageCtx.usePageActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -19,7 +19,7 @@ export const useResizeObserver = <T extends Element>(
         if (entry.target !== element) {
           continue;
         }
-        actions.updatePaneSize([entry.contentRect.width, entry.contentRect.height]);
+        actions.syncCanvasSize([entry.contentRect.width, entry.contentRect.height]);
       }
     });
     observer.observe(element);

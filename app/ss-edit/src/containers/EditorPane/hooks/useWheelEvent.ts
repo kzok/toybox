@@ -1,12 +1,12 @@
 import React from "react";
-import { type PageActions, usePageActions } from "../../../store";
+import { type PageActions, pageCtx } from "../../../store";
 
 /**
  * register wheel event handler
  * @param elementRef ref object for an element
  */
 export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
-  const actions = usePageActions();
+  const actions = pageCtx.usePageActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -48,7 +48,8 @@ class PointerEventHandler {
    * @param e
    */
   private handleWheelZoom(e: WheelEvent): void {
-    const cursor = [e.offsetX, e.offsetY] as const;
+    const rect = this.element.getBoundingClientRect();
+    const cursor = [e.clientX - rect.left, e.clientY - rect.top] as const;
     this.actions.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {

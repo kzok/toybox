@@ -7,10 +7,10 @@ import {
   MenuPopover,
   MenuTrigger,
 } from "@fluentui/react-components";
-import { ZoomIn16Regular } from "@fluentui/react-icons";
+import { ZoomIn32Regular } from "@fluentui/react-icons";
 import clsx from "clsx";
 import React from "react";
-import { pageCtx, usePageActions } from "../../store";
+import { pageCtx } from "../../store";
 import styles from "./index.module.css";
 
 /** a footer of main view */
@@ -30,7 +30,7 @@ const Separator = () => <span className={styles.separator} />;
 
 const Zoom = React.memo(() => {
   const { scale } = pageCtx.useEditorView();
-  const actions = usePageActions();
+  const actions = pageCtx.usePageActions();
 
   return (
     <Menu>
@@ -38,8 +38,8 @@ const Zoom = React.memo(() => {
         <MenuButton
           className={styles.zoom}
           appearance="transparent"
-          size="small"
-          icon={<ZoomIn16Regular />}
+          size="medium"
+          icon={<ZoomIn32Regular />}
           title="Zoom level"
         >
           {formatZoomLevel(scale)}
@@ -64,11 +64,11 @@ const formatZoomLevel = (scale: number): string => `${(scale * 100).toFixed()}%`
 const ZOOM_ITEMS: readonly number[] = [2, 1.5, 1, 0.5];
 
 const Offset = React.memo(() => {
-  const { offset } = pageCtx.useEditorView();
+  const { size } = pageCtx.useEntirePictureRect();
 
   return (
-    <Button className={styles.offset} appearance="subtle" size="small" title="Offset">
-      ({offset[0].toFixed()},{offset[1].toFixed()})
+    <Button className={styles.offset} appearance="transparent" size="medium" title="Offset">
+      {size.x.toFixed()} x {size.y.toFixed()}
     </Button>
   );
 });

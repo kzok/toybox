@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { describe, expect, it, vitest } from "vitest";
-import { usePointerEvents } from "../usePointerEvents";
+import { convertPointerEvents } from "../convertPointerEvents";
 
 const noop = (): void => {};
 
-describe(usePointerEvents, () => {
-  type TargetParams = Parameters<typeof usePointerEvents>[0];
+describe(convertPointerEvents, () => {
+  type TargetParams = Parameters<typeof convertPointerEvents>[0];
   const TestComponent: React.FC<{ params: TargetParams }> = (props) => (
-    <button type="button" {...usePointerEvents(props.params)}>
+    <button type="button" {...convertPointerEvents(props.params)}>
       example button
     </button>
   );
@@ -62,7 +62,7 @@ describe(usePointerEvents, () => {
     });
   });
 
-  describe("preventDefault option", () => {
+  describe("preventDefaultAndStopPropagation option", () => {
     describe("as default", () => {
       it("not call e.preventDefault().", async () => {
         const sharedHandler: React.EventHandler<React.SyntheticEvent> = (e) => {
@@ -84,7 +84,7 @@ describe(usePointerEvents, () => {
           expect(e.isPropagationStopped()).toBe(true);
         };
         const onClick = vitest.fn(sharedHandler);
-        render(<TestComponent params={{ preventDefault: true, onClick }} />);
+        render(<TestComponent params={{ preventDefaultAndStopPropagation: true, onClick }} />);
 
         await userEvent.click(await screen.findByRole("button"));
         expect(onClick).toHaveBeenCalled();

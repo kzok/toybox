@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { castDraft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
-import { INITIAL_EDITOR_STATE, type PageState, usePageAtoms } from "../../store";
+import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
 import testImage350x240 from "../../test/350x240.png";
 import { EditorPane } from "./index";
 
@@ -39,7 +39,7 @@ export const ImageItem: StoryObj<typeof meta> = {
 
 const renderEditor = (state: PageState): React.ReactElement => {
   const Wrapper: React.FC = () => {
-    const atoms = usePageAtoms();
+    const atoms = pageCtx.usePageAtoms();
     useHydrateAtoms([[atoms.state, state]]);
     return (
       <div

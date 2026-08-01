@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { canvasOffset, entirePictureRect } from "./selectors";
 import type { PageState } from "./types";
 
 /** initial state */
@@ -26,6 +27,8 @@ export const createAtoms = () => {
     editorMode,
     editorView,
     editorItems,
+    canvasOffset: atom((get) => canvasOffset(get(editorView))),
+    entirePictureRect: atom((get) => entirePictureRect(get(editorItems))),
   } as const;
 };
 
