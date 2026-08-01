@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import React from "react";
-import { createRenderer } from "../../features/renderer";
 import { pageCtx } from "../../store";
 import { convertPointerEvents } from "../../utils/react";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
+import { Painter } from "./Painter";
 import { SelectMode } from "./SelectMode";
 
 /** an editor canvas pane of the application. */
@@ -61,31 +61,6 @@ const usePointerActions = () => {
     };
   }, [actions]);
 };
-
-const Painter = React.memo(() => {
-  const rendererRef = React.useRef<ReturnType<typeof createRenderer>>(null);
-  const canvasRef = React.useCallback<React.RefCallback<HTMLCanvasElement>>((element) => {
-    if (element == null) {
-      rendererRef.current = null;
-      return;
-    }
-    rendererRef.current = createRenderer(element);
-  }, []);
-  const view = pageCtx.useEditorView();
-  const items = pageCtx.useEditorItems();
-  React.useLayoutEffect(() => {
-    rendererRef.current?.(items, view);
-  }, [view, items]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className={styles.canvas}
-      width={view.canvasSize[0]}
-      height={view.canvasSize[1]}
-    />
-  );
-});
 
 const EditorOverlayContent = React.memo(() => {
   const editorMode = pageCtx.useEditorMode();

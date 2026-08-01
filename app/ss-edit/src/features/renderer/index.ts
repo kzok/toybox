@@ -1,12 +1,10 @@
-import { type PageState, selectors } from "../../store";
-
-type Renderer = (items: readonly PageState.Item[], view: PageState.View) => void;
+import type { PageState } from "../../store";
 
 /**
- * create instance to render to <canvas/>.
+ * create instance to render items to <canvas/>.
  * @returns renderer instance
  */
-export const createRenderer = (element: HTMLCanvasElement): Renderer => {
+export const createItemRenderer = (element: HTMLCanvasElement) => {
   const canvas = element;
   const ctx = canvas.getContext("2d");
   if (ctx == null) {
@@ -17,11 +15,7 @@ export const createRenderer = (element: HTMLCanvasElement): Renderer => {
     ctx.drawImage(item.data, ...item.offset);
   };
 
-  return (items, view) => {
-    ctx.reset();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(...selectors.canvasOffset(view).tuple());
-    ctx.scale(view.scale, view.scale);
+  return (items: readonly PageState.Item[]) => {
     for (const item of items) {
       switch (item.kind) {
         case "image":
