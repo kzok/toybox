@@ -16,7 +16,7 @@ Sub-packages are located in the following folders.
 
 - Packages are named `@~/<name>` (e.g. `@~/ui`) and are `private`.
 - Root `tsconfig.json` and `biome.jsonc` generally apply across all workspaces.
-- Vitest test files live in `__tests__/*.test.*.ts{,x}`.
+- Vitest test files live in `__tests__/<name>.test.ts{,x}`.
 - Component-scoped styles use CSS Modules, colocated as `<name>.module.css` next to the component and imported as `styles`.
 - Global styles are defined in `@~/ui`.
 
