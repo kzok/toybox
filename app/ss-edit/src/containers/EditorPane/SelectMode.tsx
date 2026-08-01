@@ -13,36 +13,44 @@ export const SelectMode = React.memo<{
   const children = items.map((item): React.ReactNode => {
     switch (item.kind) {
       case "image":
-        return <ImageItem item={item} selected={editorMode.selectedIds.includes(item.id)} />;
+        return (
+          <ImageItem
+            item={item}
+            scale={view.scale}
+            selected={editorMode.selectedIds.includes(item.id)}
+          />
+        );
       default:
         item.kind satisfies never;
         return null;
     }
   });
 
-  const [w, h] = view.canvasSize;
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <title>select mode editor</title>
-      <g transform={`translate(${canvasOffset.x} ${canvasOffset.y}) scale(${view.scale})`}>
-        {children}
-      </g>
-    </svg>
+    <div
+      className={styles.container}
+      style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
+    >
+      {children}
+    </div>
   );
 });
 
 const ImageItem = React.memo<{
   item: PageState.Item.Image;
+  scale: number;
   selected: boolean;
-}>(({ item, selected }) => {
+}>(({ item, scale, selected }) => {
   return (
-    <rect
+    <div
       className={styles.imageItem}
       data-selected={selected}
-      x={item.offset[0]}
-      y={item.offset[1]}
-      width={item.data.width}
-      height={item.data.height}
+      style={{
+        left: item.offset[0] * scale,
+        top: item.offset[1] * scale,
+        width: item.data.width * scale,
+        height: item.data.height * scale,
+      }}
     />
   );
 });

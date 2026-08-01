@@ -1,12 +1,18 @@
+.container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
 .imageItem {
   position: absolute;
-  fill: transparent;
   cursor: move;
 
   &:hover {
-    fill: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
   }
   &[data-selected="true"] {
-    fill: rgba(15, 108, 189, 0.3);
+    background: rgba(15, 108, 189, 0.3);
   }
 }
