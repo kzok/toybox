@@ -7,11 +7,11 @@ type Result = Readonly<{
  * opens a native file picker restricted to images, then decodes the selected file.
  * @returns the selected file and its decoded image, or `null` if the user cancels.
  */
-export const pickImageFile = (): Promise<Result | null> =>
+export const pickImageFile = (accept = "image/*"): Promise<Result | null> =>
   new Promise((resolve, reject) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = accept;
     input.addEventListener("cancel", () => {
       resolve(null);
     });

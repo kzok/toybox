@@ -9,7 +9,7 @@ import {
 import clsx from "clsx";
 import React from "react";
 import { pageCtx } from "../../store";
-import { pickImageFile } from "../../utils/misc";
+import { pickImageFile } from "../../utils/fileIO";
 import styles from "./index.module.css";
 
 /** a header of main view */
