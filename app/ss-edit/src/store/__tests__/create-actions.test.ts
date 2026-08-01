@@ -12,11 +12,11 @@ describe(createActions, () => {
     return { store, actions, atoms } as const;
   };
 
-  describe("updatePaneSize()", () => {
+  describe("syncCanvasSize()", () => {
     it("updates view.canvas.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.updatePaneSize([100, 200]);
+      actions.syncCanvasSize([100, 200]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.editorView.canvasSize = [100, 200];

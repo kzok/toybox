@@ -19,7 +19,7 @@ export const useResizeObserver = <T extends Element>(
         if (entry.target !== element) {
           continue;
         }
-        actions.updatePaneSize([entry.contentRect.width, entry.contentRect.height]);
+        actions.syncCanvasSize([entry.contentRect.width, entry.contentRect.height]);
       }
     });
     observer.observe(element);

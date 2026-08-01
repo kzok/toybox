@@ -1,7 +1,7 @@
 import { castDraft, type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
 import { Point2D, type Tuple2D } from "../utils/geometry";
-import type { Atoms } from "./atoms";
+import { type Atoms, INITIAL_EDITOR_STATE } from "./atoms";
 import type { PageState } from "./types";
 
 type Store = Pick<ReturnType<typeof createStore>, "get" | "set">;
@@ -30,11 +30,11 @@ export const createActions = (store: Store, atoms: Atoms) => {
   return {
     /**
      * update editor pane size
-     * @param paneSize [width, height]
+     * @param canvasSize [width, height]
      */
-    updatePaneSize: (paneSize: Tuple2D): void => {
+    syncCanvasSize: (canvasSize: Tuple2D): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.canvasSize = castDraft(paneSize);
+        draft.editorView.canvasSize = castDraft(canvasSize);
       });
     },
     /**
@@ -119,7 +119,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
      */
     clearMode: (): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorMode = { kind: "select", selectedIds: [] };
+        draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);
       });
     },
   } as const;
