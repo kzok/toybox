@@ -6,13 +6,20 @@
 }
 
 .imageItem {
+  display: inline-block;
   position: absolute;
   cursor: move;
+
+  background: transparent;
+  border: none;
+  outline: none;
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);
   }
+
   &[data-selected="true"] {
     background: rgba(15, 108, 189, 0.3);
+    outline: 2px dashed #0f6cbd;
   }
 }

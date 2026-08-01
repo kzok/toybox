@@ -15,6 +15,7 @@ export const SelectMode = React.memo<{
       case "image":
         return (
           <ImageItem
+            key={item.id}
             item={item}
             scale={view.scale}
             selected={editorMode.selectedIds.includes(item.id)}
@@ -29,7 +30,9 @@ export const SelectMode = React.memo<{
   return (
     <div
       className={styles.container}
-      style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}
+      style={{
+        transform: `translate(${canvasOffset.x.toFixed(1)}px, ${canvasOffset.y.toFixed(1)}px)`,
+      }}
     >
       {children}
     </div>
@@ -41,15 +44,22 @@ const ImageItem = React.memo<{
   scale: number;
   selected: boolean;
 }>(({ item, scale, selected }) => {
+  const actions = pageCtx.usePageActions();
   return (
-    <div
+    <button
+      type="button"
       className={styles.imageItem}
       data-selected={selected}
       style={{
-        left: item.offset[0] * scale,
-        top: item.offset[1] * scale,
-        width: item.data.width * scale,
-        height: item.data.height * scale,
+        left: `${(item.offset[0] * scale).toFixed(1)}px`,
+        top: `${(item.offset[1] * scale).toFixed(1)}px`,
+        width: `${(item.data.width * scale).toFixed(1)}px`,
+        height: `${(item.data.height * scale).toFixed(1)}px`,
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        actions.selectItem(item.id, e.ctrlKey);
       }}
     />
   );
