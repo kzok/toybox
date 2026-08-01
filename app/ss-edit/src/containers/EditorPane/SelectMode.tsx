@@ -1,5 +1,6 @@
 import React from "react";
 import { type PageState, pageCtx } from "../../store";
+import { convertPointerEvents } from "../../utils/react";
 import styles from "./SelectMode.module.css";
 
 /** editor overlay content for "select" mode */
@@ -44,7 +45,6 @@ const ImageItem = React.memo<{
   scale: number;
   selected: boolean;
 }>(({ item, scale, selected }) => {
-  const actions = pageCtx.usePageActions();
   return (
     <button
       type="button"
@@ -56,11 +56,32 @@ const ImageItem = React.memo<{
         width: `${(item.data.width * scale).toFixed(1)}px`,
         height: `${(item.data.height * scale).toFixed(1)}px`,
       }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        actions.selectItem(item.id, e.ctrlKey);
-      }}
+      {...usePointerActions(item)}
     />
   );
 });
+
+const usePointerActions = (item: PageState.Item) => {
+  const actions = pageCtx.usePageActions();
+  const itemRef = React.useRef<PageState.Item>(item);
+  itemRef.current = item;
+
+  return React.useMemo(() => {
+    const pointerEventHandlers = convertPointerEvents({
+      preventDefaultAndStopPropagation: true,
+      onPointerMove: (e) => {
+        if (e.buttons === 1) {
+          // main (left) button
+          e.currentTarget.setPointerCapture(e.pointerId);
+          actions.moveItem(itemRef.current.id, [e.movementX, e.movementY]);
+          return;
+        }
+      },
+      onClick: (e) => {
+        actions.selectItem(itemRef.current.id, e.ctrlKey);
+      },
+    });
+
+    return pointerEventHandlers;
+  }, []);
+};

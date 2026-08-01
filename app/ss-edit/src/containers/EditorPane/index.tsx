@@ -60,7 +60,7 @@ const usePointerActions = () => {
         e.currentTarget.removeAttribute("data-scrolling");
       },
     };
-  }, [actions]);
+  }, []);
 };
 
 const EditorOverlayContent = React.memo(() => {

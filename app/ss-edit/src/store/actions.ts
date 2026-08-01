@@ -89,8 +89,8 @@ export const createActions = (store: Store, atoms: Atoms) => {
       });
     },
     /**
-     * @param id
-     * @param multi
+     * @param id item.id
+     * @param multi if ctrlKey is pressed
      */
     selectItem: (id: string, multi: boolean = false): void => {
       updateAtom(atoms.state, (draft) => {
@@ -112,6 +112,28 @@ export const createActions = (store: Store, atoms: Atoms) => {
           selectedIds = [id];
         }
         draft.editorMode = { kind: "select", selectedIds };
+      });
+    },
+    /**
+     * @param triggerItemId item.id that triggers this movement.
+     * @param delta [movementX, movementY]
+     */
+    moveItem: (triggerItemId: string, delta: Tuple2D): void => {
+      updateAtom(atoms.state, (draft) => {
+        // update selection if triggerItemId is not included.
+        if (
+          draft.editorMode.kind !== "select" ||
+          !draft.editorMode.selectedIds.includes(triggerItemId)
+        ) {
+          draft.editorMode = { kind: "select", selectedIds: [triggerItemId] };
+        }
+
+        const scaledDelta = Point2D.new(delta).scale(1 / draft.editorView.scale);
+        for (const id of draft.editorMode.selectedIds) {
+          const item = draft.editorItems.find((item) => item.id === id);
+          if (item == null) continue;
+          item.offset = scaledDelta.add(item.offset).tuple();
+        }
       });
     },
     /**
