@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { createRenderer } from "../../features/renderer";
 import { pageCtx } from "../../store";
-import { usePointerActions } from "./hooks/usePointerActions";
+import { convertPointerEvents } from "../../utils/react";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
@@ -23,6 +23,40 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
     </div>
   );
 });
+
+const usePointerActions = () => {
+  const actions = pageCtx.usePageActions();
+
+  return React.useMemo(() => {
+    const pointerEventHandlers = convertPointerEvents({
+      onPointerMove: (e) => {
+        if (e.buttons === 1) {
+          // main (left) button
+          e.preventDefault();
+          e.stopPropagation();
+          e.currentTarget.setPointerCapture(e.pointerId);
+          e.currentTarget.setAttribute("data-scrolling", "");
+          actions.scroll(e.movementX, e.movementY);
+          return;
+        }
+      },
+      onClick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        actions.clearMode();
+      },
+    });
+
+    return {
+      ...pointerEventHandlers,
+      onPointerUp: (e: React.PointerEvent): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.currentTarget.removeAttribute("data-scrolling");
+      },
+    };
+  }, [actions]);
+};
 
 const Painter = React.memo(() => {
   const rendererRef = React.useRef<ReturnType<typeof createRenderer>>(null);
