@@ -18,6 +18,7 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
     <div
       ref={elementRef}
       className={clsx(styles.container, props.className)}
+      draggable={false}
       {...usePointerActions()}
     >
       <Painter />

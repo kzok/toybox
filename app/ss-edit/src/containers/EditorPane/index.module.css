@@ -4,6 +4,7 @@
   padding: 0;
   position: relative;
   overflow: hidden;
+  user-select: none;
 
   /** checkboard */
   background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 40px 40px;
