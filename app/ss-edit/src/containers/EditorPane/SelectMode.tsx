@@ -1,6 +1,5 @@
 import React from "react";
 import { type PageState, pageCtx } from "../../store";
-import { Point2D } from "../../utils/geometry";
 import styles from "./SelectMode.module.css";
 
 /** editor overlay content for "select" mode */
@@ -9,6 +8,7 @@ export const SelectMode = React.memo<{
 }>(({ editorMode }) => {
   const view = pageCtx.useEditorView();
   const items = pageCtx.useEditorItems();
+  const canvasOffset = pageCtx.useCanvasOffset();
 
   const children = items.map((item): React.ReactNode => {
     switch (item.kind) {
@@ -21,12 +21,12 @@ export const SelectMode = React.memo<{
   });
 
   const [w, h] = view.canvasSize;
-  const paneOffset = Point2D.new(view.canvasSize).scale(0.5);
-  const offset = paneOffset.subtract(Point2D.new(view.offset).scale(view.scale));
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
       <title>select mode editor</title>
-      <g transform={`translate(${offset.x} ${offset.y}) scale(${view.scale})`}>{children}</g>
+      <g transform={`translate(${canvasOffset.x} ${canvasOffset.y}) scale(${view.scale})`}>
+        {children}
+      </g>
     </svg>
   );
 });

@@ -1,5 +1,4 @@
-import type { PageState } from "../../store";
-import { Point2D } from "../../utils/geometry";
+import { type PageState, selectors } from "../../store";
 
 type Renderer = (items: readonly PageState.Item[], view: PageState.View) => void;
 
@@ -21,9 +20,7 @@ export const createRenderer = (element: HTMLCanvasElement): Renderer => {
   return (items, view) => {
     ctx.reset();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const paneOffset = Point2D.new(view.canvasSize).scale(0.5);
-    const offset = paneOffset.subtract(Point2D.new(view.offset).scale(view.scale));
-    ctx.translate(...offset.tuple());
+    ctx.translate(...selectors.canvasOffset(view).tuple());
     ctx.scale(view.scale, view.scale);
     for (const item of items) {
       switch (item.kind) {

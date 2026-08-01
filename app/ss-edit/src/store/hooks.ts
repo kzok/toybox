@@ -7,3 +7,4 @@ export const usePageActions = (): PageActions => useContextValue().actions;
 export const useEditorMode = () => useAtomValue(usePageAtoms().editorMode);
 export const useEditorView = () => useAtomValue(usePageAtoms().editorView);
 export const useEditorItems = () => useAtomValue(usePageAtoms().editorItems);
+export const useCanvasOffset = () => useAtomValue(usePageAtoms().canvasOffset);

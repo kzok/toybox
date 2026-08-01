@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { canvasOffset } from "./selectors";
 import type { PageState } from "./types";
 
 /** initial state */
@@ -26,6 +27,7 @@ export const createAtoms = () => {
     editorMode,
     editorView,
     editorItems,
+    canvasOffset: atom((get) => canvasOffset(get(editorView))),
   } as const;
 };
 
