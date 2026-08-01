@@ -26,7 +26,7 @@ const FileMenu = React.memo(() => {
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
-        <MenuButton className={styles.fileMenu} appearance="transparent" size="small">
+        <MenuButton className={styles.fileMenu} appearance="transparent" size="medium">
           Edit
         </MenuButton>
       </MenuTrigger>
