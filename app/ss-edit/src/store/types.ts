@@ -2,6 +2,7 @@ import type { Tuple2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
+  isSaved: boolean;
   editorView: PageState.View;
   editorMode: PageState.Mode;
   editorItems: readonly PageState.Item[];

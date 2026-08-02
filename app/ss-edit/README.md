@@ -10,6 +10,8 @@ An image editor specialized for editing screenshots.
   - React components wired to application state managements.
 - `src/features/`
   - Domain-specific modules.
+- `src/hooks/`
+  - Framework-agnostic React hooks shared across the application.
 - `src/store/`
   - Jotai-based application state management.
 - `src/utils/`

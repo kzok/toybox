@@ -9,3 +9,5 @@ export const useEditorView = () => useAtomValue(usePageAtoms().editorView);
 export const useEditorItems = () => useAtomValue(usePageAtoms().editorItems);
 export const useCanvasOffset = () => useAtomValue(usePageAtoms().canvasOffset);
 export const useEntirePictureRect = () => useAtomValue(usePageAtoms().entirePictureRect);
+export const useNeedConfirmBeforeUnload = () =>
+  useAtomValue(usePageAtoms().needConfirmBeforeUnload);

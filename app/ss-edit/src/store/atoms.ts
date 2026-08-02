@@ -4,6 +4,7 @@ import type { PageState } from "./types";
 
 /** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
+  isSaved: false,
   editorMode: { kind: "select", selectedIds: [] },
   editorView: { canvasSize: [0, 0], offset: [0, 0], scale: 1 },
   editorItems: [],
@@ -29,6 +30,9 @@ export const createAtoms = () => {
     editorItems,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
     entirePictureRect: atom((get) => entirePictureRect(get(editorItems))),
+    needConfirmBeforeUnload: atom(
+      (get): boolean => get(editorItems).length > 0 && !get(state).isSaved,
+    ),
   } as const;
 };
 
