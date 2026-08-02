@@ -11,7 +11,8 @@
     "type-check": "tsc",
     "test": "vitest",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@fluentui/react-components": "9.74.4",
