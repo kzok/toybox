@@ -39,7 +39,7 @@ export const ImageItem: StoryObj<typeof meta> = {
 
 const renderEditor = (state: PageState): React.ReactElement => {
   const Wrapper: React.FC = () => {
-    const atoms = pageCtx.usePageAtoms();
+    const atoms = pageCtx.useAtoms();
     useHydrateAtoms([[atoms.state, state]]);
     return (
       <div

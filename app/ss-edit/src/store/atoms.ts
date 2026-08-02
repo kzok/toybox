@@ -15,6 +15,10 @@ export const INITIAL_EDITOR_STATE: PageState = {
 export const createAtoms = () => {
   /** (primitive) entire editor state. */
   const state = atom(INITIAL_EDITOR_STATE);
+  /** if the latest change was saved. */
+  const isSaved = atom(false);
+  /** (primitive) dialog state */
+  const dialogReactNode = atom<React.ReactNode>(null);
   /** state.editorMode */
   const editorMode = atom((get) => get(state).editorMode);
   /** state.editorView */
@@ -27,8 +31,12 @@ export const createAtoms = () => {
     editorMode,
     editorView,
     editorItems,
+    dialogReactNode,
+    isSaved,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
     entirePictureRect: atom((get) => entirePictureRect(get(editorItems))),
+    canSave: atom((get): boolean => get(editorItems).length > 0),
+    needConfirmBeforeUnload: atom((get): boolean => get(editorItems).length > 0 && !get(isSaved)),
   } as const;
 };
 

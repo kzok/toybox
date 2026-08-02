@@ -1,6 +1,6 @@
 import React from "react";
+import { usePointerEvents } from "../../hooks";
 import { type PageState, pageCtx } from "../../store";
-import { convertPointerEvents } from "../../utils/react";
 import styles from "./SelectMode.module.css";
 
 /** editor overlay content for "select" mode */
@@ -62,26 +62,27 @@ const ImageItem = React.memo<{
 });
 
 const usePointerActions = (item: PageState.Item) => {
-  const actions = pageCtx.usePageActions();
-  const itemRef = React.useRef<PageState.Item>(item);
-  itemRef.current = item;
+  const actions = pageCtx.useActions();
 
-  return React.useMemo(() => {
-    const pointerEventHandlers = convertPointerEvents({
-      preventDefaultAndStopPropagation: true,
-      onPointerMove: (e) => {
-        if (e.buttons === 1) {
-          // main (left) button
-          e.currentTarget.setPointerCapture(e.pointerId);
-          actions.moveItem(itemRef.current.id, [e.movementX, e.movementY]);
-          return;
-        }
-      },
-      onClick: (e) => {
-        actions.selectItem(itemRef.current.id, e.ctrlKey);
-      },
-    });
-
-    return pointerEventHandlers;
-  }, []);
+  return usePointerEvents({
+    onPointerDown: (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    onPointerMove: (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.buttons === 1) {
+        // main (left) button
+        e.currentTarget.setPointerCapture(e.pointerId);
+        actions.moveItem(item.id, [e.movementX, e.movementY]);
+        return;
+      }
+    },
+    onClick: (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      actions.selectItem(item.id, e.ctrlKey);
+    },
+  });
 };

@@ -9,10 +9,12 @@ An image editor specialized for editing screenshots.
 - `src/containers/`
   - React components wired to application state managements.
 - `src/components/`
-  - Presentational components shared across this app.
+  - Presentational React components.
+- `src/features/`
+  - Domain-specific modules.
+- `src/hooks/`
+  - React hooks shared across the application.
 - `src/store/`
   - Jotai-based application state management.
-- `src/hooks/`
-  - Shared React hooks not tied to a specific container.
 - `src/utils/`
   - Framework-agnostic helpers depending on no other folder.

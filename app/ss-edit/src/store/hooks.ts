@@ -1,11 +1,14 @@
 import { useAtomValue } from "jotai";
 import { type PageActions, type PageAtoms, useContextValue } from "./context";
 
-export const usePageAtoms = (): PageAtoms => useContextValue().atoms;
-export const usePageActions = (): PageActions => useContextValue().actions;
+export const useAtoms = (): PageAtoms => useContextValue().atoms;
+export const useActions = (): PageActions => useContextValue().actions;
 
-export const useEditorMode = () => useAtomValue(usePageAtoms().editorMode);
-export const useEditorView = () => useAtomValue(usePageAtoms().editorView);
-export const useEditorItems = () => useAtomValue(usePageAtoms().editorItems);
-export const useCanvasOffset = () => useAtomValue(usePageAtoms().canvasOffset);
-export const useEntirePictureRect = () => useAtomValue(usePageAtoms().entirePictureRect);
+export const useEditorMode = () => useAtomValue(useAtoms().editorMode);
+export const useEditorView = () => useAtomValue(useAtoms().editorView);
+export const useEditorItems = () => useAtomValue(useAtoms().editorItems);
+export const useDialogReactNode = () => useAtomValue(useAtoms().dialogReactNode);
+export const useCanvasOffset = () => useAtomValue(useAtoms().canvasOffset);
+export const useEntirePictureRect = () => useAtomValue(useAtoms().entirePictureRect);
+export const useCanSave = () => useAtomValue(useAtoms().canSave);
+export const useNeedConfirmBeforeUnload = () => useAtomValue(useAtoms().needConfirmBeforeUnload);

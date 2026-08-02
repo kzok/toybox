@@ -6,7 +6,7 @@ import { type PageActions, pageCtx } from "../../../store";
  * @param elementRef ref object for an element
  */
 export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -41,7 +41,7 @@ class PointerEventHandler {
    * @param e
    */
   private handleWheelScroll(e: WheelEvent): void {
-    this.actions.scroll(-e.deltaX, -e.deltaY);
+    this.actions.editorView.scroll(-e.deltaX, -e.deltaY);
   }
   /**
    * handle wheel zoom event.
@@ -50,7 +50,7 @@ class PointerEventHandler {
   private handleWheelZoom(e: WheelEvent): void {
     const rect = this.element.getBoundingClientRect();
     const cursor = [e.clientX - rect.left, e.clientY - rect.top] as const;
-    this.actions.zoom((scale) => {
+    this.actions.editorView.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {
         return 1; // snap to 100%

@@ -1,9 +1,11 @@
 import { castDraft, produce } from "immer";
 import { createStore } from "jotai";
+import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
-import { createActions } from "../actions";
-import { createAtoms, INITIAL_EDITOR_STATE } from "../atoms";
-import type { PageState } from "../types";
+import { ConfirmClearDialog } from "../../../components/Dialogs";
+import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
+import type { PageState } from "../../types";
+import { createActions } from "..";
 
 describe(createActions, () => {
   const createTestTarget = () => {
@@ -27,7 +29,7 @@ describe(createActions, () => {
     it("updates view.canvas.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.syncCanvasSize([100, 200]);
+      actions.editorView.syncCanvasSize([100, 200]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.editorView.canvasSize = [100, 200];
@@ -40,7 +42,7 @@ describe(createActions, () => {
     it("updates view.offset.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.scroll(100, 200);
+      actions.editorView.scroll(100, 200);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.editorView.offset[0] -= 100;
@@ -54,27 +56,27 @@ describe(createActions, () => {
     it("updates view.scale.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.zoom(1.2, [0, 0]);
+      actions.editorView.zoom(1.2, [0, 0]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.editorView.scale = 1.2;
         }),
       );
-      actions.zoom((s) => s + 0.1, [0, 0]);
+      actions.editorView.zoom((s) => s + 0.1, [0, 0]);
       expect(store.get(atoms.editorView).scale).toBe(1.3);
     });
 
     it("has minimum scale.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.zoom(0, [0, 0]);
+      actions.editorView.zoom(0, [0, 0]);
       expect(store.get(atoms.editorView).scale).toBe(0.27);
     });
 
     it("has maximum scale.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.zoom(100, [0, 0]);
+      actions.editorView.zoom(100, [0, 0]);
       expect(store.get(atoms.editorView).scale).toBe(2);
     });
   });
@@ -123,7 +125,7 @@ describe(createActions, () => {
 
     it("scales the movement delta by the inverse of the view scale.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.zoom(2, [0, 0]);
+      actions.editorView.zoom(2, [0, 0]);
 
       actions.moveItem(item1.id, [10, 20]);
 
@@ -139,6 +141,57 @@ describe(createActions, () => {
       expect(() => actions.moveItem(item1.id, [10, 20])).not.toThrow();
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
+    });
+  });
+
+  describe("clearItems()", () => {
+    const setUpWithItem = () => {
+      const target = createTestTarget();
+      const item = createImageItem("item-1", [0, 0]);
+      target.store.set(
+        target.atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorItems.push(castDraft(item));
+        }),
+      );
+      return { ...target, item } as const;
+    };
+
+    it("clears items immediately when confirmation is not needed.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      await actions.clearItems();
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+
+    it("shows a confirmation dialog and keeps items when the user cancels.", async () => {
+      const { store, actions, atoms } = setUpWithItem();
+      const clearing = actions.clearItems();
+
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<{
+        resolve: (_: boolean) => void;
+      }>;
+      expect(dialog.type).toBe(ConfirmClearDialog);
+
+      dialog.props.resolve(false);
+      await clearing;
+
+      expect(store.get(atoms.editorItems)).toHaveLength(1);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+
+    it("clears items and hides the dialog when the user confirms.", async () => {
+      const { store, actions, atoms } = setUpWithItem();
+      const clearing = actions.clearItems();
+
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<{
+        resolve: (_: boolean) => void;
+      }>;
+      dialog.props.resolve(true);
+      await clearing;
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
     });
   });
 });
