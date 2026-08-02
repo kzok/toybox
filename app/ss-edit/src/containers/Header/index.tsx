@@ -23,7 +23,7 @@ export const Header = React.memo<{
 ));
 
 const FileMenu = React.memo(() => {
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
   const canSave = pageCtx.useCanSave();
   return (
     <Menu>
@@ -46,7 +46,7 @@ const FileMenu = React.memo(() => {
 });
 
 const EditMenu = React.memo(() => {
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>

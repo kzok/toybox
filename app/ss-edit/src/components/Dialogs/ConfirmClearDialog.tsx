@@ -11,7 +11,7 @@ import React from "react";
 
 /** confirm clear dialog */
 export const ConfirmClearDialog = React.memo<{
-  onSelect: (_: boolean) => void;
+  resolve: (_: boolean) => void;
 }>((props) => {
   return (
     <Dialog open>
@@ -24,10 +24,10 @@ export const ConfirmClearDialog = React.memo<{
             Are you sure you want to discard them?
           </DialogContent>
           <DialogActions>
-            <Button appearance="primary" onClick={() => props.onSelect(true)}>
+            <Button appearance="primary" onClick={() => props.resolve(true)}>
               Discard Changes
             </Button>
-            <Button appearance="secondary" onClick={() => props.onSelect(false)}>
+            <Button appearance="secondary" onClick={() => props.resolve(false)}>
               Cancel
             </Button>
           </DialogActions>

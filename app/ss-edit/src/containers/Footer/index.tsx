@@ -30,7 +30,7 @@ const Separator = () => <span className={styles.separator} />;
 
 const Zoom = React.memo(() => {
   const { scale } = pageCtx.useEditorView();
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
 
   return (
     <Menu>
@@ -49,7 +49,7 @@ const Zoom = React.memo(() => {
       <MenuPopover>
         <MenuList>
           {ZOOM_ITEMS.map((item) => (
-            <MenuItem key={item} onClick={() => actions.zoom(item)}>
+            <MenuItem key={item} onClick={() => actions.editorView.zoom(item)}>
               {formatZoomLevel(item)}
             </MenuItem>
           ))}

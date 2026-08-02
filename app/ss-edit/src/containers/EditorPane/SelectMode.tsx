@@ -62,7 +62,7 @@ const ImageItem = React.memo<{
 });
 
 const usePointerActions = (item: PageState.Item) => {
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
 
   return usePointerEvents({
     onPointerDown: (e) => {

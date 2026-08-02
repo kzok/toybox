@@ -8,7 +8,7 @@ import { pageCtx } from "../../../store";
 export const useResizeObserver = <T extends Element>(
   elementRef: React.RefObject<T | null>,
 ): void => {
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
   React.useLayoutEffect(() => {
     const element = elementRef.current;
     if (element == null) {
@@ -19,7 +19,7 @@ export const useResizeObserver = <T extends Element>(
         if (entry.target !== element) {
           continue;
         }
-        actions.syncCanvasSize([entry.contentRect.width, entry.contentRect.height]);
+        actions.editorView.syncCanvasSize([entry.contentRect.width, entry.contentRect.height]);
       }
     });
     observer.observe(element);

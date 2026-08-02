@@ -30,7 +30,7 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
 });
 
 const usePointerActions = () => {
-  const actions = pageCtx.usePageActions();
+  const actions = pageCtx.useActions();
 
   return usePointerEvents({
     onPointerMove: (e) => {
@@ -40,7 +40,7 @@ const usePointerActions = () => {
         e.stopPropagation();
         e.currentTarget.setPointerCapture(e.pointerId);
         e.currentTarget.setAttribute("data-scrolling", "");
-        actions.scroll(e.movementX, e.movementY);
+        actions.editorView.scroll(e.movementX, e.movementY);
         return;
       }
     },
