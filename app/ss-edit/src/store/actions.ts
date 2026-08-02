@@ -144,6 +144,12 @@ export const createActions = (store: Store, atoms: Atoms) => {
         draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);
       });
     },
+    /** clear items */
+    clearItems: (): void => {
+      updateAtom(atoms.state, (draft) => {
+        draft.editorItems = [];
+      });
+    },
   } as const;
 };
 

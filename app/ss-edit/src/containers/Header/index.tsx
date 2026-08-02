@@ -18,6 +18,7 @@ export const Header = React.memo<{
 }>((props) => (
   <div className={clsx(props.className, styles.container)}>
     <FileMenu />
+    <EditMenu />
   </div>
 ));
 
@@ -26,7 +27,26 @@ const FileMenu = React.memo(() => {
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
-        <MenuButton className={styles.fileMenu} appearance="transparent" size="medium">
+        <MenuButton className={styles.menuButton} appearance="transparent" size="medium">
+          File
+        </MenuButton>
+      </MenuTrigger>
+
+      <MenuPopover>
+        <MenuList>
+          <MenuItem onClick={() => actions.clearItems()}>New instance</MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+});
+
+const EditMenu = React.memo(() => {
+  const actions = pageCtx.usePageActions();
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <MenuButton className={styles.menuButton} appearance="transparent" size="medium">
           Edit
         </MenuButton>
       </MenuTrigger>

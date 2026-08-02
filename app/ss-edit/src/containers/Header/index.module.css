@@ -5,8 +5,9 @@
   flex-flow: row nowrap;
   align-items: center;
   gap: 4px;
-}
 
-.fileMenu {
-  flex: 0 0 auto;
+  .menuButton {
+    flex: 0 0 auto;
+    min-width: unset;
+  }
 }
