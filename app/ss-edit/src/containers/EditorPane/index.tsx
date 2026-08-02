@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
+import { usePointerEvents } from "../../hooks";
 import { pageCtx } from "../../store";
-import { convertPointerEvents } from "../../utils/react";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
@@ -32,35 +32,29 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
 const usePointerActions = () => {
   const actions = pageCtx.usePageActions();
 
-  return React.useMemo(() => {
-    const pointerEventHandlers = convertPointerEvents({
-      onPointerMove: (e) => {
-        if (e.buttons === 1) {
-          // main (left) button
-          e.preventDefault();
-          e.stopPropagation();
-          e.currentTarget.setPointerCapture(e.pointerId);
-          e.currentTarget.setAttribute("data-scrolling", "");
-          actions.scroll(e.movementX, e.movementY);
-          return;
-        }
-      },
-      onClick: (e) => {
+  return usePointerEvents({
+    onPointerMove: (e) => {
+      if (e.buttons === 1) {
+        // main (left) button
         e.preventDefault();
         e.stopPropagation();
-        actions.clearMode();
-      },
-    });
-
-    return {
-      ...pointerEventHandlers,
-      onPointerUp: (e: React.PointerEvent): void => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.currentTarget.removeAttribute("data-scrolling");
-      },
-    };
-  }, []);
+        e.currentTarget.setPointerCapture(e.pointerId);
+        e.currentTarget.setAttribute("data-scrolling", "");
+        actions.scroll(e.movementX, e.movementY);
+        return;
+      }
+    },
+    onPointerUp: (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.removeAttribute("data-scrolling");
+    },
+    onClick: (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      actions.clearMode();
+    },
+  });
 };
 
 const EditorOverlayContent = React.memo(() => {

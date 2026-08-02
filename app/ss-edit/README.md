@@ -11,7 +11,7 @@ An image editor specialized for editing screenshots.
 - `src/features/`
   - Domain-specific modules.
 - `src/hooks/`
-  - Framework-agnostic React hooks shared across the application.
+  - React hooks shared across the application.
 - `src/store/`
   - Jotai-based application state management.
 - `src/utils/`
