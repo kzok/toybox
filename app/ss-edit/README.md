@@ -8,6 +8,8 @@ An image editor specialized for editing screenshots.
   - The application root component. Entry point of the application.
 - `src/containers/`
   - React components wired to application state managements.
+- `src/components/`
+  - Presentational React components.
 - `src/features/`
   - Domain-specific modules.
 - `src/hooks/`

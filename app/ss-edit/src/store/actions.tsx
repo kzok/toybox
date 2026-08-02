@@ -1,5 +1,6 @@
 import { castDraft, type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
+import { ConfirmClearDialog } from "../components/Dialogs";
 import { Point2D, type Tuple2D } from "../utils/geometry";
 import { type Atoms, INITIAL_EDITOR_STATE } from "./atoms";
 import type { PageState } from "./types";
@@ -18,7 +19,7 @@ export const createActions = (store: Store, atoms: Atoms) => {
    * @param atom
    * @param recipe
    */
-  const updateAtom = <T>(atom: PrimitiveAtom<T>, recipe: (_: Draft<T>) => void): void => {
+  const updateAtom = <T,>(atom: PrimitiveAtom<T>, recipe: (_: Draft<T>) => void): void => {
     store.set(
       atom,
       produce(store.get(atom), (draft) => {
@@ -145,7 +146,14 @@ export const createActions = (store: Store, atoms: Atoms) => {
       });
     },
     /** clear items */
-    clearItems: (): void => {
+    clearItems: async (): Promise<void> => {
+      if (store.get(atoms.needConfirmBeforeUnload)) {
+        const response = await new Promise<boolean>((resolve) =>
+          store.set(atoms.dialogReactNode, <ConfirmClearDialog onSelect={resolve} />),
+        );
+        store.set(atoms.dialogReactNode, null);
+        if (response === false) return; // cancelled.
+      }
       updateAtom(atoms.state, (draft) => {
         draft.editorItems = [];
       });

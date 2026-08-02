@@ -16,10 +16,15 @@ export const App: React.FC = () => (
       <Footer className={styles.footer} />
     </div>
     <BeforeUnloadHandler />
+    <DialogOutlet />
   </AppProvider>
 );
 
 const BeforeUnloadHandler = React.memo(() => {
   useBeforeUnload(pageCtx.useNeedConfirmBeforeUnload());
   return null;
+});
+
+const DialogOutlet = React.memo(() => {
+  return pageCtx.useDialogReactNode();
 });

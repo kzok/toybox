@@ -4,7 +4,6 @@ import type { PageState } from "./types";
 
 /** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
-  isSaved: false,
   editorMode: { kind: "select", selectedIds: [] },
   editorView: { canvasSize: [0, 0], offset: [0, 0], scale: 1 },
   editorItems: [],
@@ -16,6 +15,10 @@ export const INITIAL_EDITOR_STATE: PageState = {
 export const createAtoms = () => {
   /** (primitive) entire editor state. */
   const state = atom(INITIAL_EDITOR_STATE);
+  /** if the latest change was saved. */
+  const isSaved = atom(false);
+  /** (primitive) dialog state */
+  const dialogReactNode = atom<React.ReactNode>(null);
   /** state.editorMode */
   const editorMode = atom((get) => get(state).editorMode);
   /** state.editorView */
@@ -28,11 +31,10 @@ export const createAtoms = () => {
     editorMode,
     editorView,
     editorItems,
+    dialogReactNode,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
     entirePictureRect: atom((get) => entirePictureRect(get(editorItems))),
-    needConfirmBeforeUnload: atom(
-      (get): boolean => get(editorItems).length > 0 && !get(state).isSaved,
-    ),
+    needConfirmBeforeUnload: atom((get): boolean => get(editorItems).length > 0 && !get(isSaved)),
   } as const;
 };
 

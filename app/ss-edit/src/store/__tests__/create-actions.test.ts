@@ -1,6 +1,8 @@
 import { castDraft, produce } from "immer";
 import { createStore } from "jotai";
+import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
+import { ConfirmClearDialog } from "../../components/Dialogs";
 import { createActions } from "../actions";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../atoms";
 import type { PageState } from "../types";
@@ -139,6 +141,57 @@ describe(createActions, () => {
       expect(() => actions.moveItem(item1.id, [10, 20])).not.toThrow();
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
+    });
+  });
+
+  describe("clearItems()", () => {
+    const setUpWithItem = () => {
+      const target = createTestTarget();
+      const item = createImageItem("item-1", [0, 0]);
+      target.store.set(
+        target.atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorItems.push(castDraft(item));
+        }),
+      );
+      return { ...target, item } as const;
+    };
+
+    it("clears items immediately when confirmation is not needed.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      await actions.clearItems();
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+
+    it("shows a confirmation dialog and keeps items when the user cancels.", async () => {
+      const { store, actions, atoms } = setUpWithItem();
+      const clearing = actions.clearItems();
+
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<{
+        onSelect: (_: boolean) => void;
+      }>;
+      expect(dialog.type).toBe(ConfirmClearDialog);
+
+      dialog.props.onSelect(false);
+      await clearing;
+
+      expect(store.get(atoms.editorItems)).toHaveLength(1);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+
+    it("clears items and hides the dialog when the user confirms.", async () => {
+      const { store, actions, atoms } = setUpWithItem();
+      const clearing = actions.clearItems();
+
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<{
+        onSelect: (_: boolean) => void;
+      }>;
+      dialog.props.onSelect(true);
+      await clearing;
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
     });
   });
 });
