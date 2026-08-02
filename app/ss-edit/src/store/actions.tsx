@@ -1,6 +1,8 @@
 import { castDraft, type Draft, produce } from "immer";
 import type { createStore, PrimitiveAtom } from "jotai";
 import { ConfirmClearDialog } from "../components/Dialogs";
+import { exportToImageBlob } from "../features/renderer";
+import { saveBlobAsFile } from "../utils/fileIO";
 import { Point2D, type Tuple2D } from "../utils/geometry";
 import { type Atoms, INITIAL_EDITOR_STATE } from "./atoms";
 import type { PageState } from "./types";
@@ -157,6 +159,12 @@ export const createActions = (store: Store, atoms: Atoms) => {
       updateAtom(atoms.state, (draft) => {
         draft.editorItems = [];
       });
+    },
+    /** render editor items and save them as a PNG file */
+    saveAsPng: async (): Promise<void> => {
+      const blob = await exportToImageBlob(store.get(atoms.editorItems));
+      saveBlobAsFile(blob, "screenshot.png");
+      store.set(atoms.isSaved, true);
     },
   } as const;
 };

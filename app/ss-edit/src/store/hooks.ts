@@ -10,5 +10,6 @@ export const useEditorItems = () => useAtomValue(usePageAtoms().editorItems);
 export const useDialogReactNode = () => useAtomValue(usePageAtoms().dialogReactNode);
 export const useCanvasOffset = () => useAtomValue(usePageAtoms().canvasOffset);
 export const useEntirePictureRect = () => useAtomValue(usePageAtoms().entirePictureRect);
+export const useCanSave = () => useAtomValue(usePageAtoms().canSave);
 export const useNeedConfirmBeforeUnload = () =>
   useAtomValue(usePageAtoms().needConfirmBeforeUnload);

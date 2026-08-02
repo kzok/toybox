@@ -24,6 +24,7 @@ export const Header = React.memo<{
 
 const FileMenu = React.memo(() => {
   const actions = pageCtx.usePageActions();
+  const canSave = pageCtx.useCanSave();
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
@@ -35,6 +36,9 @@ const FileMenu = React.memo(() => {
       <MenuPopover>
         <MenuList>
           <MenuItem onClick={() => actions.clearItems()}>New instance</MenuItem>
+          <MenuItem disabled={!canSave} onClick={() => actions.saveAsPng()}>
+            Save as PNG
+          </MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

@@ -32,8 +32,10 @@ export const createAtoms = () => {
     editorView,
     editorItems,
     dialogReactNode,
+    isSaved,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
     entirePictureRect: atom((get) => entirePictureRect(get(editorItems))),
+    canSave: atom((get): boolean => get(editorItems).length > 0),
     needConfirmBeforeUnload: atom((get): boolean => get(editorItems).length > 0 && !get(isSaved)),
   } as const;
 };
