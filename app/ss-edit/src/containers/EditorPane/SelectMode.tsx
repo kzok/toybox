@@ -49,6 +49,7 @@ const ImageItem = React.memo<{
     <button
       type="button"
       className={styles.imageItem}
+      data-item-kind={item.kind}
       data-selected={selected}
       style={{
         left: `${(item.offset[0] * scale).toFixed(1)}px`,
