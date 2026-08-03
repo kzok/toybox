@@ -4,7 +4,7 @@ const PORT = 4173;
 const BASE_URL = `http://localhost:${PORT}/`;
 
 export default defineConfig({
-  testDir: "./e2e/tests",
+  testDir: "./e2e",
   testMatch: "**/*.e2e.ts",
   retries: 1,
   reporter: process.env.CI
