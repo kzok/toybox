@@ -67,7 +67,7 @@ const Offset = React.memo(() => {
   const { size } = pageCtx.useEntirePictureRect();
 
   return (
-    <Button className={styles.offset} appearance="transparent" size="medium" title="Offset">
+    <Button className={styles.offset} appearance="transparent" size="medium" title="Size">
       {size.x.toFixed()} x {size.y.toFixed()}
     </Button>
   );

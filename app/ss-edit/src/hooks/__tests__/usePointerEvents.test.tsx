@@ -46,7 +46,6 @@ describe(usePointerEvents, () => {
       it("swallow the click so that ancestors don't handle it.", async () => {
         const ancestorOnClick = vitest.fn(noop);
         render(
-          // biome-ignore lint/a11y/useKeyWithClickEvents: verifying event propagation
           <div onClick={ancestorOnClick}>
             <TestComponent params={{}} />
           </div>,
@@ -113,7 +112,6 @@ describe(usePointerEvents, () => {
       it("let the click reach ancestors.", async () => {
         const ancestorOnClick = vitest.fn(noop);
         render(
-          // biome-ignore lint/a11y/useKeyWithClickEvents: verifying event propagation
           <div onClick={ancestorOnClick}>
             <TestComponent params={{}} />
           </div>,

@@ -40,5 +40,18 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    // override for test files
+    {
+      "includes": ["**/__tests__/**", "e2e/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "recommended": false
+          }
+        }
+      }
+    }
+  ]
 }

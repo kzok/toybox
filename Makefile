@@ -18,7 +18,7 @@ help:
 	@echo "Makefile as a task runner used for local development and CI."
 	@echo ""
 	@echo "Targets:"
-	@grep -E '^\.PHONY: [a-zA-Z_/-]+ ##' $(MAKEFILE_LIST) |\
+	@grep -E '^\.PHONY: [a-zA-Z0-9_/-]+ ##' $(MAKEFILE_LIST) |\
 		sed -r "s/\.PHONY: //" |\
 		awk 'BEGIN {FS = " ## "}; {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
@@ -27,6 +27,18 @@ check: node_modules
 	npm run fmt
 	npm run type-check
 	npm run test -- --changed --run
+
+.PHONY: e2e ## run e2e tests on docker
+e2e: node_modules build
+	./e2e/runner.sh run
+
+.PHONY: e2e-update ## update e2e snapshots on docker
+e2e-update: node_modules build
+	./e2e/runner.sh run --update-snapshots
+
+.PHONY: e2e-local ## run e2e tests on local
+e2e-local: node_modules build
+	npm run e2e -- --ignore-snapshots --ui
 
 .PHONY: dev-ss-edit ## start dev server of ss-edit
 dev-ss-edit: node_modules
