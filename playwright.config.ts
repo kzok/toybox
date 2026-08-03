@@ -7,6 +7,9 @@ export default defineConfig({
   testDir: "./e2e/tests",
   testMatch: "**/*.e2e.ts",
   retries: 1,
+  reporter: process.env.CI
+    ? [["github"], ["html", { open: "never" }]]
+    : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: BASE_URL,
     viewport: { width: 1280, height: 720 },

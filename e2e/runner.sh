@@ -11,7 +11,7 @@ E2E_IMAGE=toybox-e2e
 
 function docker_run() {
   docker run --rm --ipc=host --user "$(id -u):$(id -g)" \
-    --env HOME=/tmp --volume "${ROOT_DIR}:/app" --workdir /app "${E2E_IMAGE}" "$@"
+    --env HOME=/tmp --env CI --volume "${ROOT_DIR}:/app" --workdir /app "${E2E_IMAGE}" "$@"
 }
 
 ################################################################################
