@@ -1,13 +1,10 @@
-type Result = Readonly<{
-  blob: Blob;
-  image: ImageBitmap;
-}>;
+import type { ImageFile } from "./types";
 
 /**
  * opens a native file picker restricted to images, then decodes the selected file.
  * @returns the selected file and its decoded image, or `null` if the user cancels.
  */
-export const pickImageFile = (accept = "image/*"): Promise<Result | null> =>
+export const pickImageFile = (accept = "image/*"): Promise<ImageFile | null> =>
   new Promise((resolve, reject) => {
     const input = document.createElement("input");
     input.type = "file";
