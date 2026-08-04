@@ -6,9 +6,7 @@ const ZOOM_MIN = 0.27;
 const ZOOM_MAX = 2.0;
 
 /**
- * @param store
- * @param atoms
- * @param updateAtom
+ * @param params store, atoms and updateAtom
  * @returns actions for editor view
  */
 export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {

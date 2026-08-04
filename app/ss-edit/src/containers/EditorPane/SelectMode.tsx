@@ -76,7 +76,7 @@ const usePointerActions = (item: PageState.Item) => {
       if (e.buttons === 1) {
         // main (left) button
         e.currentTarget.setPointerCapture(e.pointerId);
-        actions.moveItem(item.id, [e.movementX, e.movementY]);
+        actions.editorItem.move(item.id, [e.movementX, e.movementY]);
         return;
       }
     },

@@ -6,7 +6,6 @@ import { Header } from "../containers/Header";
 import { useBeforeUnload } from "../hooks/useBeforeUnload";
 import { useWindowFileDrop } from "../hooks/useWindowFileDrop";
 import { pageCtx } from "../store";
-import { readImageFromDataTransfer } from "../utils/fileIO";
 import { AppProvider } from "./AppProvider";
 import styles from "./index.module.css";
 
@@ -26,14 +25,7 @@ export const App: React.FC = () => (
 
 const DropZone = React.memo(() => {
   const actions = pageCtx.useActions();
-
-  const dragging = useWindowFileDrop(async (dataTransfer) => {
-    const dropped = await readImageFromDataTransfer(dataTransfer);
-    if (dropped == null) {
-      return; // the payload carried no image file.
-    }
-    actions.addImageItem(dropped.image);
-  });
+  const dragging = useWindowFileDrop(actions.editorItem.addFromDataTransfer);
 
   if (!dragging) {
     return null;
