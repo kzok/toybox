@@ -62,29 +62,29 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
       });
     },
     /** open a native file picker and add the picked image as an item */
-    addFromFilePicker: async (): Promise<void> => {
+    addFromFilePicker: dialogs.withErrorDialog(async () => {
       const picked = await pickImageFile();
       if (picked == null) {
         return; // cancelled.
       }
       addImageItem(picked.image);
-    },
+    }),
     /**
      * add the first image of a drop payload as an item.
      * @param dataTransfer from drop event.
      */
-    addFromDataTransfer: async (dataTransfer: DataTransfer): Promise<void> => {
+    addFromDataTransfer: dialogs.withErrorDialog(async (dataTransfer: DataTransfer) => {
       const dropped = await readImageFromDataTransfer(dataTransfer);
       if (dropped == null) {
         return; // the payload carried no image file.
       }
       addImageItem(dropped.image);
-    },
+    }),
     /** render editor items and save them as a PNG file */
-    saveAsPng: async (): Promise<void> => {
+    saveAsPng: dialogs.withErrorDialog(async () => {
       const blob = await exportToImageBlob(store.get(atoms.editorItems));
       saveBlobAsFile(blob, "screenshot.png");
       store.set(atoms.isSaved, true);
-    },
+    }),
   } as const;
 };

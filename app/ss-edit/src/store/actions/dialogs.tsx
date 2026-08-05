@@ -1,4 +1,4 @@
-import { ConfirmClearDialog } from "../../components/Dialogs";
+import { ConfirmClearDialog, ErrorNoticeDialog } from "../../components/Dialogs";
 import type { ActionCreatorParam } from "./types";
 
 /**
@@ -8,16 +8,18 @@ import type { ActionCreatorParam } from "./types";
  */
 export const createDialogActions = ({ store, atoms }: ActionCreatorParam) => {
   /**
+   * push a dialog onto the stack, then pop it once it resolves.
    * @param render dialog render function
    * @returns result
    */
   const showDialog = async <T,>(
     render: (resolve: (_: T) => void) => React.ReactNode,
   ): Promise<T> => {
+    const id = crypto.randomUUID();
     const result = await new Promise<T>((resolve) =>
-      store.set(atoms.dialogReactNode, render(resolve)),
+      store.set(atoms.dialogStack, (stack) => [...stack, { id, node: render(resolve) }]),
     );
-    store.set(atoms.dialogReactNode, null);
+    store.set(atoms.dialogStack, (stack) => stack.filter((entry) => entry.id !== id));
     return result;
   };
 
@@ -25,5 +27,20 @@ export const createDialogActions = ({ store, atoms }: ActionCreatorParam) => {
     /** show dialog to confirm if it's okay to clear items */
     confirmClear: (): Promise<boolean> =>
       showDialog((resolve) => <ConfirmClearDialog resolve={resolve} />),
+    /**
+     * wrap an action so that a thrown value is shown in a dialog instead of being propagated.
+     * @param f action to wrap
+     * @returns the wrapped action, which never rejects and settles once the user closes the dialog
+     */
+    withErrorDialog:
+      <T extends unknown[]>(f: (...params: T) => Promise<void> | void) =>
+      async (...params: T): Promise<void> => {
+        try {
+          await f(...params);
+        } catch (e) {
+          console.error(e);
+          await showDialog<void>((resolve) => <ErrorNoticeDialog error={e} resolve={resolve} />);
+        }
+      },
   } as const;
 };

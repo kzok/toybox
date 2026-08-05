@@ -1,8 +1,8 @@
 import { castDraft, produce } from "immer";
 import { createStore } from "jotai";
 import type { ReactElement } from "react";
-import { describe, expect, it } from "vitest";
-import { ConfirmClearDialog } from "../../../components/Dialogs";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ConfirmClearDialog, ErrorNoticeDialog } from "../../../components/Dialogs";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
 import type { PageState } from "../../types";
 import { createActions } from "..";
@@ -134,6 +134,83 @@ describe(createEditorItemActions, () => {
       }>;
       dialog.props.resolve(true);
       await clearing;
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+  });
+
+  describe("addFromDataTransfer()", () => {
+    const dataTransferOf = (...files: File[]): DataTransfer =>
+      ({ files }) as unknown as DataTransfer;
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    });
+
+    it("shows an error dialog and adds nothing when the image cannot be decoded.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.stubGlobal("createImageBitmap", () => Promise.reject(new Error("decode failed")));
+
+      const adding = actions.editorItem.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),
+      );
+      // let the rejection propagate through the wrapper.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<{ resolve: () => void }>;
+      expect(dialog.type).toBe(ErrorNoticeDialog);
+
+      dialog.props.resolve();
+      await adding;
+
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+    });
+
+    it("restores the dialog underneath once the error dialog is closed.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      store.set(
+        atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorItems.push(castDraft(createImageItem("item-1", [0, 0])));
+        }),
+      );
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.stubGlobal("createImageBitmap", () => Promise.reject(new Error("decode failed")));
+
+      // an image is dropped while the confirmation dialog is waiting for an answer.
+      const clearing = actions.editorItem.clear();
+      const adding = actions.editorItem.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const errorDialog = store.get(atoms.dialogReactNode) as ReactElement<{ resolve: () => void }>;
+      expect(errorDialog.type).toBe(ErrorNoticeDialog);
+      errorDialog.props.resolve();
+      await adding;
+
+      // the confirmation dialog is back on top and still answerable.
+      const confirmDialog = store.get(atoms.dialogReactNode) as ReactElement<{
+        resolve: (_: boolean) => void;
+      }>;
+      expect(confirmDialog.type).toBe(ConfirmClearDialog);
+      confirmDialog.props.resolve(true);
+      await clearing;
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+
+    it("adds no item and shows no dialog when the payload carries no image.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+
+      await actions.editorItem.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "a.txt", { type: "text/plain" })),
+      );
 
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
       expect(store.get(atoms.dialogReactNode)).toBeNull();
