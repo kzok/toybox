@@ -7,7 +7,9 @@ import {
   DialogSurface,
   DialogTitle,
 } from "@fluentui/react-components";
+import { WarningFilled } from "@fluentui/react-icons";
 import React from "react";
+import styles from "./ConfirmClearDialog.module.css";
 
 /** confirm clear dialog */
 export const ConfirmClearDialog = React.memo<{
@@ -17,7 +19,12 @@ export const ConfirmClearDialog = React.memo<{
     <Dialog open>
       <DialogSurface>
         <DialogBody>
-          <DialogTitle>Unsaved Changes</DialogTitle>
+          <DialogTitle>
+            <span className={styles.title}>
+              <WarningFilled className={styles.warningIcon!} />
+              Unsaved Changes
+            </span>
+          </DialogTitle>
           <DialogContent>
             You have made changes that have not been saved.
             <br />
