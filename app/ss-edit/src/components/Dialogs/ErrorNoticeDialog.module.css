@@ -1,0 +1,35 @@
+.title {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 8px;
+
+  .errorIcon {
+    flex: none;
+    font-size: 24px;
+    color: var(--colorStatusDangerForeground1);
+  }
+}
+
+.errorSummary {
+  margin: 12px 0 0;
+  font-weight: var(--fontWeightSemibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.errorDetails {
+  display: block;
+  margin: 12px 0 0;
+  padding: 8px;
+  max-height: 160px;
+  overflow: auto;
+  border-radius: var(--borderRadiusMedium);
+  background-color: var(--colorNeutralBackground3);
+  color: var(--colorNeutralForeground2);
+  font-family: var(--fontFamilyMonospace);
+  font-size: var(--fontSizeBase200);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
