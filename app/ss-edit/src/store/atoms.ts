@@ -2,6 +2,12 @@ import { atom } from "jotai";
 import { canvasOffset, entirePictureRect } from "./selectors";
 import type { PageState } from "./types";
 
+/** a dialog on the stack. */
+export type DialogEntry = {
+  id: string;
+  node: React.ReactNode;
+};
+
 /** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
   editorMode: { kind: "select", selectedIds: [] },
@@ -17,8 +23,10 @@ export const createAtoms = () => {
   const state = atom(INITIAL_EDITOR_STATE);
   /** if the latest change was saved. */
   const isSaved = atom(false);
-  /** (primitive) dialog state */
-  const dialogReactNode = atom<React.ReactNode>(null);
+  /** (primitive) dialog stack, the last entry is on top. */
+  const dialogStack = atom<readonly DialogEntry[]>([]);
+  /** the dialog on top of the stack, or null if there is none. */
+  const dialogReactNode = atom((get) => get(dialogStack).at(-1)?.node ?? null);
   /** state.editorMode */
   const editorMode = atom((get) => get(state).editorMode);
   /** state.editorView */
@@ -31,6 +39,7 @@ export const createAtoms = () => {
     editorMode,
     editorView,
     editorItems,
+    dialogStack,
     dialogReactNode,
     isSaved,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),

@@ -9,7 +9,6 @@ import {
 import clsx from "clsx";
 import React from "react";
 import { pageCtx } from "../../store";
-import { pickImageFile } from "../../utils/fileIO";
 import styles from "./index.module.css";
 
 /** a header of main view */
@@ -35,8 +34,8 @@ const FileMenu = React.memo(() => {
 
       <MenuPopover>
         <MenuList>
-          <MenuItem onClick={() => actions.clearItems()}>New instance</MenuItem>
-          <MenuItem disabled={!canSave} onClick={() => actions.saveAsPng()}>
+          <MenuItem onClick={() => actions.editorItem.clear()}>New instance</MenuItem>
+          <MenuItem disabled={!canSave} onClick={() => actions.editorItem.saveAsPng()}>
             Save as PNG
           </MenuItem>
         </MenuList>
@@ -57,17 +56,7 @@ const EditMenu = React.memo(() => {
 
       <MenuPopover>
         <MenuList>
-          <MenuItem
-            onClick={async () => {
-              const picked = await pickImageFile();
-              if (picked == null) {
-                return; // cancelled.
-              }
-              actions.addImageItem(picked.image);
-            }}
-          >
-            Add image
-          </MenuItem>
+          <MenuItem onClick={() => actions.editorItem.addFromFilePicker()}>Add image</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

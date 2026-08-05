@@ -63,7 +63,7 @@ describe(usePointerEvents, () => {
       it("keep working when the component re-renders mid-drag.", async () => {
         const onClick = vitest.fn(noop);
         // params is intentionally not memoized, and a state update re-renders
-        // during the drag, just like actions.moveItem() does in SelectMode.
+        // during the drag, just like actions.editorItem.move() does in SelectMode.
         const Rerendering: React.FC = () => {
           const [, setTick] = React.useState(0);
           return (

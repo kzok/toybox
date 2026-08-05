@@ -26,3 +26,33 @@
 .footer {
   grid-area: footer;
 }
+
+.dropOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  /**
+   * the overlay appears right under the cursor, so it would fire `dragenter` / `dragleave` on its
+   * own and break the depth counting of `useWindowFileDrop` unless it stays transparent to the
+   * pointer.
+   */
+  pointer-events: none;
+
+  background: color-mix(in srgb, var(--bg-color) 70%, transparent);
+  outline: 4px dashed var(--border-gray-color);
+  outline-offset: -12px;
+
+  color: var(--main-text-color);
+  font-size: 24px;
+
+  .dropOverlayIcon {
+    font-size: 64px;
+  }
+}
