@@ -3,8 +3,8 @@ import { createStore } from "jotai";
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConfirmClearDialog, ErrorNoticeDialog } from "../../../components/Dialogs";
+import type { EditorItem } from "../../../features/editorItem";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
-import type { PageState } from "../../types";
 import { createActions } from "..";
 import { createEditorItemActions } from "../editorItem";
 
@@ -16,10 +16,7 @@ describe(createEditorItemActions, () => {
     return { store, actions, atoms } as const;
   };
 
-  const createImageItem = (
-    id: string,
-    offset: PageState.Item.Image["offset"],
-  ): PageState.Item.Image => ({
+  const createImageItem = (id: string, offset: EditorItem.Image["offset"]): EditorItem.Image => ({
     kind: "image",
     id,
     data: {} as ImageBitmap,

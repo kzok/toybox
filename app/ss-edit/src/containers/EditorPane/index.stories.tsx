@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { castDraft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
+import type { EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
 import testImage350x240 from "../../test/350x240.png";
 import { EditorPane } from "./index";
@@ -30,7 +31,7 @@ export const ImageItem: StoryObj<typeof meta> = {
           id: "story-image",
           data: image,
           offset: [-image.width / 2, -image.height / 2],
-        } satisfies PageState.Item.Image),
+        } satisfies EditorItem.Image),
       );
     });
     return renderEditor(state);

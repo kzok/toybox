@@ -1,4 +1,4 @@
-import { type PageState, selectors } from "../../store";
+import { type EditorItem, editorPictureRect } from "../editorItem";
 import { renderEditorItems } from "./renderEditorItems";
 
 /**
@@ -6,8 +6,8 @@ import { renderEditorItems } from "./renderEditorItems";
  * @param items editor items
  * @returns PNG blob tightly cropped to the items' bounding box
  */
-export const exportToImageBlob = async (items: readonly PageState.Item[]): Promise<Blob> => {
-  const { head, size } = selectors.entirePictureRect(items);
+export const exportToImageBlob = async (items: readonly EditorItem[]): Promise<Blob> => {
+  const { head, size } = editorPictureRect(items);
   const canvas = new OffscreenCanvas(Math.ceil(size.x), Math.ceil(size.y));
   const ctx = canvas.getContext("2d");
   if (ctx == null) {

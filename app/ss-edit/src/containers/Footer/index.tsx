@@ -64,7 +64,7 @@ const formatZoomLevel = (scale: number): string => `${(scale * 100).toFixed()}%`
 const ZOOM_ITEMS: readonly number[] = [2, 1.5, 1, 0.5];
 
 const Offset = React.memo(() => {
-  const { size } = pageCtx.useEntirePictureRect();
+  const { size } = pageCtx.useEditorPictureRect();
 
   return (
     <Button className={styles.offset} appearance="transparent" size="medium" title="Size">

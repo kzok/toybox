@@ -1,12 +1,13 @@
-import type { PageState } from "../../store";
+import type { EditorItem } from "../editorItem";
+import type { CanvasContext2D } from "./types";
 
 /**
  * render editor items
  * @param ctx
  * @param items editor items
  */
-export const renderEditorItems = (ctx: CanvasDrawImage, items: readonly PageState.Item[]) => {
-  const renderImage = (item: PageState.Item): void => {
+export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorItem[]) => {
+  const renderImage = (item: EditorItem.Image): void => {
     ctx.drawImage(item.data, ...item.offset);
   };
 

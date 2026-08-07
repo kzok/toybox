@@ -1,4 +1,5 @@
 import React from "react";
+import type { EditorItem } from "../../features/editorItem";
 import { usePointerEvents } from "../../hooks";
 import { type PageState, pageCtx } from "../../store";
 import styles from "./SelectMode.module.css";
@@ -41,7 +42,7 @@ export const SelectMode = React.memo<{
 });
 
 const ImageItem = React.memo<{
-  item: PageState.Item.Image;
+  item: EditorItem.Image;
   scale: number;
   selected: boolean;
 }>(({ item, scale, selected }) => {
@@ -62,7 +63,7 @@ const ImageItem = React.memo<{
   );
 });
 
-const usePointerActions = (item: PageState.Item) => {
+const usePointerActions = (item: EditorItem) => {
   const actions = pageCtx.useActions();
 
   return usePointerEvents({

@@ -1,8 +1,8 @@
 import { castDraft } from "immer";
+import type { EditorItem } from "../../features/editorItem";
 import { exportToImageBlob } from "../../features/renderer";
 import { pickImageFile, readImageFromDataTransfer, saveBlobAsFile } from "../../utils/fileIO";
 import { Point2D, type Tuple2D } from "../../utils/geometry";
-import type { PageState } from "../types";
 import { createDialogActions } from "./dialogs";
 import type { ActionCreatorParam } from "./types";
 
@@ -15,7 +15,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
   const dialogs = createDialogActions(params);
 
   const addImageItem = (data: ImageBitmap): void => {
-    const newItem: PageState.Item.Image = {
+    const newItem: EditorItem.Image = {
       kind: "image",
       id: crypto.randomUUID(),
       data,

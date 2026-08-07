@@ -1,10 +1,11 @@
+import type { EditorItem } from "../features/editorItem";
 import type { Tuple2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
   editorView: PageState.View;
   editorMode: PageState.Mode;
-  editorItems: readonly PageState.Item[];
+  editorItems: readonly EditorItem[];
 }>;
 
 export namespace PageState {
@@ -17,20 +18,6 @@ export namespace PageState {
     /** scale multiplier */
     scale: number;
   }>;
-
-  /** editor item */
-  export type Item = Item.Image;
-  export namespace Item {
-    /** image item */
-    export type Image = Readonly<{
-      kind: "image";
-      id: string;
-      /** image data */
-      data: ImageBitmap;
-      /** top-left offset */
-      offset: Tuple2D;
-    }>;
-  }
 
   /** editor mode state */
   export type Mode = Mode.Select;
