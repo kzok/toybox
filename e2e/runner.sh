@@ -37,7 +37,6 @@ function cmd_build() { ## build docker image
 }
 
 function cmd_run() { ## run playwright via docker
-  cmd_build
   docker_run npm run e2e -- "$@"
 }
 

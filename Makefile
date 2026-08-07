@@ -30,10 +30,12 @@ check: node_modules
 
 .PHONY: e2e ## run e2e tests on docker
 e2e: node_modules build
+	./e2e/runner.sh build
 	./e2e/runner.sh run
 
 .PHONY: e2e-update ## update e2e snapshots on docker
 e2e-update: node_modules build
+	./e2e/runner.sh build
 	./e2e/runner.sh run --update-snapshots
 
 .PHONY: e2e-local ## run e2e tests on local
