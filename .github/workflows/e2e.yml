@@ -23,7 +23,30 @@ jobs:
       with:
         node-version-file: 'package.json'
         cache: 'npm'
-    - run: make e2e
+    - name: prepare the app and the docker image in parallel
+      shell: bash
+      run: |
+        # buffer the image build output instead of interleaving it with
+        # `make build`, which would make the log unreadable.
+        image_log="${RUNNER_TEMP}/e2e-image.log"
+        ./e2e/runner.sh build >"${image_log}" 2>&1 &
+        image_pid=$!
+
+        app_status=0
+        make build || app_status=$?
+
+        image_status=0
+        wait "${image_pid}" || image_status=$?
+
+        echo "::group::docker image build"
+        cat "${image_log}"
+        echo "::endgroup::"
+
+        if [ "${app_status}" -ne 0 ] || [ "${image_status}" -ne 0 ]; then
+          echo "setup failed (make build=${app_status}, docker build=${image_status})" >&2
+          exit 1
+        fi
+    - run: ./e2e/runner.sh run
     - if: failure()
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
