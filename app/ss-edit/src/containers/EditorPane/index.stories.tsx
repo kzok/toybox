@@ -58,7 +58,7 @@ const renderEditor = (state: PageState): React.ReactElement => {
     return (
       <div
         style={{
-          display: "inline-grid",
+          display: "grid",
           width: 500,
           height: 500,
           alignItems: "stretch",
