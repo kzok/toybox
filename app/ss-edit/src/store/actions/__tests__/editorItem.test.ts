@@ -51,8 +51,8 @@ describe(createEditorItemActions, () => {
 
     it("moves every selected item when the trigger item is already selected.", () => {
       const { store, actions, atoms, item1, item2 } = setUp();
-      actions.selectItem(item1.id);
-      actions.selectItem(item2.id, true);
+      actions.editorMode.selectItem(item1.id);
+      actions.editorMode.selectItem(item2.id, true);
 
       actions.editorItem.move(item1.id, [10, 20]);
 
@@ -77,8 +77,8 @@ describe(createEditorItemActions, () => {
 
     it("ignores selected ids that no longer match an existing item.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.selectItem(item1.id);
-      actions.selectItem("missing-id", true);
+      actions.editorMode.selectItem(item1.id);
+      actions.editorMode.selectItem("missing-id", true);
 
       expect(() => actions.editorItem.move(item1.id, [10, 20])).not.toThrow();
       const items = store.get(atoms.editorItems);

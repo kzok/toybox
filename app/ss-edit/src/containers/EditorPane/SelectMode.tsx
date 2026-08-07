@@ -1,37 +1,21 @@
+import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, letterSpacingOf, lineHeightOf } from "../../features/editorItem";
 import { usePointerEvents } from "../../hooks";
-import { type PageState, pageCtx } from "../../store";
+import { pageCtx } from "../../store";
 import styles from "./SelectMode.module.css";
 
 /** editor overlay content for "select" mode */
-export const SelectMode = React.memo<{
-  editorMode: PageState.Mode.Select;
-}>(({ editorMode }) => {
-  const view = pageCtx.useEditorView();
+export const SelectMode = React.memo(() => {
   const items = pageCtx.useEditorItems();
   const canvasOffset = pageCtx.useCanvasOffset();
 
   const children = items.map((item): React.ReactNode => {
     switch (item.kind) {
       case "image":
-        return (
-          <ImageItem
-            key={item.id}
-            item={item}
-            scale={view.scale}
-            selected={editorMode.selectedIds.includes(item.id)}
-          />
-        );
+        return <ImageItem key={item.id} item={item} />;
       case "text":
-        return (
-          <TextItem
-            key={item.id}
-            item={item}
-            scale={view.scale}
-            selected={editorMode.selectedIds.includes(item.id)}
-          />
-        );
+        return <TextItem key={item.id} item={item} />;
       default:
         item satisfies never;
         return null;
@@ -52,53 +36,65 @@ export const SelectMode = React.memo<{
 
 const ImageItem = React.memo<{
   item: EditorItem.Image;
-  scale: number;
-  selected: boolean;
-}>(({ item, scale, selected }) => (
-  <button
-    type="button"
-    className={styles.imageItem}
-    data-item-kind={item.kind}
-    data-selected={selected}
-    style={{
+}>(({ item }) => {
+  const scale = useCanvasScale();
+  const style = React.useMemo(
+    (): React.CSSProperties => ({
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
       width: `${item.data.width}px`,
       height: `${item.data.height}px`,
       ...({ "--scale": scale } as React.CSSProperties),
-    }}
-    {...usePointerActions(item)}
-  />
-));
+    }),
+    [item, scale],
+  );
+  const { selected, singleSelect } = useItemSelected(item.id);
+
+  return (
+    <button
+      type="button"
+      className={styles.imageItem}
+      data-item-kind={item.kind}
+      data-selected={selected}
+      style={style}
+      {...usePointerActions(item, singleSelect)}
+    />
+  );
+});
 
 const TextItem = React.memo<{
   item: EditorItem.Text;
-  scale: number;
-  selected: boolean;
-}>(({ item, scale, selected }) => {
+}>(({ item }) => {
+  const scale = useCanvasScale();
+  const style = React.useMemo(
+    (): React.CSSProperties => ({
+      left: `${(item.offset[0] * scale).toFixed(1)}px`,
+      top: `${(item.offset[1] * scale).toFixed(1)}px`,
+      width: `${item.width}px`,
+      fontSize: `${item.fontSize}px`,
+      lineHeight: `${lineHeightOf(item.fontSize)}px`,
+      letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
+      ...({ "--scale": scale } as React.CSSProperties),
+    }),
+    [item, scale],
+  );
+  const { selected, singleSelect } = useItemSelected(item.id);
+
   return (
     <button
       type="button"
       className={styles.textItem}
       data-item-kind={item.kind}
       data-selected={selected}
-      style={{
-        left: `${(item.offset[0] * scale).toFixed(1)}px`,
-        top: `${(item.offset[1] * scale).toFixed(1)}px`,
-        width: `${item.width}px`,
-        fontSize: `${item.fontSize}px`,
-        lineHeight: `${lineHeightOf(item.fontSize)}px`,
-        letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
-        ...({ "--scale": scale } as React.CSSProperties),
-      }}
-      {...usePointerActions(item)}
+      style={style}
+      {...usePointerActions(item, singleSelect)}
     >
       {item.content}
     </button>
   );
 });
 
-const usePointerActions = (item: EditorItem) => {
+const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
   const actions = pageCtx.useActions();
 
   return usePointerEvents({
@@ -119,7 +115,39 @@ const usePointerActions = (item: EditorItem) => {
     onClick: (e) => {
       e.preventDefault();
       e.stopPropagation();
-      actions.selectItem(item.id, e.ctrlKey);
+      if (singleSelect && item.kind === "text") {
+        actions.editorMode.enterEdit(item.id);
+      } else {
+        actions.editorMode.selectItem(item.id, e.ctrlKey);
+      }
     },
   });
+};
+
+const useCanvasScale = () => {
+  const atoms = pageCtx.useAtoms();
+  return useAtomValue(React.useMemo(() => atom((get) => get(atoms.editorView).scale), [atoms]));
+};
+
+const useItemSelected = (itemId: string): { selected: boolean; singleSelect: boolean } => {
+  const atoms = pageCtx.useAtoms();
+  return useAtomValue(
+    React.useMemo(
+      () =>
+        atom((get) => {
+          let selected = false;
+          let singleSelect = false;
+          const editorMode = get(atoms.editorMode);
+          if (editorMode.kind !== "select") {
+            return { selected, singleSelect };
+          }
+          selected = editorMode.selectedIds.includes(itemId);
+          if (selected) {
+            singleSelect = editorMode.selectedIds.length === 1;
+          }
+          return { selected, singleSelect };
+        }),
+      [atoms, itemId],
+    ),
+  );
 };

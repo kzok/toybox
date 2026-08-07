@@ -52,7 +52,7 @@ const usePointerActions = () => {
     onClick: (e) => {
       e.preventDefault();
       e.stopPropagation();
-      actions.clearMode();
+      actions.editorMode.clear();
     },
   });
 };
@@ -62,9 +62,11 @@ const EditorOverlayContent = React.memo(() => {
 
   switch (editorMode.kind) {
     case "select":
-      return <SelectMode editorMode={editorMode} />;
+      return <SelectMode />;
+    case "edit":
+      return null; // TODO: implement
     default:
-      editorMode.kind satisfies never;
+      editorMode satisfies never;
       return null;
   }
 });

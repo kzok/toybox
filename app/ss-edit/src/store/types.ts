@@ -20,13 +20,20 @@ export namespace PageState {
   }>;
 
   /** editor mode state */
-  export type Mode = Mode.Select;
+  export type Mode = Mode.Select | Mode.Edit;
   export namespace Mode {
     /** selection mode */
     export type Select = Readonly<{
       kind: "select";
       /** selected item Ids */
       selectedIds: readonly string[];
+    }>;
+
+    /** edit mode */
+    export type Edit = Readonly<{
+      kind: "edit";
+      /** target item Id */
+      itemId: string;
     }>;
   }
 }
