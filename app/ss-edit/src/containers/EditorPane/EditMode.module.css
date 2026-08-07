@@ -1,0 +1,40 @@
+.container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.textarea {
+  display: block;
+  position: absolute;
+  transform-origin: 0 0;
+
+  background: transparent;
+  box-sizing: content-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  resize: none;
+  overflow: hidden;
+  user-select: text;
+
+  transform: scale(var(--scale, 1));
+  /* a solid outline, as opposed to the dashed one of "select" mode */
+  /* cancel out `transform: scale()` to keep the outline width constant */
+  outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
+
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  line-break: anywhere;
+  font-family: "Noto Sans JP", "Noto Sans", sans-serif;
+  font-weight: bold;
+  /* the text itself is painted onto the <canvas/> underneath */
+  color: transparent;
+  caret-color: #0f6cbd;
+
+  &::selection {
+    background: rgba(15, 108, 189, 0.3);
+  }
+}

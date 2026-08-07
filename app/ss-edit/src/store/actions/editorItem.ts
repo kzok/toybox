@@ -52,6 +52,18 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
         }
       });
     },
+    /**
+     * update the content of a text item.
+     * @param itemId item.id
+     * @param content new text content
+     */
+    editText: (itemId: string, content: string): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "text") return;
+        item.content = content;
+      });
+    },
     /** clear items */
     clear: async (): Promise<void> => {
       if (store.get(atoms.needConfirmBeforeUnload)) {

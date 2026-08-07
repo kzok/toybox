@@ -3,6 +3,7 @@ import React from "react";
 import { type EditorItem, letterSpacingOf, lineHeightOf } from "../../features/editorItem";
 import { usePointerEvents } from "../../hooks";
 import { pageCtx } from "../../store";
+import { useCanvasScale } from "./hooks/useCanvasScale";
 import styles from "./SelectMode.module.css";
 
 /** editor overlay content for "select" mode */
@@ -122,11 +123,6 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
       }
     },
   });
-};
-
-const useCanvasScale = () => {
-  const atoms = pageCtx.useAtoms();
-  return useAtomValue(React.useMemo(() => atom((get) => get(atoms.editorView).scale), [atoms]));
 };
 
 const useItemSelected = (itemId: string): { selected: boolean; singleSelect: boolean } => {

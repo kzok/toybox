@@ -22,34 +22,46 @@ export const Empty: StoryObj<typeof meta> = {
 
 export const Example: StoryObj<typeof meta> = {
   loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
-  render: (_args, { loaded }) => {
-    const image = loaded.image as ImageBitmap;
-    const state = produce(INITIAL_EDITOR_STATE, (draft) => {
-      draft.editorItems.push(
-        castDraft({
-          kind: "image",
-          id: "story-image",
-          data: image,
-          offset: [-image.width / 2, -image.height / 2],
-        } satisfies EditorItem.Image),
-      );
-      draft.editorItems.push(
-        castDraft({
-          kind: "text",
-          id: "story-text",
-          // NOTE: long enough to check both an explicit line break and auto wrapping.
-          content:
-            "Hello world!\nこんにちは、世界！これは折り返しを確認するための長いテキストです。",
-          offset: [-image.width / 2, -image.height / 2],
-          width: image.width,
-          fontSize: 32,
-          color: "#EF3171",
-        } satisfies EditorItem.Text),
-      );
-    });
-    return renderEditor(state);
-  },
+  render: (_args, { loaded }) => renderEditor(exampleState(loaded.image as ImageBitmap)),
 };
+
+export const Editing: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(exampleState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = { kind: "edit", itemId: "story-text" };
+      }),
+    ),
+};
+
+/**
+ * @param image image item data
+ * @returns a state with an image item and a text item on it
+ */
+const exampleState = (image: ImageBitmap): PageState =>
+  produce(INITIAL_EDITOR_STATE, (draft) => {
+    draft.editorItems.push(
+      castDraft({
+        kind: "image",
+        id: "story-image",
+        data: image,
+        offset: [-image.width / 2, -image.height / 2],
+      } satisfies EditorItem.Image),
+    );
+    draft.editorItems.push(
+      castDraft({
+        kind: "text",
+        id: "story-text",
+        // NOTE: long enough to check both an explicit line break and auto wrapping.
+        content: "Hello world!\nこんにちは、世界！これは折り返しを確認するための長いテキストです。",
+        offset: [-image.width / 2, -image.height / 2],
+        width: image.width,
+        fontSize: 32,
+        color: "#EF3171",
+      } satisfies EditorItem.Text),
+    );
+  });
 
 const renderEditor = (state: PageState): React.ReactElement => {
   const Wrapper: React.FC = () => {

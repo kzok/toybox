@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { usePointerEvents } from "../../hooks";
 import { pageCtx } from "../../store";
+import { EditMode } from "./EditMode";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
@@ -64,7 +65,7 @@ const EditorOverlayContent = React.memo(() => {
     case "select":
       return <SelectMode />;
     case "edit":
-      return null; // TODO: implement
+      return <EditMode />;
     default:
       editorMode satisfies never;
       return null;
