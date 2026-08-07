@@ -34,7 +34,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.2",
     "chromatic": "18.0.1",
-    "jsdom": "27.4.0",
+    "jsdom": "29.1.1",
     "serve": "14.2.6",
     "storybook": "10.2.1",
     "typescript": "5.9.3",
