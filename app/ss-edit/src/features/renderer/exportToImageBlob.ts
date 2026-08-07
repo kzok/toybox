@@ -1,5 +1,5 @@
 import { type EditorItem, editorPictureRect } from "../editorItem";
-import { renderEditorItems } from "./renderEditorItems";
+import { renderEditorItems } from "./renderItems";
 
 /**
  * renders editor items onto an off-screen canvas and encodes it as a PNG blob.

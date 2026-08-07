@@ -20,7 +20,7 @@ export const Empty: StoryObj<typeof meta> = {
   render: () => renderEditor(INITIAL_EDITOR_STATE),
 };
 
-export const ImageItem: StoryObj<typeof meta> = {
+export const Example: StoryObj<typeof meta> = {
   loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
   render: (_args, { loaded }) => {
     const image = loaded.image as ImageBitmap;
@@ -32,6 +32,17 @@ export const ImageItem: StoryObj<typeof meta> = {
           data: image,
           offset: [-image.width / 2, -image.height / 2],
         } satisfies EditorItem.Image),
+      );
+      draft.editorItems.push(
+        castDraft({
+          kind: "text",
+          id: "story-text",
+          content: "Hello world!",
+          offset: [-image.width / 2, image.height / 2],
+          width: image.width,
+          fontSize: 48,
+          color: "#EF3171",
+        } satisfies EditorItem.Text),
       );
     });
     return renderEditor(state);

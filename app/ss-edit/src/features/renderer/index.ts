@@ -1,3 +1,3 @@
 export * from "./exportToImageBlob";
-export * from "./renderEditorItems";
+export * from "./renderItems";
 export * from "./types";
