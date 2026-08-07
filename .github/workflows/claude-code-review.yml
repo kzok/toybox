@@ -37,15 +37,30 @@ jobs:
           PR NUMBER: ${{ github.event.pull_request.number }}
 
           Review this pull request. The PR branch is already checked out in the
-          working directory, and CLAUDE.md holds this repository's conventions.
+          working directory.
 
           Focus on correctness: logic errors, unhandled edge cases, and subtle
           regressions. Skip anything CI already enforces (biome formatting and
-          lint, TypeScript type errors).
+          lint, TypeScript type errors). Limit findings to lines this PR
+          touches, or code it directly breaks.
 
-          Post findings as inline comments on the offending lines. Use a
-          top-level comment for general observations. If nothing is worth
-          raising, say so briefly instead of padding the review.
+          Only post a finding if you can state the concrete input or state that
+          triggers it. If you are guessing, leave it out.
+
+          Post each finding as an inline comment on the offending line, starting
+          with a severity label:
+
+          - `[must-fix]` — broken behavior, data loss, or a security hole.
+          - `[should-fix]` — works today but will break or mislead later.
+
+          After the label, put a one-sentence summary of the defect on the same
+          line, then its trigger condition, impact, and suggested fix. If that
+          runs past roughly ten lines, split it into `**Trigger**` /
+          `**Impact**` / `**Suggested fix**` sections so it stays scannable.
+
+          Finally, post one top-level comment grouping the inline findings by
+          severity, plus any observation that belongs to no single line. If
+          nothing is worth raising, say so briefly.
         claude_args: |
           --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
           --max-turns 20
