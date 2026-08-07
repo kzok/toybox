@@ -16,8 +16,11 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
       case "image":
         renderImage(item);
         break;
+      case "text":
+        // TODO: implement this.
+        break;
       default:
-        item.kind satisfies never;
+        item satisfies never;
     }
   }
 };

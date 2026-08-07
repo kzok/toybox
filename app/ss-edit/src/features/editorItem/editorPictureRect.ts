@@ -24,8 +24,11 @@ export const editorPictureRect = (items: readonly EditorItem[]): EditorPictureRe
             ? item.offset[1] + item.data.height
             : Math.max(tailY, item.offset[1] + item.data.height);
         break;
+      case "text":
+        // TODO: implement this.
+        break;
       default:
-        item.kind satisfies never;
+        item satisfies never;
     }
   }
   const head = new Point2D(headX ?? 0, headY ?? 0);

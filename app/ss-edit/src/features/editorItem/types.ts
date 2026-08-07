@@ -1,7 +1,7 @@
 import type { Point2D, Tuple2D } from "../../utils/geometry";
 
 /** editor item */
-export type EditorItem = EditorItem.Image;
+export type EditorItem = EditorItem.Image | EditorItem.Text;
 
 export namespace EditorItem {
   /** image item */
@@ -12,6 +12,22 @@ export namespace EditorItem {
     data: ImageBitmap;
     /** top-left offset */
     offset: Tuple2D;
+  }>;
+
+  /** text item */
+  export type Text = Readonly<{
+    kind: "text";
+    id: string;
+    /** text content */
+    content: string;
+    /** top-left offset */
+    offset: Tuple2D;
+    /** width */
+    width: number;
+    /** font size */
+    fontSize: number;
+    /** font color */
+    color: string;
   }>;
 }
 

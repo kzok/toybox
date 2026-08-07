@@ -23,8 +23,10 @@ export const SelectMode = React.memo<{
             selected={editorMode.selectedIds.includes(item.id)}
           />
         );
+      case "text":
+        return null; // TODO: implement this.
       default:
-        item.kind satisfies never;
+        item satisfies never;
         return null;
     }
   });
