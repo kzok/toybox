@@ -5,14 +5,20 @@
   transform-origin: 0 0;
 }
 
-.imageItem {
+.imageItem,
+.textItem {
   display: inline-block;
   position: absolute;
+  transform-origin: 0 0;
   cursor: move;
 
   background: transparent;
-  border: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
   outline: none;
+
+  transform: scale(var(--scale, 1));
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -20,6 +26,17 @@
 
   &[data-selected="true"] {
     background: rgba(15, 108, 189, 0.3);
-    outline: 2px dashed #0f6cbd;
+    /* cancel out `transform: scale()` to keep the outline width constant */
+    outline: calc(2px / var(--scale, 1)) dashed #0f6cbd;
   }
+}
+
+.textItem {
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  line-break: anywhere;
+  font-family: "Noto Sans JP", "Noto Sans", sans-serif;
+  font-weight: bold;
+  color: transparent;
 }

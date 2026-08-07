@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { editorPictureRect } from "../features/editorItem";
+import { measurePicture } from "../features/editorItem";
 import { canvasOffset } from "./selectors";
 import type { PageState } from "./types";
 
@@ -44,7 +44,7 @@ export const createAtoms = () => {
     dialogReactNode,
     isSaved,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
-    editorPictureRect: atom((get) => editorPictureRect(get(editorItems))),
+    editorPictureRect: atom((get) => measurePicture(get(editorItems))),
     canSave: atom((get): boolean => get(editorItems).length > 0),
     needConfirmBeforeUnload: atom((get): boolean => get(editorItems).length > 0 && !get(isSaved)),
   } as const;

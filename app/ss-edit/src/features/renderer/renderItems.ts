@@ -1,4 +1,4 @@
-import type { EditorItem } from "../editorItem";
+import { type EditorItem, letterSpacingOf, lineHeightOf } from "../editorItem";
 import type { CanvasContext2D } from "./types";
 
 /**
@@ -26,16 +26,27 @@ const renderImage = (ctx: CanvasContext2D, item: EditorItem.Image): void => {
 };
 
 const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
-  const [x, y] = item.offset;
+  const lineHeight = lineHeightOf(item.fontSize);
   const strokeWidth = Math.ceil(item.fontSize / 6);
-  const letterSpacing = Math.ceil(strokeWidth / 2);
+  const letterSpacing = letterSpacingOf(item.fontSize);
 
   ctx.save();
-  ctx.font = `bold ${item.fontSize}px "Noto Sans JP"`;
+  ctx.translate(...item.offset);
+  ctx.font = `bold ${item.fontSize}px "Noto Sans JP", "Noto Sans", sans-serif`;
   ctx.letterSpacing = `${letterSpacing}px`;
   ctx.textAlign = "left";
-  ctx.textBaseline = "top";
+  ctx.textBaseline = "alphabetic";
   ctx.lineJoin = "round";
+
+  // calculate position
+  // NOTE: the measured text is arbitrary since only font-wide metrics are used.
+  const metrics = ctx.measureText("あ");
+  const ascent = metrics.fontBoundingBoxAscent;
+  const descent = metrics.fontBoundingBoxDescent;
+  // NOTE: CSS line boxes floor the half-leading, so rounding up shifts the
+  // baseline 1px below the DOM overlay on some font sizes.
+  const halfLeading = Math.floor((lineHeight - (ascent + descent)) / 2);
+  const y = halfLeading + ascent;
 
   // text shadow
   ctx.shadowColor = "#000";
@@ -44,17 +55,17 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   ctx.shadowOffsetY = letterSpacing;
   ctx.strokeStyle = "#000";
   ctx.lineWidth = strokeWidth;
-  ctx.strokeText(item.content, x, y);
+  ctx.strokeText(item.content, 0, y);
   ctx.shadowColor = "transparent";
 
   // outline text
   ctx.strokeStyle = "#fff";
   ctx.lineWidth = strokeWidth;
-  ctx.strokeText(item.content, x, y);
+  ctx.strokeText(item.content, 0, y);
 
   // inner text
   ctx.fillStyle = item.color;
-  ctx.fillText(item.content, x, y);
+  ctx.fillText(item.content, 0, y);
 
   ctx.restore();
 };

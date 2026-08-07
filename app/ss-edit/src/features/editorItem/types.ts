@@ -31,8 +31,8 @@ export namespace EditorItem {
   }>;
 }
 
-/** entire picture rect */
-export type EditorPictureRect = Readonly<{
+/** editor picture/item rect */
+export type EditorRect = Readonly<{
   /** top-left position */
   head: Point2D;
   /** bottom-right position */
