@@ -4,7 +4,7 @@ import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
 import type { EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
-import testImage350x240 from "../../test/350x240.png";
+import testImage350x240 from "./fixtures/350x240.png";
 import { EditorPane } from "./index";
 
 const meta: Meta = {
