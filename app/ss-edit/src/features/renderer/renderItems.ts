@@ -1,4 +1,4 @@
-import { type EditorItem, letterSpacingOf, lineHeightOf } from "../editorItem";
+import { type EditorItem, letterSpacingOf, lineHeightOf, splitLines } from "../editorItem";
 import type { CanvasContext2D } from "./types";
 
 /**
@@ -38,7 +38,6 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   ctx.textBaseline = "alphabetic";
   ctx.lineJoin = "round";
 
-  // calculate position
   // NOTE: the measured text is arbitrary since only font-wide metrics are used.
   const metrics = ctx.measureText("あ");
   const ascent = metrics.fontBoundingBoxAscent;
@@ -46,26 +45,31 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   // NOTE: CSS line boxes floor the half-leading, so rounding up shifts the
   // baseline 1px below the DOM overlay on some font sizes.
   const halfLeading = Math.floor((lineHeight - (ascent + descent)) / 2);
-  const y = halfLeading + ascent;
+  const firstBaseline = halfLeading + ascent;
 
-  // text shadow
-  ctx.shadowColor = "#000";
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetX = letterSpacing;
-  ctx.shadowOffsetY = letterSpacing;
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = strokeWidth;
-  ctx.strokeText(item.content, 0, y);
-  ctx.shadowColor = "transparent";
+  const lines = splitLines(item);
+  for (const [index, line] of lines.entries()) {
+    const y = firstBaseline + index * lineHeight;
 
-  // outline text
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = strokeWidth;
-  ctx.strokeText(item.content, 0, y);
+    // text shadow
+    ctx.shadowColor = "#000";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = letterSpacing;
+    ctx.shadowOffsetY = letterSpacing;
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeText(line, 0, y);
+    ctx.shadowColor = "transparent";
 
-  // inner text
-  ctx.fillStyle = item.color;
-  ctx.fillText(item.content, 0, y);
+    // outline text
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeText(line, 0, y);
+
+    // inner text
+    ctx.fillStyle = item.color;
+    ctx.fillText(line, 0, y);
+  }
 
   ctx.restore();
 };

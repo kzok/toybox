@@ -37,10 +37,12 @@ export const Example: StoryObj<typeof meta> = {
         castDraft({
           kind: "text",
           id: "story-text",
-          content: "Hello world!",
-          offset: [-image.width / 2, image.height / 2],
+          // NOTE: long enough to check both an explicit line break and auto wrapping.
+          content:
+            "Hello world!\nこんにちは、世界！これは折り返しを確認するための長いテキストです。",
+          offset: [-image.width / 2, -image.height / 2],
           width: image.width,
-          fontSize: 48,
+          fontSize: 32,
           color: "#EF3171",
         } satisfies EditorItem.Text),
       );
