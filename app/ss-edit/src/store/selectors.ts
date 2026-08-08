@@ -7,8 +7,8 @@ import type { PageState } from "./types";
  * @returns translate() offset for `<canvas/>`
  */
 export const canvasOffset = (view: PageState.View): Point2D => {
-  const paneOffset = Point2D.new(view.canvasSize).scale(0.5);
-  return paneOffset.subtract(Point2D.new(view.offset).scale(view.scale));
+  const paneOffset = Point2D.new(view.canvasSize).div(2);
+  return paneOffset.sub(Point2D.new(view.offset).mul(view.scale));
 };
 
 /**
@@ -19,5 +19,5 @@ export const rangeRect = (range: readonly [Point2D, Point2D]): EditorRect => {
   const [start, end] = range;
   const head = new Point2D(Math.min(start.x, end.x), Math.min(start.y, end.y));
   const tail = new Point2D(Math.max(start.x, end.x), Math.max(start.y, end.y));
-  return { head, tail, size: tail.subtract(head) };
+  return { head, tail, size: tail.sub(head) };
 };

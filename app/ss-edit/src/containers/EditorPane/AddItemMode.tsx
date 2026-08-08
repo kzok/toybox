@@ -25,8 +25,8 @@ const RangePreview = React.memo<{
   const scale = useCanvasScale();
   const style = React.useMemo((): React.CSSProperties => {
     const { head, size } = selectors.rangeRect(range);
-    const offset = head.scale(scale).add(canvasOffset);
-    const scaledSize = size.scale(scale);
+    const offset = head.mul(scale).add(canvasOffset);
+    const scaledSize = size.mul(scale);
     return {
       left: `${offset.x.toFixed(1)}px`,
       top: `${offset.y.toFixed(1)}px`,
@@ -50,9 +50,7 @@ const usePointerActions = () => {
       if (e.buttons === 1) {
         // main (left) button
         e.currentTarget.setPointerCapture(e.pointerId);
-        const p = Point2D.new(e.clientX, e.clientY).subtract(
-          e.currentTarget.getBoundingClientRect(),
-        );
+        const p = Point2D.new(e.clientX, e.clientY).sub(e.currentTarget.getBoundingClientRect());
         actions.editorMode.updateAddItemRange(p);
         return;
       }

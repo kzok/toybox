@@ -44,7 +44,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
           draft.editorMode = { kind: "select", selectedIds: [triggerItemId] };
         }
 
-        const scaledDelta = Point2D.new(delta).scale(1 / draft.editorView.scale);
+        const scaledDelta = Point2D.new(delta).div(draft.editorView.scale);
         for (const id of draft.editorMode.selectedIds) {
           const item = draft.editorItems.find((item) => item.id === id);
           if (item == null) continue;

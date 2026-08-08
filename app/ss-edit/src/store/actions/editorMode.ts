@@ -79,9 +79,7 @@ export const createEditorModeActions = ({ atoms, updateAtom }: ActionCreatorPara
     updateAddItemRange: (cursor: Point2D): void => {
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind !== "add-item") return;
-        const point = cursor
-          .subtract(canvasOffset(draft.editorView))
-          .scale(1 / draft.editorView.scale);
+        const point = cursor.sub(canvasOffset(draft.editorView)).div(draft.editorView.scale);
         if (draft.editorMode.range == null) {
           draft.editorMode.range = [point, point];
         } else {

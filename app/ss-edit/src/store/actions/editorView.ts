@@ -38,7 +38,7 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
      */
     zoom: (next: number | ((_: number) => number), cursor?: Tuple2D): void => {
       updateAtom(atoms.state, (draft) => {
-        const halfPaneSize = Point2D.new(draft.editorView.canvasSize).scale(0.5).tuple();
+        const halfPaneSize = Point2D.new(draft.editorView.canvasSize).div(2).tuple();
         cursor = cursor ?? halfPaneSize;
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
@@ -46,8 +46,8 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
         // next offset
         const scaleDelta = draft.editorView.scale / scale;
         const scaleOrigin = Point2D.new(cursor)
-          .subtract(halfPaneSize)
-          .scale(1 / draft.editorView.scale)
+          .sub(halfPaneSize)
+          .div(draft.editorView.scale)
           .add(draft.editorView.offset);
         const offset = Point2D.new(draft.editorView.offset).scale(scaleDelta, scaleOrigin).tuple();
         draft.editorView.scale = scale;

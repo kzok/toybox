@@ -34,7 +34,7 @@ export const measurePicture = (items: readonly EditorItem[]): EditorRect => {
   }
   const head = new Point2D(headX ?? 0, headY ?? 0);
   const tail = new Point2D(tailX ?? 0, tailY ?? 0);
-  const size = tail.subtract(head);
+  const size = tail.sub(head);
   return { head, tail, size };
 };
 

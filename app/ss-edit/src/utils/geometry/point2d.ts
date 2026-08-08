@@ -1,12 +1,11 @@
-import type { Tuple2D } from "./types";
-
-type PointerArg = Tuple2D | Readonly<Record<"x" | "y", number>>;
+/** 2D coordinate (x, y) tuple */
+export type Tuple2D = readonly [number, number];
 
 /**
  * @param arg non-asserted parameter
  * @returns aligned parameter
  */
-const alignArg = (arg: PointerArg): readonly [number, number] => {
+const toTuple = (arg: Point2D.Param): Tuple2D => {
   if (typeof arg === "object" && "x" in arg) {
     return [arg.x, arg.y];
   }
@@ -15,53 +14,57 @@ const alignArg = (arg: PointerArg): readonly [number, number] => {
 
 /** immutable plane point */
 export class Point2D {
-  static new(...args: [PointerArg] | [number, number]): Point2D {
+  static new(...args: [Point2D.Param] | [number, number]): Point2D {
     if (args.length === 2) {
       return new Point2D(...args);
     }
-    return new Point2D(...alignArg(args[0]));
+    return new Point2D(...toTuple(args[0]));
   }
   /**
-   * @param x
-   * @param y
+   * @param x x coordinate
+   * @param y y coordinate
    */
   constructor(
     public readonly x: number,
     public readonly y: number,
   ) {}
   /**
-   * @param x
-   * @param y
+   * @param arg another operand
    * @returns added point
    */
-  add(arg: PointerArg): Point2D {
-    const [x, y] = alignArg(arg);
+  add(arg: Point2D.Param): Point2D {
+    const [x, y] = toTuple(arg);
     return new Point2D(this.x + x, this.y + y);
   }
   /**
-   * @param x
-   * @param y
+   * @param arg another operand
    * @returns subtracted point
    */
-  subtract(arg: PointerArg): Point2D {
-    const [x, y] = alignArg(arg);
+  sub(arg: Point2D.Param): Point2D {
+    const [x, y] = toTuple(arg);
     return new Point2D(this.x - x, this.y - y);
   }
   /**
-   * @param scale
-   * @returns scaled point
+   * @param scale scale factor
+   * @returns multiplied point
    */
-  scale(scale: number, origin: PointerArg = [0, 0]): Point2D {
-    const originP = alignArg(origin);
-    const x = (this.x - originP[0]) * scale + originP[0];
-    const y = (this.y - originP[1]) * scale + originP[1];
-    return new Point2D(x, y);
+  mul(scale: number): Point2D {
+    return new Point2D(this.x * scale, this.y * scale);
   }
   /**
-   * @returns inverted point
+   * @param scale scale factor
+   * @returns divided point
    */
-  invert(): Point2D {
-    return new Point2D(-this.x, -this.y);
+  div(scale: number): Point2D {
+    return new Point2D(this.x / scale, this.y / scale);
+  }
+  /**
+   * @param scale scale factor
+   * @param origin origin of scaling
+   * @returns scaled point
+   */
+  scale(scale: number, origin: Point2D.Param): Point2D {
+    return this.sub(origin).mul(scale).add(origin);
   }
   /**
    * @returns [x, y]
@@ -73,8 +76,13 @@ export class Point2D {
    * @param another another point
    * @returns distance (px)
    */
-  distance(another: PointerArg): number {
-    const anotherP = alignArg(another);
-    return Math.sqrt((this.x - anotherP[0]) ** 2 + (this.y - anotherP[1]) ** 2);
+  distance(another: Point2D.Param): number {
+    const diff = this.sub(another);
+    return Math.sqrt(diff.x ** 2 + diff.y ** 2);
   }
+}
+
+export namespace Point2D {
+  /** Point2D acceptable parameter */
+  export type Param = Tuple2D | Readonly<Record<"x" | "y", number>>;
 }
