@@ -88,6 +88,17 @@ export const createEditorModeActions = ({ atoms, updateAtom }: ActionCreatorPara
       });
     },
     /**
+     * drop the range being dragged in "add-item" mode, staying in the mode.
+     * @note called when the drag is cancelled (e.g. on "pointercancel"), so that the
+     *   abandoned start point never becomes the head of the next drag.
+     */
+    cancelAddItem: (): void => {
+      updateAtom(atoms.state, (draft) => {
+        if (draft.editorMode.kind !== "add-item") return;
+        draft.editorMode.range = null;
+      });
+    },
+    /**
      * add the item of "add-item" mode at the dragged range and get into edit mode for it.
      * @note the added item is blank, hence dropped again unless the user types anything.
      */

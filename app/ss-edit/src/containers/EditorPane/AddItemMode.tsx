@@ -42,23 +42,44 @@ const RangePreview = React.memo<{
 
 const usePointerActions = () => {
   const actions = pageCtx.useActions();
+  /**
+   * pointerId of the drag that went down on this element, or null while there is none.
+   * @note a pointer pressed elsewhere (e.g. on the header) and dragged in here must not
+   *   add an item, hence only the drag that began here is followed.
+   */
+  const draggingIdRef = React.useRef<number | null>(null);
 
   return React.useMemo(() => {
+    const updateRange = (e: React.PointerEvent): void => {
+      const p = Point2D.new(e.clientX, e.clientY).sub(e.currentTarget.getBoundingClientRect());
+      actions.editorMode.updateAddItemRange(p);
+    };
+    const onPointerDown: React.PointerEventHandler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.button !== 0) return; // main (left) button only
+      draggingIdRef.current = e.pointerId;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      updateRange(e);
+    };
     const onPointerMove: React.PointerEventHandler = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (e.buttons === 1) {
-        // main (left) button
-        e.currentTarget.setPointerCapture(e.pointerId);
-        const p = Point2D.new(e.clientX, e.clientY).sub(e.currentTarget.getBoundingClientRect());
-        actions.editorMode.updateAddItemRange(p);
-        return;
-      }
+      if (draggingIdRef.current !== e.pointerId || e.buttons !== 1) return;
+      updateRange(e);
     };
     const onPointerUp: React.PointerEventHandler = (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (draggingIdRef.current !== e.pointerId || e.button !== 0) return;
+      draggingIdRef.current = null;
       actions.editorMode.commitAddItem();
+    };
+    const onPointerCancel: React.PointerEventHandler = (e) => {
+      e.stopPropagation();
+      if (draggingIdRef.current !== e.pointerId) return;
+      draggingIdRef.current = null;
+      actions.editorMode.cancelAddItem();
     };
     const onClick: React.MouseEventHandler = (e) => {
       e.preventDefault();
@@ -66,9 +87,10 @@ const usePointerActions = () => {
     };
 
     return {
-      onPointerDown: onPointerMove,
+      onPointerDown,
       onPointerMove,
       onPointerUp,
+      onPointerCancel,
       onClick,
     } as const;
   }, [actions]);

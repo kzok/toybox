@@ -222,6 +222,49 @@ describe(createEditorModeActions, () => {
     });
   });
 
+  describe("cancelAddItem()", () => {
+    it("drops the dragged range, staying in add-item mode.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      actions.enterAddItem("text");
+      actions.updateAddItemRange(new Point2D(20, 40));
+
+      actions.cancelAddItem();
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "add-item",
+        itemKind: "text",
+        range: null,
+      });
+    });
+
+    it("lets the next drag start its range afresh.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      actions.enterAddItem("text");
+      actions.updateAddItemRange(new Point2D(20, 40));
+      actions.cancelAddItem();
+
+      actions.updateAddItemRange(new Point2D(300, 200));
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "add-item",
+        itemKind: "text",
+        range: [new Point2D(300, 200), new Point2D(300, 200)],
+      });
+    });
+
+    it("keeps the state as it is when the mode is not add-item mode.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      actions.selectItem("item-1");
+
+      actions.cancelAddItem();
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: ["item-1"],
+      });
+    });
+  });
+
   describe("commitAddItem()", () => {
     const setUp = (...range: readonly Point2D[]) => {
       const target = createTestTarget();
