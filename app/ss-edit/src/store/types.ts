@@ -1,5 +1,5 @@
 import type { EditorItem } from "../features/editorItem";
-import type { Point2D } from "../utils/geometry";
+import type { Vec2 } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
@@ -12,9 +12,9 @@ export namespace PageState {
   /** editor view state */
   export type View = Readonly<{
     /** actual canvas size px in (width, height) */
-    canvasSize: Point2D;
+    canvasSize: Vec2;
     /** offset */
-    offset: Point2D;
+    offset: Vec2;
     /** scale multiplier */
     scale: number;
   }>;
@@ -42,7 +42,7 @@ export namespace PageState {
       /** kind of the item to be added */
       itemKind: EditorItem.Text["kind"];
       /** dragged range in [start, end] in canvas coordinates, or null until the drag begins */
-      range: readonly [Point2D, Point2D] | null;
+      range: readonly [Vec2, Vec2] | null;
     }>;
   }
 }

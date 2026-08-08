@@ -1,1 +1,1 @@
-export * from "./point2d";
+export * from "./vec2";

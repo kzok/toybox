@@ -1,6 +1,6 @@
 import { castDraft, type Draft } from "immer";
 import type { EditorItem } from "../../features/editorItem";
-import type { Point2D } from "../../utils/geometry";
+import type { Vec2 } from "../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../atoms";
 import { canvasOffset, rangeRect } from "../selectors";
 import type { PageState } from "../types";
@@ -76,7 +76,7 @@ export const createEditorModeActions = ({ atoms, updateAtom }: ActionCreatorPara
      * update range of "add-item" mode
      * @param cursor current cursor position, in editor pane coordinates
      */
-    updateAddItemRange: (cursor: Point2D): void => {
+    updateAddItemRange: (cursor: Vec2): void => {
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind !== "add-item") return;
         const point = cursor.sub(canvasOffset(draft.editorView)).div(draft.editorView.scale);

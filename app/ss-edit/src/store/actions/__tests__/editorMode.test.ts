@@ -2,7 +2,7 @@ import { castDraft, produce } from "immer";
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import type { EditorItem } from "../../../features/editorItem";
-import { Point2D } from "../../../utils/geometry";
+import { Vec2 } from "../../../utils/geometry";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
 import type { PageState } from "../../types";
 import { createActions } from "..";
@@ -173,8 +173,8 @@ describe(createEditorModeActions, () => {
      * on the pane is the origin of the canvas coordinates.
      */
     const view: PageState.View = {
-      canvasSize: new Point2D(400, 300),
-      offset: new Point2D(10, 20),
+      canvasSize: new Vec2(400, 300),
+      offset: new Vec2(10, 20),
       scale: 2,
     };
 
@@ -192,24 +192,24 @@ describe(createEditorModeActions, () => {
 
     it("starts the range at the cursor, in canvas coordinates.", () => {
       const { store, actions, atoms } = setUp();
-      actions.updateAddItemRange(new Point2D(280, 210));
+      actions.updateAddItemRange(new Vec2(280, 210));
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
         itemKind: "text",
-        range: [new Point2D(50, 50), new Point2D(50, 50)],
+        range: [new Vec2(50, 50), new Vec2(50, 50)],
       });
     });
 
     it("moves only the end of the range afterwards.", () => {
       const { store, actions, atoms } = setUp();
-      actions.updateAddItemRange(new Point2D(280, 210));
+      actions.updateAddItemRange(new Vec2(280, 210));
 
-      actions.updateAddItemRange(new Point2D(380, 310));
+      actions.updateAddItemRange(new Vec2(380, 310));
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
         itemKind: "text",
-        range: [new Point2D(50, 50), new Point2D(100, 100)],
+        range: [new Vec2(50, 50), new Vec2(100, 100)],
       });
     });
 
@@ -217,7 +217,7 @@ describe(createEditorModeActions, () => {
       const { store, actions, atoms } = createTestTarget();
       actions.selectItem("item-1");
 
-      actions.updateAddItemRange(new Point2D(280, 210));
+      actions.updateAddItemRange(new Vec2(280, 210));
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -230,7 +230,7 @@ describe(createEditorModeActions, () => {
     it("drops the dragged range, staying in add-item mode.", () => {
       const { store, actions, atoms } = createTestTarget();
       actions.enterAddItem("text");
-      actions.updateAddItemRange(new Point2D(20, 40));
+      actions.updateAddItemRange(new Vec2(20, 40));
 
       actions.cancelAddItem();
 
@@ -244,15 +244,15 @@ describe(createEditorModeActions, () => {
     it("lets the next drag start its range afresh.", () => {
       const { store, actions, atoms } = createTestTarget();
       actions.enterAddItem("text");
-      actions.updateAddItemRange(new Point2D(20, 40));
+      actions.updateAddItemRange(new Vec2(20, 40));
       actions.cancelAddItem();
 
-      actions.updateAddItemRange(new Point2D(300, 200));
+      actions.updateAddItemRange(new Vec2(300, 200));
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
         itemKind: "text",
-        range: [new Point2D(300, 200), new Point2D(300, 200)],
+        range: [new Vec2(300, 200), new Vec2(300, 200)],
       });
     });
 
@@ -270,7 +270,7 @@ describe(createEditorModeActions, () => {
   });
 
   describe("commitAddItem()", () => {
-    const setUp = (...range: readonly Point2D[]) => {
+    const setUp = (...range: readonly Vec2[]) => {
       const target = createTestTarget();
       target.actions.enterAddItem("text");
       for (const cursor of range) {
@@ -287,7 +287,7 @@ describe(createEditorModeActions, () => {
       item?.kind === "text" ? { width: item.width, fontSize: item.fontSize } : null;
 
     it("adds a blank text item sized by the dragged range and edits it.", () => {
-      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(420, 88));
+      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(420, 88));
       actions.commitAddItem();
 
       const items = store.get(atoms.editorItems);
@@ -306,14 +306,14 @@ describe(createEditorModeActions, () => {
     });
 
     it("sorts the corners of a range dragged up and left.", () => {
-      const { store, actions, atoms } = setUp(new Point2D(420, 88), new Point2D(20, 40));
+      const { store, actions, atoms } = setUp(new Vec2(420, 88), new Vec2(20, 40));
       actions.commitAddItem();
 
       expect(store.get(atoms.editorItems)[0]?.offset).toStrictEqual([20, 40]);
     });
 
     it("widens a range too narrow for ten characters of its font size.", () => {
-      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(120, 88));
+      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(120, 88));
       actions.commitAddItem();
 
       expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({
@@ -324,14 +324,14 @@ describe(createEditorModeActions, () => {
 
     it("clamps the font size of a range smaller than a font can be.", () => {
       // a click leaves a range of a single point behind.
-      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(20, 40));
+      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(20, 40));
       actions.commitAddItem();
 
       expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 120, fontSize: 12 });
     });
 
     it("clamps the font size of a range larger than a font can be.", () => {
-      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(120, 640));
+      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(120, 640));
       actions.commitAddItem();
 
       expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 720, fontSize: 72 });

@@ -4,7 +4,7 @@ import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
 import type { EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
-import { Point2D } from "../../utils/geometry";
+import { Vec2 } from "../../utils/geometry";
 import testImage350x240 from "./fixtures/350x240.png";
 import { EditorPane } from "./index";
 
@@ -44,7 +44,7 @@ export const AddingItem: StoryObj<typeof meta> = {
         draft.editorMode = castDraft({
           kind: "add-item",
           itemKind: "text",
-          range: [new Point2D(-100, 0), new Point2D(100, 48)],
+          range: [new Vec2(-100, 0), new Vec2(100, 48)],
         } satisfies PageState.Mode.AddItem);
       }),
     ),

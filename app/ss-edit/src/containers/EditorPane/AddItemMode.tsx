@@ -1,6 +1,6 @@
 import React from "react";
 import { type PageState, pageCtx, selectors } from "../../store";
-import { Point2D } from "../../utils/geometry";
+import { Vec2 } from "../../utils/geometry";
 import styles from "./AddItemMode.module.css";
 import { useCanvasScale } from "./hooks/useCanvasScale";
 
@@ -51,7 +51,7 @@ const usePointerActions = () => {
 
   return React.useMemo(() => {
     const updateRange = (e: React.PointerEvent): void => {
-      const p = Point2D.new(e.clientX, e.clientY).sub(e.currentTarget.getBoundingClientRect());
+      const p = Vec2.new(e.clientX, e.clientY).sub(e.currentTarget.getBoundingClientRect());
       actions.editorMode.updateAddItemRange(p);
     };
     const onPointerDown: React.PointerEventHandler = (e) => {

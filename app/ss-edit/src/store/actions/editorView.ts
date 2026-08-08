@@ -1,4 +1,4 @@
-import { Point2D, type Tuple2D } from "../../utils/geometry";
+import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
 
 const ZOOM_MIN = 0.27;
@@ -14,9 +14,9 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
      * update editor pane size
      * @param canvasSize (width, height)
      */
-    syncCanvasSize: (canvasSize: Tuple2D): void => {
+    syncCanvasSize: (canvasSize: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.canvasSize = Point2D.new(canvasSize);
+        draft.editorView.canvasSize = Vec2.new(canvasSize);
       });
     },
     /**
@@ -27,7 +27,7 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
     scroll: (deltaX: number, deltaY: number): void => {
       updateAtom(atoms.state, (draft) => {
         const { offset, scale } = draft.editorView;
-        draft.editorView.offset = offset.sub(Point2D.new(deltaX, deltaY).div(scale));
+        draft.editorView.offset = offset.sub(Vec2.new(deltaX, deltaY).div(scale));
       });
     },
     /**
@@ -35,11 +35,11 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
      * @param next next scale
      * @param cursor cursor offset from top-left of `<canvas/>`
      */
-    zoom: (next: number | ((_: number) => number), cursor?: Tuple2D): void => {
+    zoom: (next: number | ((_: number) => number), cursor?: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
         const { offset, canvasSize } = draft.editorView;
         const halfPaneSize = canvasSize.div(2);
-        const cursorPoint = cursor == null ? halfPaneSize : Point2D.new(cursor);
+        const cursorPoint = cursor == null ? halfPaneSize : Vec2.new(cursor);
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);

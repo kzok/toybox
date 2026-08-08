@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { Point2D } from "../../utils/geometry";
+import { Vec2 } from "../../utils/geometry";
 import { canvasOffset, rangeRect } from "../selectors";
 import type { PageState } from "../types";
 
 describe("canvasOffset()", () => {
   it("returns half of canvasSize when offset is zero.", () => {
     const view: PageState.View = {
-      canvasSize: new Point2D(800, 600),
-      offset: new Point2D(0, 0),
+      canvasSize: new Vec2(800, 600),
+      offset: new Vec2(0, 0),
       scale: 1,
     };
     expect(canvasOffset(view).tuple()).toStrictEqual([400, 300]);
@@ -15,8 +15,8 @@ describe("canvasOffset()", () => {
 
   it("subtracts offset scaled by view.scale.", () => {
     const view: PageState.View = {
-      canvasSize: new Point2D(800, 600),
-      offset: new Point2D(100, 50),
+      canvasSize: new Vec2(800, 600),
+      offset: new Vec2(100, 50),
       scale: 2,
     };
     expect(canvasOffset(view).tuple()).toStrictEqual([200, 200]);
@@ -24,8 +24,8 @@ describe("canvasOffset()", () => {
 
   it("supports negative offsets.", () => {
     const view: PageState.View = {
-      canvasSize: new Point2D(800, 600),
-      offset: new Point2D(-100, -50),
+      canvasSize: new Vec2(800, 600),
+      offset: new Vec2(-100, -50),
       scale: 1,
     };
     expect(canvasOffset(view).tuple()).toStrictEqual([500, 350]);
@@ -34,21 +34,21 @@ describe("canvasOffset()", () => {
 
 describe("rangeRect()", () => {
   it("returns the rect of a range dragged down and right.", () => {
-    const rect = rangeRect([new Point2D(10, 20), new Point2D(110, 70)]);
+    const rect = rangeRect([new Vec2(10, 20), new Vec2(110, 70)]);
     expect(rect.head.tuple()).toStrictEqual([10, 20]);
     expect(rect.tail.tuple()).toStrictEqual([110, 70]);
     expect(rect.size.tuple()).toStrictEqual([100, 50]);
   });
 
   it("sorts the corners of a range dragged up and left.", () => {
-    const rect = rangeRect([new Point2D(110, 70), new Point2D(10, 20)]);
+    const rect = rangeRect([new Vec2(110, 70), new Vec2(10, 20)]);
     expect(rect.head.tuple()).toStrictEqual([10, 20]);
     expect(rect.tail.tuple()).toStrictEqual([110, 70]);
     expect(rect.size.tuple()).toStrictEqual([100, 50]);
   });
 
   it("returns an empty rect for a range of a single point.", () => {
-    const rect = rangeRect([new Point2D(10, 20), new Point2D(10, 20)]);
+    const rect = rangeRect([new Vec2(10, 20), new Vec2(10, 20)]);
     expect(rect.size.tuple()).toStrictEqual([0, 0]);
   });
 });

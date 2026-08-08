@@ -1,0 +1,87 @@
+/**
+ * @param arg non-asserted parameter
+ * @returns aligned parameter
+ */
+const toTuple = (arg: Vec2.Param): Vec2.Tuple => {
+  if (typeof arg === "object" && "x" in arg) {
+    return [arg.x, arg.y];
+  }
+  return arg;
+};
+
+/** immutable 2D vector */
+export class Vec2 {
+  static new(...args: [Vec2.Param] | [number, number]): Vec2 {
+    if (args.length === 2) {
+      return new Vec2(...args);
+    }
+    return new Vec2(...toTuple(args[0]));
+  }
+  /**
+   * @param x x component
+   * @param y y component
+   */
+  constructor(
+    public readonly x: number,
+    public readonly y: number,
+  ) {}
+  /**
+   * @param arg another operand
+   * @returns added vector
+   */
+  add(arg: Vec2.Param): Vec2 {
+    const [x, y] = toTuple(arg);
+    return new Vec2(this.x + x, this.y + y);
+  }
+  /**
+   * @param arg another operand
+   * @returns subtracted vector
+   */
+  sub(arg: Vec2.Param): Vec2 {
+    const [x, y] = toTuple(arg);
+    return new Vec2(this.x - x, this.y - y);
+  }
+  /**
+   * @param scale scale factor
+   * @returns multiplied vector
+   */
+  mul(scale: number): Vec2 {
+    return new Vec2(this.x * scale, this.y * scale);
+  }
+  /**
+   * @param scale scale factor
+   * @returns divided vector
+   */
+  div(scale: number): Vec2 {
+    return new Vec2(this.x / scale, this.y / scale);
+  }
+  /**
+   * @param scale scale factor
+   * @param origin origin of scaling
+   * @returns scaled vector
+   */
+  scale(scale: number, origin: Vec2.Param): Vec2 {
+    return this.sub(origin).mul(scale).add(origin);
+  }
+  /**
+   * @returns [x, y]
+   */
+  tuple(): [number, number] {
+    return [this.x, this.y];
+  }
+  /**
+   * @param another another vector
+   * @returns distance (px)
+   */
+  distance(another: Vec2.Param): number {
+    const diff = this.sub(another);
+    return Math.sqrt(diff.x ** 2 + diff.y ** 2);
+  }
+}
+
+export namespace Vec2 {
+  /** 2D component (x, y) tuple */
+  export type Tuple = readonly [number, number];
+  /** Vec2 acceptable parameter */
+  export type Param = Tuple | Readonly<Record<"x" | "y", number>>;
+}
