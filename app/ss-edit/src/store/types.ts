@@ -13,7 +13,10 @@ export namespace PageState {
   export type View = Readonly<{
     /** actual canvas size px in (width, height) */
     canvasSize: Vec2;
-    /** offset */
+    /**
+     * picture coordinates shown at the center of the pane.
+     * @note not the top-left corner; the visible top-left is `offset - canvasSize / (2 * scale)`.
+     */
     offset: Vec2;
     /** scale multiplier */
     scale: number;

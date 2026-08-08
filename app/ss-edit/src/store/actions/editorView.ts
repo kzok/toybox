@@ -35,11 +35,11 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
      * @param next next scale
      * @param cursor cursor offset from top-left of `<canvas/>`
      */
-    zoom: (next: number | ((_: number) => number), cursor?: Vec2.Tuple): void => {
+    zoom: (next: number | ((_: number) => number), cursor?: Vec2): void => {
       updateAtom(atoms.state, (draft) => {
         const { offset, canvasSize } = draft.editorView;
         const halfPaneSize = canvasSize.div(2);
-        const cursorPoint = cursor == null ? halfPaneSize : Vec2.new(cursor);
+        const cursorPoint = cursor == null ? halfPaneSize : cursor;
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);

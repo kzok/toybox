@@ -30,13 +30,3 @@ export namespace EditorItem {
     color: string;
   }>;
 }
-
-/** editor picture/item rect */
-export type EditorRect = Readonly<{
-  /** top-left position */
-  head: Vec2;
-  /** bottom-right position */
-  tail: Vec2;
-  /** entire picture size */
-  size: Vec2;
-}>;

@@ -1,6 +1,6 @@
 import React from "react";
-import { type PageState, pageCtx, selectors } from "../../store";
-import { Vec2 } from "../../utils/geometry";
+import { type PageState, pageCtx } from "../../store";
+import { Rect, Vec2 } from "../../utils/geometry";
 import styles from "./AddItemMode.module.css";
 import { useCanvasScale } from "./hooks/useCanvasScale";
 
@@ -24,7 +24,7 @@ const RangePreview = React.memo<{
   const canvasOffset = pageCtx.useCanvasOffset();
   const scale = useCanvasScale();
   const style = React.useMemo((): React.CSSProperties => {
-    const { head, size } = selectors.rangeRect(range);
+    const { head, size } = new Rect(...range);
     const offset = head.mul(scale).add(canvasOffset);
     const scaledSize = size.mul(scale);
     return {

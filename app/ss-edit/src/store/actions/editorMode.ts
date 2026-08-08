@@ -1,8 +1,8 @@
 import { castDraft, type Draft } from "immer";
 import type { EditorItem } from "../../features/editorItem";
-import type { Vec2 } from "../../utils/geometry";
+import { Rect, type Vec2 } from "../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../atoms";
-import { canvasOffset, rangeRect } from "../selectors";
+import { canvasOffset } from "../selectors";
 import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 
@@ -108,7 +108,7 @@ export const createEditorModeActions = ({ atoms, updateAtom }: ActionCreatorPara
         const { range } = draft.editorMode;
         if (range == null) return; // the pointer never went down on the pane.
 
-        const { head, size } = rangeRect(range);
+        const { head, size } = new Rect(...range);
         // NOTE: the dragged height is a single line box, hence the inverse of `lineHeightOf()`.
         const fontSize = Math.min(
           Math.max(Math.round(size.y / 1.5), MIN_FONT_SIZE_PX),
