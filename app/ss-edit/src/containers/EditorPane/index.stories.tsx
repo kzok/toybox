@@ -4,6 +4,7 @@ import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
 import type { EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
+import { Point2D } from "../../utils/geometry";
 import testImage350x240 from "./fixtures/350x240.png";
 import { EditorPane } from "./index";
 
@@ -31,6 +32,20 @@ export const Editing: StoryObj<typeof meta> = {
     renderEditor(
       produce(exampleState(loaded.image as ImageBitmap), (draft) => {
         draft.editorMode = { kind: "edit", itemId: "story-text" };
+      }),
+    ),
+};
+
+export const AddingItem: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(exampleState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = castDraft({
+          kind: "add-item",
+          itemKind: "text",
+          range: [new Point2D(-100, 0), new Point2D(100, 48)],
+        } satisfies PageState.Mode.AddItem);
       }),
     ),
 };

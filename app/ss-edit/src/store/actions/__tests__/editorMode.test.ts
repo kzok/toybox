@@ -2,7 +2,9 @@ import { castDraft, produce } from "immer";
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import type { EditorItem } from "../../../features/editorItem";
+import { Point2D } from "../../../utils/geometry";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
+import type { PageState } from "../../types";
 import { createActions } from "..";
 import { createEditorModeActions } from "../editorMode";
 
@@ -140,6 +142,176 @@ describe(createEditorModeActions, () => {
 
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item.id });
       expect(store.get(atoms.editorItems)).toStrictEqual([item]);
+    });
+  });
+
+  describe("enterAddItem()", () => {
+    it("gets into add-item mode with no range yet.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      actions.enterAddItem("text");
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "add-item",
+        itemKind: "text",
+        range: null,
+      });
+    });
+
+    it("drops the blank target item of edit mode.", () => {
+      const blank = createTextItem("blank-item", "");
+      const { store, actions, atoms } = createTestTargetWithItems(blank);
+      actions.enterEdit(blank.id);
+
+      actions.enterAddItem("text");
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+    });
+  });
+
+  describe("updateAddItemRange()", () => {
+    /**
+     * a view whose `canvasOffset` is (180, 110), so that a cursor at (180, 110)
+     * on the pane is the origin of the canvas coordinates.
+     */
+    const view: PageState.View = { canvasSize: [400, 300], offset: [10, 20], scale: 2 };
+
+    const setUp = () => {
+      const target = createTestTarget();
+      target.store.set(
+        target.atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorView = castDraft(view);
+        }),
+      );
+      target.actions.enterAddItem("text");
+      return target;
+    };
+
+    it("starts the range at the cursor, in canvas coordinates.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.updateAddItemRange(new Point2D(280, 210));
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "add-item",
+        itemKind: "text",
+        range: [new Point2D(50, 50), new Point2D(50, 50)],
+      });
+    });
+
+    it("moves only the end of the range afterwards.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.updateAddItemRange(new Point2D(280, 210));
+
+      actions.updateAddItemRange(new Point2D(380, 310));
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "add-item",
+        itemKind: "text",
+        range: [new Point2D(50, 50), new Point2D(100, 100)],
+      });
+    });
+
+    it("keeps the state as it is when the mode is not add-item mode.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      actions.selectItem("item-1");
+
+      actions.updateAddItemRange(new Point2D(280, 210));
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: ["item-1"],
+      });
+    });
+  });
+
+  describe("commitAddItem()", () => {
+    const setUp = (...range: readonly Point2D[]) => {
+      const target = createTestTarget();
+      target.actions.enterAddItem("text");
+      for (const cursor of range) {
+        target.actions.updateAddItemRange(cursor);
+      }
+      return target;
+    };
+
+    /**
+     * @param item editor item
+     * @returns its text layout, or null if it is not a text item.
+     */
+    const layoutOf = (item: EditorItem | undefined) =>
+      item?.kind === "text" ? { width: item.width, fontSize: item.fontSize } : null;
+
+    it("adds a blank text item sized by the dragged range and edits it.", () => {
+      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(420, 88));
+      actions.commitAddItem();
+
+      const items = store.get(atoms.editorItems);
+      expect(items).toHaveLength(1);
+      expect(items[0]).toStrictEqual({
+        kind: "text",
+        id: expect.any(String),
+        content: "",
+        offset: [20, 40],
+        width: 400,
+        // the dragged height (48px) is a single line box of this font size.
+        fontSize: 32,
+        color: expect.any(String),
+      });
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: items[0]?.id });
+    });
+
+    it("sorts the corners of a range dragged up and left.", () => {
+      const { store, actions, atoms } = setUp(new Point2D(420, 88), new Point2D(20, 40));
+      actions.commitAddItem();
+
+      expect(store.get(atoms.editorItems)[0]?.offset).toStrictEqual([20, 40]);
+    });
+
+    it("widens a range too narrow for ten characters of its font size.", () => {
+      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(120, 88));
+      actions.commitAddItem();
+
+      expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({
+        width: 320, // = fontSize * 10, instead of the dragged 100px.
+        fontSize: 32,
+      });
+    });
+
+    it("clamps the font size of a range smaller than a font can be.", () => {
+      // a click leaves a range of a single point behind.
+      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(20, 40));
+      actions.commitAddItem();
+
+      expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 120, fontSize: 12 });
+    });
+
+    it("clamps the font size of a range larger than a font can be.", () => {
+      const { store, actions, atoms } = setUp(new Point2D(20, 40), new Point2D(120, 640));
+      actions.commitAddItem();
+
+      expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 720, fontSize: 72 });
+    });
+
+    it("keeps the state as it is when the drag never began.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.commitAddItem();
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "add-item",
+        itemKind: "text",
+        range: null,
+      });
+    });
+
+    it("keeps the state as it is when the mode is not add-item mode.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      actions.selectItem("item-1");
+
+      actions.commitAddItem();
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: ["item-1"],
+      });
     });
   });
 

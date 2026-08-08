@@ -1,5 +1,5 @@
 import type { EditorItem } from "../features/editorItem";
-import type { Tuple2D } from "../utils/geometry";
+import type { Point2D, Tuple2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
@@ -20,7 +20,7 @@ export namespace PageState {
   }>;
 
   /** editor mode state */
-  export type Mode = Mode.Select | Mode.Edit;
+  export type Mode = Mode.Select | Mode.Edit | Mode.AddItem;
   export namespace Mode {
     /** selection mode */
     export type Select = Readonly<{
@@ -34,6 +34,15 @@ export namespace PageState {
       kind: "edit";
       /** target item Id */
       itemId: string;
+    }>;
+
+    /** add item mode */
+    export type AddItem = Readonly<{
+      kind: "add-item";
+      /** kind of the item to be added */
+      itemKind: EditorItem.Text["kind"];
+      /** dragged range in [start, end] in canvas coordinates, or null until the drag begins */
+      range: readonly [Point2D, Point2D] | null;
     }>;
   }
 }
