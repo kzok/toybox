@@ -37,7 +37,9 @@ jobs:
           PR NUMBER: ${{ github.event.pull_request.number }}
 
           Review this pull request. The PR branch is already checked out in the
-          working directory.
+          working directory. You cannot run tests, type-checks, or any build or
+          install command — dependencies are not installed and those tools are
+          not available to you. Review by reading the code.
 
           Focus on correctness: logic errors, unhandled edge cases, and subtle
           regressions. Skip anything CI already enforces (biome formatting and
@@ -62,5 +64,5 @@ jobs:
           severity, plus any observation that belongs to no single line. If
           nothing is worth raising, say so briefly.
         claude_args: |
-          --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
-          --max-turns 20
+          --allowedTools "mcp__github_inline_comment__create_inline_comment,Read,Grep,Glob,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+          --max-turns 50
