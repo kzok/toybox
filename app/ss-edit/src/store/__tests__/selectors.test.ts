@@ -6,8 +6,8 @@ import type { PageState } from "../types";
 describe("canvasOffset()", () => {
   it("returns half of canvasSize when offset is zero.", () => {
     const view: PageState.View = {
-      canvasSize: [800, 600],
-      offset: [0, 0],
+      canvasSize: new Point2D(800, 600),
+      offset: new Point2D(0, 0),
       scale: 1,
     };
     expect(canvasOffset(view).tuple()).toStrictEqual([400, 300]);
@@ -15,8 +15,8 @@ describe("canvasOffset()", () => {
 
   it("subtracts offset scaled by view.scale.", () => {
     const view: PageState.View = {
-      canvasSize: [800, 600],
-      offset: [100, 50],
+      canvasSize: new Point2D(800, 600),
+      offset: new Point2D(100, 50),
       scale: 2,
     };
     expect(canvasOffset(view).tuple()).toStrictEqual([200, 200]);
@@ -24,8 +24,8 @@ describe("canvasOffset()", () => {
 
   it("supports negative offsets.", () => {
     const view: PageState.View = {
-      canvasSize: [800, 600],
-      offset: [-100, -50],
+      canvasSize: new Point2D(800, 600),
+      offset: new Point2D(-100, -50),
       scale: 1,
     };
     expect(canvasOffset(view).tuple()).toStrictEqual([500, 350]);

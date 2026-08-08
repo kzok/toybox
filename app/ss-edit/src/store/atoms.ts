@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { measurePicture } from "../features/editorItem";
+import { Point2D } from "../utils/geometry";
 import { canvasOffset } from "./selectors";
 import type { PageState } from "./types";
 
@@ -12,7 +13,7 @@ export type DialogEntry = {
 /** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
   editorMode: { kind: "select", selectedIds: [] },
-  editorView: { canvasSize: [0, 0], offset: [0, 0], scale: 1 },
+  editorView: { canvasSize: new Point2D(0, 0), offset: new Point2D(0, 0), scale: 1 },
   editorItems: [],
 };
 

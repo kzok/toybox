@@ -7,8 +7,8 @@ import type { PageState } from "./types";
  * @returns translate() offset for `<canvas/>`
  */
 export const canvasOffset = (view: PageState.View): Point2D => {
-  const paneOffset = Point2D.new(view.canvasSize).div(2);
-  return paneOffset.sub(Point2D.new(view.offset).mul(view.scale));
+  const paneOffset = view.canvasSize.div(2);
+  return paneOffset.sub(view.offset.mul(view.scale));
 };
 
 /**

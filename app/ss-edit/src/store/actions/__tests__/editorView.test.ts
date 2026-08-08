@@ -1,6 +1,7 @@
 import { produce } from "immer";
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
+import { Point2D } from "../../../utils/geometry";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
 import { createActions } from "..";
 import { createEditorViewActions } from "../editorView";
@@ -20,7 +21,7 @@ describe(createEditorViewActions, () => {
       actions.syncCanvasSize([100, 200]);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.editorView.canvasSize = [100, 200];
+          draft.editorView.canvasSize = new Point2D(100, 200);
         }),
       );
     });
@@ -33,8 +34,7 @@ describe(createEditorViewActions, () => {
       actions.scroll(100, 200);
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
-          draft.editorView.offset[0] -= 100;
-          draft.editorView.offset[1] -= 200;
+          draft.editorView.offset = new Point2D(-100, -200);
         }),
       );
     });

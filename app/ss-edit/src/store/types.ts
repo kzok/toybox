@@ -1,5 +1,5 @@
 import type { EditorItem } from "../features/editorItem";
-import type { Point2D, Tuple2D } from "../utils/geometry";
+import type { Point2D } from "../utils/geometry";
 
 /** entire page state */
 export type PageState = Readonly<{
@@ -11,10 +11,10 @@ export type PageState = Readonly<{
 export namespace PageState {
   /** editor view state */
   export type View = Readonly<{
-    /** actual canvas size px in [width, height] */
-    canvasSize: Tuple2D;
+    /** actual canvas size px in (width, height) */
+    canvasSize: Point2D;
     /** offset */
-    offset: Tuple2D;
+    offset: Point2D;
     /** scale multiplier */
     scale: number;
   }>;

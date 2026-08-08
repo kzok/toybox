@@ -172,7 +172,11 @@ describe(createEditorModeActions, () => {
      * a view whose `canvasOffset` is (180, 110), so that a cursor at (180, 110)
      * on the pane is the origin of the canvas coordinates.
      */
-    const view: PageState.View = { canvasSize: [400, 300], offset: [10, 20], scale: 2 };
+    const view: PageState.View = {
+      canvasSize: new Point2D(400, 300),
+      offset: new Point2D(10, 20),
+      scale: 2,
+    };
 
     const setUp = () => {
       const target = createTestTarget();
