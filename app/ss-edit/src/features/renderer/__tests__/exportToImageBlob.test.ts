@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { PageState } from "../../../store";
+import type { EditorItem } from "../../editorItem";
 import { exportToImageBlob } from "../exportToImageBlob";
 
 const createImageItem = (
-  offset: PageState.Item.Image["offset"],
+  offset: EditorItem.Image["offset"],
   size: readonly [number, number],
-): PageState.Item.Image => ({
+): EditorItem.Image => ({
   kind: "image",
   id: `item-${offset.join(",")}`,
   data: { width: size[0], height: size[1] } as ImageBitmap,

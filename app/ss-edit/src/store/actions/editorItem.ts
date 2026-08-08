@@ -1,8 +1,8 @@
 import { castDraft } from "immer";
+import type { EditorItem } from "../../features/editorItem";
 import { exportToImageBlob } from "../../features/renderer";
 import { pickImageFile, readImageFromDataTransfer, saveBlobAsFile } from "../../utils/fileIO";
 import { Point2D, type Tuple2D } from "../../utils/geometry";
-import type { PageState } from "../types";
 import { createDialogActions } from "./dialogs";
 import type { ActionCreatorParam } from "./types";
 
@@ -15,7 +15,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
   const dialogs = createDialogActions(params);
 
   const addImageItem = (data: ImageBitmap): void => {
-    const newItem: PageState.Item.Image = {
+    const newItem: EditorItem.Image = {
       kind: "image",
       id: crypto.randomUUID(),
       data,
@@ -50,6 +50,18 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
           if (item == null) continue;
           item.offset = scaledDelta.add(item.offset).tuple();
         }
+      });
+    },
+    /**
+     * update the content of a text item.
+     * @param itemId item.id
+     * @param content new text content
+     */
+    editText: (itemId: string, content: string): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "text") return;
+        item.content = content;
       });
     },
     /** clear items */

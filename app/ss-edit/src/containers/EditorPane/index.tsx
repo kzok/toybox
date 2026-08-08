@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { usePointerEvents } from "../../hooks";
 import { pageCtx } from "../../store";
+import { EditMode } from "./EditMode";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
 import styles from "./index.module.css";
@@ -52,7 +53,7 @@ const usePointerActions = () => {
     onClick: (e) => {
       e.preventDefault();
       e.stopPropagation();
-      actions.clearMode();
+      actions.editorMode.clear();
     },
   });
 };
@@ -62,9 +63,11 @@ const EditorOverlayContent = React.memo(() => {
 
   switch (editorMode.kind) {
     case "select":
-      return <SelectMode editorMode={editorMode} />;
+      return <SelectMode />;
+    case "edit":
+      return <EditMode />;
     default:
-      editorMode.kind satisfies never;
+      editorMode satisfies never;
       return null;
   }
 });

@@ -3,8 +3,8 @@ import { createStore } from "jotai";
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConfirmClearDialog, ErrorNoticeDialog } from "../../../components/Dialogs";
+import type { EditorItem } from "../../../features/editorItem";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
-import type { PageState } from "../../types";
 import { createActions } from "..";
 import { createEditorItemActions } from "../editorItem";
 
@@ -16,14 +16,21 @@ describe(createEditorItemActions, () => {
     return { store, actions, atoms } as const;
   };
 
-  const createImageItem = (
-    id: string,
-    offset: PageState.Item.Image["offset"],
-  ): PageState.Item.Image => ({
+  const createImageItem = (id: string, offset: EditorItem.Image["offset"]): EditorItem.Image => ({
     kind: "image",
     id,
     data: {} as ImageBitmap,
     offset,
+  });
+
+  const createTextItem = (id: string, content: string): EditorItem.Text => ({
+    kind: "text",
+    id,
+    content,
+    offset: [0, 0],
+    width: 100,
+    fontSize: 32,
+    color: "#fff",
   });
 
   describe("move()", () => {
@@ -54,8 +61,8 @@ describe(createEditorItemActions, () => {
 
     it("moves every selected item when the trigger item is already selected.", () => {
       const { store, actions, atoms, item1, item2 } = setUp();
-      actions.selectItem(item1.id);
-      actions.selectItem(item2.id, true);
+      actions.editorMode.selectItem(item1.id);
+      actions.editorMode.selectItem(item2.id, true);
 
       actions.editorItem.move(item1.id, [10, 20]);
 
@@ -80,12 +87,51 @@ describe(createEditorItemActions, () => {
 
     it("ignores selected ids that no longer match an existing item.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.selectItem(item1.id);
-      actions.selectItem("missing-id", true);
+      actions.editorMode.selectItem(item1.id);
+      actions.editorMode.selectItem("missing-id", true);
 
       expect(() => actions.editorItem.move(item1.id, [10, 20])).not.toThrow();
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
+    });
+  });
+
+  describe("editText()", () => {
+    const setUp = () => {
+      const target = createTestTarget();
+      const textItem = createTextItem("item-1", "hello");
+      const imageItem = createImageItem("item-2", [0, 0]);
+      target.store.set(
+        target.atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorItems.push(castDraft(textItem), castDraft(imageItem));
+        }),
+      );
+      return { ...target, textItem, imageItem } as const;
+    };
+
+    it("updates the content of the specified text item.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editorItem.editText(textItem.id, "こんにちは");
+      const items = store.get(atoms.editorItems);
+      expect(items.find((item) => item.id === textItem.id)).toStrictEqual({
+        ...textItem,
+        content: "こんにちは",
+      });
+    });
+
+    it("keeps items unchanged when the item is not a text item.", () => {
+      const { store, actions, atoms, imageItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editorItem.editText(imageItem.id, "こんにちは");
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editorItem.editText("missing-id", "こんにちは");
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
   });
 
