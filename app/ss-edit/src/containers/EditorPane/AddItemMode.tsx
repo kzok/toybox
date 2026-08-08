@@ -35,7 +35,9 @@ const RangePreview = React.memo<{
     };
   }, [range, canvasOffset, scale]);
 
-  return <div className={styles.range} style={style} />;
+  // NOTE: `data-range-preview` is the only stable handle on this element from outside
+  // (e.g. e2e tests), since the class name comes from a CSS module.
+  return <div className={styles.range} style={style} data-range-preview />;
 });
 
 const usePointerActions = () => {

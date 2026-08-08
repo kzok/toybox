@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 import { usePointerEvents } from "../../hooks";
-import { pageCtx } from "../../store";
+import { type PageState, pageCtx } from "../../store";
 import { AddItemMode } from "./AddItemMode";
 import { EditMode } from "./EditMode";
 import { useResizeObserver } from "./hooks/useResizeObserver";
@@ -24,9 +24,7 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
       {...usePointerActions()}
     >
       <Painter />
-      <div className={styles.overlay}>
-        <EditorOverlayContent />
-      </div>
+      <EditorOverlay />
     </div>
   );
 });
@@ -59,9 +57,21 @@ const usePointerActions = () => {
   });
 };
 
-const EditorOverlayContent = React.memo(() => {
+/**
+ * @note the current mode is exposed as `data-editor-mode` because each mode swaps the whole
+ *   overlay content: it is the only stable handle on the mode from outside (e.g. e2e tests).
+ */
+const EditorOverlay = React.memo(() => {
   const editorMode = pageCtx.useEditorMode();
 
+  return (
+    <div className={styles.overlay} data-editor-mode={editorMode.kind}>
+      {renderOverlayContent(editorMode)}
+    </div>
+  );
+});
+
+const renderOverlayContent = (editorMode: PageState.Mode): React.ReactNode => {
   switch (editorMode.kind) {
     case "select":
       return <SelectMode />;
@@ -73,4 +83,4 @@ const EditorOverlayContent = React.memo(() => {
       editorMode satisfies never;
       return null;
   }
-});
+};
