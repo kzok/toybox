@@ -1,4 +1,10 @@
-import { type EditorItem, letterSpacingOf, lineHeightOf, splitLines } from "../editorItem";
+import {
+  type EditorItem,
+  letterSpacingOf,
+  lineHeightOf,
+  measuredFontFamily,
+  splitLines,
+} from "../editorItem";
 import type { CanvasContext2D } from "./types";
 
 /**
@@ -32,9 +38,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
 
   ctx.save();
   ctx.translate(...item.offset);
-  // NOTE: `ctx.font` takes a string, hence the family is spelled out here. it has to stay in
-  // sync with `--font-family` of `@~/ui`, which lays out the DOM overlay measuring the lines.
-  ctx.font = `bold ${item.fontSize}px "Noto Sans JP", "Helvetica Neue", Arial, "Segoe UI", sans-serif`;
+  ctx.font = `bold ${item.fontSize}px ${measuredFontFamily()}`;
   ctx.letterSpacing = `${letterSpacing}px`;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
