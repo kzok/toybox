@@ -69,14 +69,3 @@ plain module.
 ## The network is cut off
 
 `openApp` aborts every request leaving the machine, so a run never depends on the network.
-
-This is not only hygiene. `app/ss-edit/index.html` pulls `Noto Sans JP` from Google Fonts, and a
-stylesheet blocks the `load` event the navigation waits for: where the host is unreachable, as in
-the container, `page.goto` hangs until the test times out. It reproduced on roughly a third of
-the navigations before the requests were blocked.
-
-The consequence is that the text baselines are rendered with the fallback the image happens to
-provide (`WenQuanYi Zen Hei`), not with Noto Sans JP. That stays deterministic — the canvas and
-the hidden element measuring the line breaks resolve the same font — but the baselines do not
-show what a user sees. Bundling the font with the application would fix both, and is the only
-way the E2E could ever exercise the real one.

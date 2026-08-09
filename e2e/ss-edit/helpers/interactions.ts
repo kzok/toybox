@@ -18,9 +18,8 @@ export const openApp = async (page: Page): Promise<void> => {
 
 /**
  * keeps the run hermetic by cutting every request that leaves the machine.
- * @note the page pulls its web font from Google Fonts. that request hangs where the network is
- *   unreachable, and since a stylesheet blocks the `load` event, the navigation would hang with
- *   it. blocking it up front also makes the text render with the same fallback font everywhere.
+ * @note nothing the page needs leaves the machine, and a run that starts reaching out is a bug worth
+ *   failing on rather than something to let through.
  * @note "local" is the host of `baseURL`, so that moving the server of `playwright.config.ts` to
  *   another host or port never turns the application itself into a blocked origin.
  */

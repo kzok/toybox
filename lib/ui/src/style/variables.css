@@ -5,4 +5,6 @@
   --border-gray-color: #d6d6d6;
   /** main text color */
   --main-text-color: #242424;
+  /** font family shared by the DOM and the canvas of the applications */
+  --font-family: "Noto Sans JP", "Helvetica Neue", Arial, "Segoe UI", sans-serif;
 }

@@ -150,3 +150,6 @@ TODO.md
 # Playwright
 test-results/
 playwright-report/
+
+# NTFS alternate data streams, as WSL exposes them for anything downloaded on the Windows side
+*:Zone.Identifier
