@@ -1,5 +1,4 @@
-import { castDraft } from "immer";
-import { Point2D, type Tuple2D } from "../../utils/geometry";
+import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
 
 const ZOOM_MIN = 0.27;
@@ -13,11 +12,11 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
   return {
     /**
      * update editor pane size
-     * @param canvasSize [width, height]
+     * @param canvasSize (width, height)
      */
-    syncCanvasSize: (canvasSize: Tuple2D): void => {
+    syncCanvasSize: (canvasSize: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.canvasSize = castDraft(canvasSize);
+        draft.editorView.canvasSize = Vec2.new(canvasSize);
       });
     },
     /**
@@ -27,8 +26,8 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
      */
     scroll: (deltaX: number, deltaY: number): void => {
       updateAtom(atoms.state, (draft) => {
-        draft.editorView.offset[0] -= deltaX / draft.editorView.scale;
-        draft.editorView.offset[1] -= deltaY / draft.editorView.scale;
+        const { offset, scale } = draft.editorView;
+        draft.editorView.offset = offset.sub(Vec2.new(deltaX, deltaY).div(scale));
       });
     },
     /**
@@ -36,22 +35,19 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
      * @param next next scale
      * @param cursor cursor offset from top-left of `<canvas/>`
      */
-    zoom: (next: number | ((_: number) => number), cursor?: Tuple2D): void => {
+    zoom: (next: number | ((_: number) => number), cursor?: Vec2): void => {
       updateAtom(atoms.state, (draft) => {
-        const halfPaneSize = Point2D.new(draft.editorView.canvasSize).scale(0.5).tuple();
-        cursor = cursor ?? halfPaneSize;
+        const { offset, canvasSize } = draft.editorView;
+        const halfPaneSize = canvasSize.div(2);
+        cursor ??= halfPaneSize;
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);
         // next offset
         const scaleDelta = draft.editorView.scale / scale;
-        const scaleOrigin = Point2D.new(cursor)
-          .subtract(halfPaneSize)
-          .scale(1 / draft.editorView.scale)
-          .add(draft.editorView.offset);
-        const offset = Point2D.new(draft.editorView.offset).scale(scaleDelta, scaleOrigin).tuple();
+        const scaleOrigin = cursor.sub(halfPaneSize).div(draft.editorView.scale).add(offset);
         draft.editorView.scale = scale;
-        draft.editorView.offset = offset;
+        draft.editorView.offset = offset.scale(scaleDelta, scaleOrigin);
       });
     },
   } as const;

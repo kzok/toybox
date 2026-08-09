@@ -1,5 +1,6 @@
 import React from "react";
 import { type PageActions, pageCtx } from "../../../store";
+import { Vec2 } from "../../../utils/geometry";
 
 /**
  * register wheel event handler
@@ -48,8 +49,7 @@ class PointerEventHandler {
    * @param e
    */
   private handleWheelZoom(e: WheelEvent): void {
-    const rect = this.element.getBoundingClientRect();
-    const cursor = [e.clientX - rect.left, e.clientY - rect.top] as const;
+    const cursor = Vec2.new(e.clientX, e.clientY).sub(this.element.getBoundingClientRect());
     this.actions.editorView.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {

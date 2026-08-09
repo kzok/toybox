@@ -29,8 +29,8 @@ export const Painter = React.memo(() => {
     <canvas
       ref={canvasRef}
       className={styles.canvas}
-      width={view.canvasSize[0]}
-      height={view.canvasSize[1]}
+      width={view.canvasSize.x}
+      height={view.canvasSize.y}
     />
   );
 });

@@ -1,2 +1,2 @@
-export * from "./point2d";
-export * from "./types";
+export * from "./rect";
+export * from "./vec2";

@@ -17,7 +17,7 @@ Sub-packages are located in the following folders.
 - Packages are named `@~/<name>` (e.g. `@~/ui`) and are `private`.
 - Root `tsconfig.json` and `biome.jsonc` generally apply across all workspaces.
 - Vitest test files live in `__tests__/<name>.test.ts{,x}`.
-- Playwright E2E test files live in `e2e/**/*.e2e.ts`.
+- Playwright E2E test files live in `e2e/**/*.e2e.ts`. See `e2e/README.md` for their conventions.
 - Component-scoped styles use CSS Modules, colocated as `<name>.module.css` next to the component and imported as `styles`.
 - Global styles are defined in `@~/ui`.
 
