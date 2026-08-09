@@ -4,7 +4,7 @@ import {
   type EditorItem,
   letterSpacingOf,
   lineHeightOf,
-  splitLines,
+  measureTextSize,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
 import styles from "./EditMode.module.css";
@@ -38,8 +38,7 @@ const TextItemEditor = React.memo<{
   const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const style = React.useMemo((): React.CSSProperties => {
-    const lineHeight = lineHeightOf(item.fontSize);
-    const height = `${splitLines(item).length * lineHeight}px`;
+    const height = `${measureTextSize(item).y}px`;
     return {
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
@@ -47,7 +46,7 @@ const TextItemEditor = React.memo<{
       height,
       minHeight: height,
       fontSize: `${item.fontSize}px`,
-      lineHeight: `${lineHeight}px`,
+      lineHeight: `${lineHeightOf(item.fontSize)}px`,
       letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
       ...({ "--scale": scale } as React.CSSProperties),
     };

@@ -55,6 +55,10 @@ export const splitLines = (layout: TextLayout): string[] => {
 export const measuredFontFamily = (): string =>
   getComputedStyle(mountMeasureElement()).fontFamily || "sans-serif";
 
+/**
+ * @note grapheme segmentation does not depend on the locale;
+ *   it is pinned only to keep the result identical across environments.
+ */
 const graphemes = new Intl.Segmenter("ja", { granularity: "grapheme" });
 let measureElement: HTMLDivElement | null = null;
 

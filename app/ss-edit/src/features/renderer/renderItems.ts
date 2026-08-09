@@ -23,6 +23,7 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
         break;
       default:
         item satisfies never;
+        throw new Error(`unknown item: ${JSON.stringify(item)}`);
     }
   }
 };
@@ -57,6 +58,11 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.lineJoin = "round";
+  ctx.lineWidth = strokeWidth;
+  ctx.fillStyle = item.color;
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetX = shadowOffset;
+  ctx.shadowOffsetY = shadowOffset;
 
   // NOTE: the measured text is arbitrary since only font-wide metrics are used.
   const metrics = ctx.measureText("あ");
@@ -73,21 +79,15 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
 
     // text shadow
     ctx.shadowColor = "#000";
-    ctx.shadowBlur = shadowBlur;
-    ctx.shadowOffsetX = shadowOffset;
-    ctx.shadowOffsetY = shadowOffset;
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = strokeWidth;
     ctx.strokeText(line, 0, y);
     ctx.shadowColor = "transparent";
 
     // outline text
     ctx.strokeStyle = "#fff";
-    ctx.lineWidth = strokeWidth;
     ctx.strokeText(line, 0, y);
 
     // inner text
-    ctx.fillStyle = item.color;
     ctx.fillText(line, 0, y);
   }
 
