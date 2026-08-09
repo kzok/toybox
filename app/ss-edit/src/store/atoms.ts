@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { measurePicture } from "../features/editorItem";
+import { type EditorItem, measurePicture } from "../features/editorItem";
 import { Vec2 } from "../utils/geometry";
 import { canvasOffset } from "./selectors";
 import type { PageState } from "./types";
@@ -23,8 +23,12 @@ export const INITIAL_EDITOR_STATE: PageState = {
 export const createAtoms = () => {
   /** (primitive) entire editor state. */
   const state = atom(INITIAL_EDITOR_STATE);
-  /** if the latest change was saved. */
-  const isSaved = atom(false);
+  /**
+   * the items as they were when the picture was last saved, or null until it ever was.
+   * @note held by reference rather than as a flag: immer keeps `editorItems` identical across an
+   *   update that does not touch it, hence zooming, panning or selecting never counts as a change.
+   */
+  const savedItems = atom<readonly EditorItem[] | null>(null);
   /** (primitive) dialog stack, the last entry is on top. */
   const dialogStack = atom<readonly DialogEntry[]>([]);
   /** the dialog on top of the stack, or null if there is none. */
@@ -36,6 +40,9 @@ export const createAtoms = () => {
   /** state.editorItems */
   const editorItems = atom((get) => get(state).editorItems);
 
+  /** if the picture has anything to save. */
+  const canSave = atom((get): boolean => get(editorItems).length > 0);
+
   return {
     state,
     editorMode,
@@ -43,11 +50,12 @@ export const createAtoms = () => {
     editorItems,
     dialogStack,
     dialogReactNode,
-    isSaved,
+    savedItems,
+    canSave,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
     editorPictureRect: atom((get) => measurePicture(get(editorItems))),
-    canSave: atom((get): boolean => get(editorItems).length > 0),
-    needConfirmBeforeUnload: atom((get): boolean => get(editorItems).length > 0 && !get(isSaved)),
+    /** if the picture holds items that were never saved as they are now. */
+    hasUnsavedChanges: atom((get): boolean => get(canSave) && get(editorItems) !== get(savedItems)),
   } as const;
 };
 

@@ -66,7 +66,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
     },
     /** clear items */
     clear: async (): Promise<void> => {
-      if (store.get(atoms.needConfirmBeforeUnload)) {
+      if (store.get(atoms.hasUnsavedChanges)) {
         if ((await dialogs.confirmClear()) === false) return; // cancelled.
       }
       updateAtom(atoms.state, (draft) => {
@@ -94,9 +94,12 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
     }),
     /** render editor items and save them as a PNG file */
     saveAsPng: dialogs.withErrorDialog(async () => {
-      const blob = await exportToImageBlob(store.get(atoms.editorItems));
+      const items = store.get(atoms.editorItems);
+      const blob = await exportToImageBlob(items);
       saveBlobAsFile(blob, "screenshot.png");
-      store.set(atoms.isSaved, true);
+      // NOTE: the items the blob was rendered from, so that a change made while it was being
+      // encoded is not mistaken for having been saved.
+      store.set(atoms.savedItems, items);
     }),
   } as const;
 };

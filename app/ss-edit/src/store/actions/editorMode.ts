@@ -151,7 +151,9 @@ const dropBlankEditTarget = (draft: Draft<PageState>): void => {
     return;
   }
   const { itemId } = draft.editorMode;
-  draft.editorItems = draft.editorItems.filter(
-    (item) => !(item.id === itemId && item.kind === "text" && item.content.trim() === ""),
+  const index = draft.editorItems.findIndex(
+    (item) => item.id === itemId && item.kind === "text" && item.content.trim() === "",
   );
+  if (index < 0) return;
+  draft.editorItems.splice(index, 1);
 };
