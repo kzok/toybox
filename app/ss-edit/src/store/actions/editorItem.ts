@@ -2,7 +2,7 @@ import { castDraft } from "immer";
 import type { EditorItem } from "../../features/editorItem";
 import { exportToImageBlob } from "../../features/renderer";
 import { pickImageFile, readImageFromDataTransfer, saveBlobAsFile } from "../../utils/fileIO";
-import { Point2D, type Tuple2D } from "../../utils/geometry";
+import { Vec2 } from "../../utils/geometry";
 import { createDialogActions } from "./dialogs";
 import type { ActionCreatorParam } from "./types";
 
@@ -19,7 +19,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
       kind: "image",
       id: crypto.randomUUID(),
       data,
-      offset: Point2D.new(-data.width / 2, -data.height / 2)
+      offset: Vec2.new(-data.width / 2, -data.height / 2)
         .add(store.get(atoms.editorView).offset)
         .tuple(),
     };
@@ -34,7 +34,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
      * @param triggerItemId item.id that triggers this movement.
      * @param delta [movementX, movementY]
      */
-    move: (triggerItemId: string, delta: Tuple2D): void => {
+    move: (triggerItemId: string, delta: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
         // update selection if triggerItemId is not included.
         if (
@@ -44,7 +44,7 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
           draft.editorMode = { kind: "select", selectedIds: [triggerItemId] };
         }
 
-        const scaledDelta = Point2D.new(delta).scale(1 / draft.editorView.scale);
+        const scaledDelta = Vec2.new(delta).div(draft.editorView.scale);
         for (const id of draft.editorMode.selectedIds) {
           const item = draft.editorItems.find((item) => item.id === id);
           if (item == null) continue;

@@ -57,6 +57,7 @@ const EditMenu = React.memo(() => {
       <MenuPopover>
         <MenuList>
           <MenuItem onClick={() => actions.editorItem.addFromFilePicker()}>Add image</MenuItem>
+          <MenuItem onClick={() => actions.editorMode.enterAddItem("text")}>Add text</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

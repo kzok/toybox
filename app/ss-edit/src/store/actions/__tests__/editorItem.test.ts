@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConfirmClearDialog, ErrorNoticeDialog } from "../../../components/Dialogs";
 import type { EditorItem } from "../../../features/editorItem";
+import { Vec2 } from "../../../utils/geometry";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
 import { createActions } from "..";
 import { createEditorItemActions } from "../editorItem";
@@ -77,7 +78,7 @@ describe(createEditorItemActions, () => {
 
     it("scales the movement delta by the inverse of the view scale.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.editorView.zoom(2, [0, 0]);
+      actions.editorView.zoom(2, new Vec2(0, 0));
 
       actions.editorItem.move(item1.id, [10, 20]);
 

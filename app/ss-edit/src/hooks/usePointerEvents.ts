@@ -1,5 +1,5 @@
 import React from "react";
-import { Point2D } from "../utils/geometry";
+import { Vec2 } from "../utils/geometry";
 
 type Params<E> = {
   /** pointerdown event. */
@@ -31,18 +31,18 @@ export const usePointerEvents = <E extends Element = HTMLElement>(params: Params
 
   return React.useMemo(() => {
     /** [x,y] position of last "pointerdown" */
-    let downP: Point2D | null = null;
+    let downP: Vec2 | null = null;
     /** [x,y] position of last "pointermove" */
-    let moveP: Point2D | null = null;
+    let moveP: Vec2 | null = null;
 
     return {
       onPointerDown: (e) => {
-        downP = Point2D.new(e.clientX, e.clientY);
+        downP = Vec2.new(e.clientX, e.clientY);
         moveP = null;
         paramsRef.current.onPointerDown?.(e);
       },
       onPointerMove: (e) => {
-        moveP = Point2D.new(e.clientX, e.clientY);
+        moveP = Vec2.new(e.clientX, e.clientY);
         paramsRef.current.onPointerMove?.(e);
       },
       onPointerUp: (e) => {
