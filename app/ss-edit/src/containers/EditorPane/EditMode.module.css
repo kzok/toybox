@@ -28,7 +28,7 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   line-break: anywhere;
-  font-family: "Noto Sans JP", "Noto Sans", sans-serif;
+  font-family: var(--font-family);
   font-weight: bold;
   /* the text itself is painted onto the <canvas/> underneath */
   color: transparent;

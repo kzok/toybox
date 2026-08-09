@@ -1,5 +1,5 @@
 import { Rect, Vec2 } from "../../utils/geometry";
-import { splitLines, type TextLayout } from "./splitLines";
+import { splitLines, type TextLayout } from "./textLayout";
 import { lineHeightOf } from "./textStyle";
 import type { EditorItem } from "./types";
 

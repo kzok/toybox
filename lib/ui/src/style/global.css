@@ -11,7 +11,7 @@ body,
 }
 
 body {
-  font-family: "Noto Sans JP", "Noto Sans", sans-serif;
+  font-family: var(--font-family);
   font-optical-sizing: auto;
   font-weight: normal;
   font-style: normal;

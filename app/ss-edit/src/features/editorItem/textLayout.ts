@@ -1,4 +1,4 @@
-import styles from "./splitLines.module.css";
+import styles from "./textLayout.module.css";
 import { letterSpacingOf, lineHeightOf } from "./textStyle";
 import type { EditorItem } from "./types";
 
@@ -44,23 +44,44 @@ export const splitLines = (layout: TextLayout): string[] => {
   return lines;
 };
 
+/**
+ * the font family the text is measured with, for a canvas to draw the same shapes.
+ * @note `ctx.font` takes a CSS font shorthand but resolves no `var()`, having no element to
+ *   resolve it against. reading the value back off the element that measured the text is what
+ *   keeps an exported picture and the preview it was laid out from in step.
+ * @note the fallback covers an environment where the stylesheet never applied, such as jsdom.
+ *   an empty family leaves the whole shorthand unparseable, which a canvas drops in silence.
+ */
+export const measuredFontFamily = (): string =>
+  getComputedStyle(mountMeasureElement()).fontFamily || "sans-serif";
+
 const graphemes = new Intl.Segmenter("ja", { granularity: "grapheme" });
 let measureElement: HTMLDivElement | null = null;
 
 /**
- * @param layout text layout
- * @returns singleton measure element styled for the given layout
+ * @returns the hidden element the text is laid out on to be measured, mounted on first use
+ * @note it hangs off `<body/>`, outside the `FluentProvider` the rendered text sits under, hence
+ *   its stylesheet states the family rather than leaving it to inheritance.
  */
-const getMeasureElement = (layout: TextLayout): HTMLDivElement => {
+const mountMeasureElement = (): HTMLDivElement => {
   if (measureElement == null) {
     measureElement = document.createElement("div");
     measureElement.classList.add(styles.text!);
     measureElement.setAttribute("aria-hidden", "true");
     document.body.appendChild(measureElement);
   }
-  measureElement.style.width = `${layout.width}px`;
-  measureElement.style.fontSize = `${layout.fontSize}px`;
-  measureElement.style.lineHeight = `${lineHeightOf(layout.fontSize)}px`;
-  measureElement.style.letterSpacing = `${letterSpacingOf(layout.fontSize)}px`;
   return measureElement;
+};
+
+/**
+ * @param layout text layout
+ * @returns the measure element, styled for the given layout
+ */
+const getMeasureElement = (layout: TextLayout): HTMLDivElement => {
+  const element = mountMeasureElement();
+  element.style.width = `${layout.width}px`;
+  element.style.fontSize = `${layout.fontSize}px`;
+  element.style.lineHeight = `${lineHeightOf(layout.fontSize)}px`;
+  element.style.letterSpacing = `${letterSpacingOf(layout.fontSize)}px`;
+  return element;
 };

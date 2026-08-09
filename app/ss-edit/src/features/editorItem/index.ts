@@ -1,4 +1,4 @@
 export * from "./measure";
-export * from "./splitLines";
+export * from "./textLayout";
 export * from "./textStyle";
 export * from "./types";

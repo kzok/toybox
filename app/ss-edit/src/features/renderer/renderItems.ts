@@ -1,4 +1,10 @@
-import { type EditorItem, letterSpacingOf, lineHeightOf, splitLines } from "../editorItem";
+import {
+  type EditorItem,
+  letterSpacingOf,
+  lineHeightOf,
+  measuredFontFamily,
+  splitLines,
+} from "../editorItem";
 import type { CanvasContext2D } from "./types";
 
 /**
@@ -32,7 +38,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
 
   ctx.save();
   ctx.translate(...item.offset);
-  ctx.font = `bold ${item.fontSize}px "Noto Sans JP", "Noto Sans", sans-serif`;
+  ctx.font = `bold ${item.fontSize}px ${measuredFontFamily()}`;
   ctx.letterSpacing = `${letterSpacing}px`;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
