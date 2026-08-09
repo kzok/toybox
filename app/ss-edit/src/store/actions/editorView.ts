@@ -39,13 +39,13 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
       updateAtom(atoms.state, (draft) => {
         const { offset, canvasSize } = draft.editorView;
         const halfPaneSize = canvasSize.div(2);
-        const cursorPoint = cursor == null ? halfPaneSize : cursor;
+        cursor ??= halfPaneSize;
         // next scale
         let scale = typeof next === "number" ? next : next(draft.editorView.scale);
         scale = Math.max(Math.min(scale, ZOOM_MAX), ZOOM_MIN);
         // next offset
         const scaleDelta = draft.editorView.scale / scale;
-        const scaleOrigin = cursorPoint.sub(halfPaneSize).div(draft.editorView.scale).add(offset);
+        const scaleOrigin = cursor.sub(halfPaneSize).div(draft.editorView.scale).add(offset);
         draft.editorView.scale = scale;
         draft.editorView.offset = offset.scale(scaleDelta, scaleOrigin);
       });

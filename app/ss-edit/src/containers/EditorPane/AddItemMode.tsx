@@ -55,9 +55,9 @@ const usePointerActions = () => {
       actions.editorMode.updateAddItemRange(p);
     };
     const onPointerDown: React.PointerEventHandler = (e) => {
+      if (e.button !== 0) return; // main (left) button only
       e.preventDefault();
       e.stopPropagation();
-      if (e.button !== 0) return; // main (left) button only
       draggingIdRef.current = e.pointerId;
       e.currentTarget.setPointerCapture(e.pointerId);
       updateRange(e);

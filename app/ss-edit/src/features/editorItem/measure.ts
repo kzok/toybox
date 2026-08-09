@@ -14,7 +14,6 @@ export const measurePicture = (items: readonly EditorItem[]): Rect => {
   let rect: Rect | null = null;
   for (const item of items) {
     const itemRect = measureItem(item);
-    if (itemRect == null) continue;
     rect = rect == null ? itemRect : rect.union(itemRect);
   }
   return rect ?? EMPTY_PICTURE_RECT;

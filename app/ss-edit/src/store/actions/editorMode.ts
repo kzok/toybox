@@ -132,8 +132,9 @@ export const createEditorModeActions = ({ atoms, updateAtom }: ActionCreatorPara
   } as const;
 };
 
-/** text item size below which the dragged range is not worth respecting */
+/** font size below which the dragged height is not worth respecting */
 const MIN_FONT_SIZE_PX = 12;
+/** font size above which the dragged height is not worth respecting */
 const MAX_FONT_SIZE_PX = 72;
 /** font color of a newly added text item */
 const NEW_TEXT_COLOR = "#EF3171";

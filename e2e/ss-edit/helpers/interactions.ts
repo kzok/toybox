@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { expect, type JSHandle, type Locator, type Page } from "@playwright/test";
+import { expect, type JSHandle, type Locator, type Page, test } from "@playwright/test";
 import { expectMode } from "./assertions";
 import { editorPane, imageItems, textEditor } from "./locators";
 import { type Box, boundingBoxOf, fixture, type Point } from "./support";
@@ -21,11 +21,18 @@ export const openApp = async (page: Page): Promise<void> => {
  * @note the page pulls its web font from Google Fonts. that request hangs where the network is
  *   unreachable, and since a stylesheet blocks the `load` event, the navigation would hang with
  *   it. blocking it up front also makes the text render with the same fallback font everywhere.
+ * @note "local" is the host of `baseURL`, so that moving the server of `playwright.config.ts` to
+ *   another host or port never turns the application itself into a blocked origin.
  */
 const blockExternalRequests = async (page: Page): Promise<void> => {
+  const { baseURL } = test.info().project.use;
+  if (baseURL == null) {
+    throw new Error("the project has no baseURL to tell the local host from a remote one.");
+  }
+  const localHost = new URL(baseURL).host;
   await page.route("**/*", (route) => {
-    const { protocol, hostname } = new URL(route.request().url());
-    const isRemote = (protocol === "http:" || protocol === "https:") && hostname !== "localhost";
+    const { protocol, host } = new URL(route.request().url());
+    const isRemote = (protocol === "http:" || protocol === "https:") && host !== localHost;
     return isRemote ? route.abort() : route.continue();
   });
 };
