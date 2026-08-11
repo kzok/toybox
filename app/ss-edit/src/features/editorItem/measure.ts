@@ -43,6 +43,7 @@ const measureItem = (item: EditorItem): Rect => {
 /**
  * @param item text item
  * @returns text item size
+ * @note the outline stroked by the renderer fits in the slack of the line box, hence only the shadow reaches outside this size and it is deliberately left to be cropped on export.
  */
 export const measureTextSize = (item: TextLayout): Vec2 => {
   const lineCount = splitLines(item).length;

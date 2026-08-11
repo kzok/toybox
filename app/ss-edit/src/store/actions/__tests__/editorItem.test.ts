@@ -1,13 +1,25 @@
 import { castDraft, produce } from "immer";
 import { createStore } from "jotai";
 import type { ReactElement } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { ConfirmClearDialog, ErrorNoticeDialog } from "../../../components/Dialogs";
 import type { EditorItem } from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
 import { createActions } from "..";
 import { createEditorItemActions } from "../editorItem";
+
+const originalGetClientRects = Range.prototype.getClientRects;
+
+beforeAll(() => {
+  // jsdom implements neither layout nor `Range.getClientRects()`, which measuring a text item
+  // reaches for. an empty list is what a browser returns for a range it never laid out.
+  Range.prototype.getClientRects = () => [] as unknown as DOMRectList;
+});
+
+afterAll(() => {
+  Range.prototype.getClientRects = originalGetClientRects;
+});
 
 describe(createEditorItemActions, () => {
   const createTestTarget = () => {
@@ -184,6 +196,107 @@ describe(createEditorItemActions, () => {
 
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
       expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+  });
+
+  describe("saveAsPng()", () => {
+    /**
+     * @returns a target holding one item, with everything `saveAsPng()` reaches out to stubbed.
+     */
+    const setUpSavable = () => {
+      const target = createTestTarget();
+      const item = createImageItem("item-1", [0, 0]);
+      target.store.set(
+        target.atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorItems.push(castDraft(item));
+        }),
+      );
+      const convertToBlob = vi.fn(async () => new Blob(["png"], { type: "image/png" }));
+      // every call the renderer makes on a 2d context; the properties it assigns need no stub.
+      const context = {
+        save: vi.fn(),
+        restore: vi.fn(),
+        translate: vi.fn(),
+        drawImage: vi.fn(),
+        measureText: () => ({ fontBoundingBoxAscent: 10, fontBoundingBoxDescent: 3 }),
+        strokeText: vi.fn(),
+        fillText: vi.fn(),
+      };
+      vi.stubGlobal(
+        "OffscreenCanvas",
+        class {
+          getContext = () => context;
+          convertToBlob = convertToBlob;
+        },
+      );
+      vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:png"), revokeObjectURL: vi.fn() });
+      return { ...target, item, convertToBlob } as const;
+    };
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("encodes the picture and hands it to a download.", async () => {
+      const { actions, convertToBlob } = setUpSavable();
+      const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+      await actions.editorItem.saveAsPng();
+
+      expect(convertToBlob).toHaveBeenCalledWith({ type: "image/png" });
+      expect(click).toHaveBeenCalledOnce();
+      click.mockRestore();
+    });
+
+    it("leaves no unsaved change behind.", async () => {
+      const { store, actions, atoms } = setUpSavable();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(true);
+
+      await actions.editorItem.saveAsPng();
+
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
+    });
+
+    it("counts an edit made after the save as unsaved again.", async () => {
+      const { store, actions, atoms, item } = setUpSavable();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      await actions.editorItem.saveAsPng();
+
+      actions.editorItem.move(item.id, [10, 20]);
+
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(true);
+    });
+
+    it("keeps a view operation after the save from counting as a change.", async () => {
+      const { store, actions, atoms } = setUpSavable();
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      await actions.editorItem.saveAsPng();
+
+      actions.editorView.zoom(2, new Vec2(0, 0));
+      actions.editorView.scroll(10, 20);
+      actions.editorMode.selectItem("item-1");
+
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
+    });
+
+    it("keeps leaving edit mode without dropping anything from counting as a change.", async () => {
+      const { store, actions, atoms } = setUpSavable();
+      const filled = createTextItem("item-2", "hello");
+      store.set(
+        atoms.state,
+        produce(store.get(atoms.state), (draft) => {
+          draft.editorItems.push(castDraft(filled));
+        }),
+      );
+      vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      await actions.editorItem.saveAsPng();
+
+      actions.editorMode.enterEdit(filled.id);
+      actions.editorMode.clear();
+
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
   });
 

@@ -39,7 +39,7 @@ const DropZone = React.memo(() => {
 });
 
 const BeforeUnloadHandler = React.memo(() => {
-  useBeforeUnload(pageCtx.useNeedConfirmBeforeUnload());
+  useBeforeUnload(pageCtx.useHasUnsavedChanges());
   return null;
 });
 

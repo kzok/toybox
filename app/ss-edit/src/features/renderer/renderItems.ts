@@ -23,6 +23,7 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
         break;
       default:
         item satisfies never;
+        throw new Error(`unknown item: ${JSON.stringify(item)}`);
     }
   }
 };
@@ -31,10 +32,24 @@ const renderImage = (ctx: CanvasContext2D, item: EditorItem.Image): void => {
   ctx.drawImage(item.data, ...item.offset);
 };
 
+/**
+ * @param fontSize font size (px)
+ * @returns blur radius of the shadow cast by the text (px)
+ */
+const shadowBlurOf = (fontSize: number): number => Math.ceil(fontSize / 3);
+
+/**
+ * @param fontSize font size (px)
+ * @returns distance the shadow is offset towards the bottom right (px)
+ */
+const shadowOffsetOf = (fontSize: number): number => Math.ceil(fontSize / 12);
+
 const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   const lineHeight = lineHeightOf(item.fontSize);
   const strokeWidth = Math.ceil(item.fontSize / 6);
   const letterSpacing = letterSpacingOf(item.fontSize);
+  const shadowBlur = shadowBlurOf(item.fontSize);
+  const shadowOffset = shadowOffsetOf(item.fontSize);
 
   ctx.save();
   ctx.translate(...item.offset);
@@ -43,6 +58,11 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.lineJoin = "round";
+  ctx.lineWidth = strokeWidth;
+  ctx.fillStyle = item.color;
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetX = shadowOffset;
+  ctx.shadowOffsetY = shadowOffset;
 
   // NOTE: the measured text is arbitrary since only font-wide metrics are used.
   const metrics = ctx.measureText("あ");
@@ -59,21 +79,15 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
 
     // text shadow
     ctx.shadowColor = "#000";
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = letterSpacing;
-    ctx.shadowOffsetY = letterSpacing;
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = strokeWidth;
     ctx.strokeText(line, 0, y);
     ctx.shadowColor = "transparent";
 
     // outline text
     ctx.strokeStyle = "#fff";
-    ctx.lineWidth = strokeWidth;
     ctx.strokeText(line, 0, y);
 
     // inner text
-    ctx.fillStyle = item.color;
     ctx.fillText(line, 0, y);
   }
 
