@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { measurePicture } from "../measure";
+import { lineHeightOf, paddingOf } from "../textStyle";
 import type { EditorItem } from "../types";
+
+// NOTE: this environment's jsdom does not implement Range.prototype.getClientRects(), which
+// splitLines() depends on to lay text out, so it is stubbed here to keep the test focused on
+// measureItem()'s padding arithmetic rather than real text wrapping.
+vi.mock("../textLayout", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../textLayout")>()),
+  splitLines: vi.fn((): readonly string[] => ["first line", "second line"]),
+}));
 
 const createImageItem = (
   offset: EditorItem.Image["offset"],
@@ -10,6 +19,20 @@ const createImageItem = (
   id: `item-${offset.join(",")}`,
   data: { width: size[0], height: size[1] } as ImageBitmap,
   offset,
+});
+
+const createTextItem = (
+  offset: EditorItem.Text["offset"],
+  width: number,
+  fontSize: number,
+): EditorItem.Text => ({
+  kind: "text",
+  id: `item-${offset.join(",")}`,
+  content: "first line\nsecond line",
+  offset,
+  width,
+  fontSize,
+  color: "#000",
 });
 
 describe(measurePicture, () => {
@@ -43,5 +66,16 @@ describe(measurePicture, () => {
     expect(rect.head.tuple()).toStrictEqual([-30, -20]);
     expect(rect.tail.tuple()).toStrictEqual([70, 50]);
     expect(rect.size.tuple()).toStrictEqual([100, 70]);
+  });
+
+  it("pads a text item's rect on every side to match what the renderer draws.", () => {
+    const width = 100;
+    const fontSize = 20;
+    const item = createTextItem([10, 20], width, fontSize);
+    const rect = measurePicture([item]);
+    const padding = paddingOf(fontSize);
+    const height = 2 * lineHeightOf(fontSize);
+    expect(rect.head.tuple()).toStrictEqual([10, 20]);
+    expect(rect.size.tuple()).toStrictEqual([width + 2 * padding, height + 2 * padding]);
   });
 });

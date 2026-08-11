@@ -32,6 +32,7 @@
 }
 
 .textItem {
+  box-sizing: content-box;
   text-align: left;
   white-space: pre-wrap;
   overflow-wrap: break-word;

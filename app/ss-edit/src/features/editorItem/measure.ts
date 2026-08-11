@@ -1,6 +1,6 @@
 import { Rect, Vec2 } from "../../utils/geometry";
 import { splitLines, type TextLayout } from "./textLayout";
-import { lineHeightOf } from "./textStyle";
+import { lineHeightOf, paddingOf } from "./textStyle";
 import type { EditorItem } from "./types";
 
 /** picture rect of an empty item list */
@@ -29,9 +29,15 @@ const measureItem = (item: EditorItem): Rect => {
     case "image":
       size = new Vec2(item.data.width, item.data.height);
       break;
-    case "text":
-      size = measureTextSize(item);
+    case "text": {
+      // NOTE: the renderer pads the text on every side (see renderText()'s
+      // translate(padding, padding)), but measureTextSize() itself must keep
+      // returning the unpadded content size since EditMode.tsx also relies on
+      // it for the edit textarea's content-box height.
+      const padding = paddingOf(item.fontSize) * 2;
+      size = measureTextSize(item).add([padding, padding]);
       break;
+    }
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);

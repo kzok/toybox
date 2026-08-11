@@ -5,6 +5,7 @@ import {
   letterSpacingOf,
   lineHeightOf,
   measureTextSize,
+  paddingOf,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
 import styles from "./EditMode.module.css";
@@ -46,6 +47,7 @@ const TextItemEditor = React.memo<{
       height,
       minHeight: height,
       fontSize: `${item.fontSize}px`,
+      padding: `${paddingOf(item.fontSize)}px`,
       lineHeight: `${lineHeightOf(item.fontSize)}px`,
       letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
       ...({ "--scale": scale } as React.CSSProperties),

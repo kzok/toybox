@@ -30,5 +30,12 @@ export const roundBox = (box: Box): Box => ({
   height: Math.round(box.height),
 });
 
+/** grows a box by `delta` on its width and height, keeping its top-left corner in place. */
+export const growBox = (box: Box, delta: number): Box => ({
+  ...box,
+  width: box.width + delta,
+  height: box.height + delta,
+});
+
 /** digests keep a mismatch readable instead of dumping every byte of the PNG. */
 export const digest = (png: Buffer): string => createHash("sha256").update(png).digest("hex");

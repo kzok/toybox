@@ -1,6 +1,6 @@
 import { LruCache } from "../../utils/cache";
 import styles from "./textLayout.module.css";
-import { letterSpacingOf, lineHeightOf } from "./textStyle";
+import { letterSpacingOf, lineHeightOf, paddingOf } from "./textStyle";
 import type { EditorItem } from "./types";
 
 export type TextLayout = Pick<EditorItem.Text, "width" | "fontSize" | "content">;
@@ -109,6 +109,7 @@ const mountMeasureElement = (): HTMLDivElement => {
 const measureStyleOf = (layout: TextLayout) => ({
   width: `${layout.width}px`,
   fontSize: `${layout.fontSize}px`,
+  padding: `${paddingOf(layout.fontSize)}px`,
   lineHeight: `${lineHeightOf(layout.fontSize)}px`,
   letterSpacing: `${letterSpacingOf(layout.fontSize)}px`,
 });
