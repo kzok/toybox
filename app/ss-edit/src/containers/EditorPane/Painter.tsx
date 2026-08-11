@@ -9,9 +9,9 @@ export const Painter = React.memo(() => {
   const view = pageCtx.useEditorView();
   const items = pageCtx.useEditorItems();
   const canvasOffset = pageCtx.useCanvasOffset();
-  React.useLayoutEffect(() => {
-    const canvas = canvasRef.current!;
-    if (!canvas) {
+  useRequestAnimationFrame(() => {
+    const canvas = canvasRef.current;
+    if (canvas == null) {
       return;
     }
     const ctx = canvas.getContext("2d");
@@ -19,7 +19,6 @@ export const Painter = React.memo(() => {
       throw new Error("failed to get <canvas/> context 2d.");
     }
     ctx.reset();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(...canvasOffset.tuple());
     ctx.scale(view.scale, view.scale);
     renderEditorItems(ctx, items);
@@ -34,3 +33,17 @@ export const Painter = React.memo(() => {
     />
   );
 });
+
+/**
+ * @param callback raf callback
+ * @param deps useEffect dependencies
+ */
+const useRequestAnimationFrame = (
+  callback: FrameRequestCallback,
+  deps: readonly unknown[],
+): void => {
+  React.useLayoutEffect(() => {
+    const handle = requestAnimationFrame(callback);
+    return () => cancelAnimationFrame(handle);
+  }, deps);
+};
