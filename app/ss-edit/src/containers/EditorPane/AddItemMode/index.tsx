@@ -1,8 +1,8 @@
 import React from "react";
-import { type PageState, pageCtx } from "../../store";
-import { Rect, Vec2 } from "../../utils/geometry";
-import styles from "./AddItemMode.module.css";
-import { useCanvasScale } from "./hooks/useCanvasScale";
+import { type PageState, pageCtx } from "../../../store";
+import { Rect, Vec2 } from "../../../utils/geometry";
+import { useCanvasScale } from "../hooks/useCanvasScale";
+import styles from "./index.module.css";
 
 type Range = NonNullable<PageState.Mode.AddItem["range"]>;
 

@@ -5,11 +5,11 @@ import {
   letterSpacingOf,
   lineHeightOf,
   paddingOf,
-} from "../../features/editorItem";
-import { usePointerEvents } from "../../hooks";
-import { pageCtx } from "../../store";
-import { useCanvasScale } from "./hooks/useCanvasScale";
-import styles from "./SelectMode.module.css";
+} from "../../../features/editorItem";
+import { usePointerEvents } from "../../../hooks";
+import { pageCtx } from "../../../store";
+import { useCanvasScale } from "../hooks/useCanvasScale";
+import styles from "./index.module.css";
 
 /** editor overlay content for "select" mode */
 export const SelectMode = React.memo(() => {

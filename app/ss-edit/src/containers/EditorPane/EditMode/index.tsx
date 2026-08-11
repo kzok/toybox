@@ -6,10 +6,10 @@ import {
   lineHeightOf,
   measureTextSize,
   paddingOf,
-} from "../../features/editorItem";
-import { pageCtx } from "../../store";
-import styles from "./EditMode.module.css";
-import { useCanvasScale } from "./hooks/useCanvasScale";
+} from "../../../features/editorItem";
+import { pageCtx } from "../../../store";
+import { useCanvasScale } from "../hooks/useCanvasScale";
+import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
@@ -77,7 +77,7 @@ const TextItemEditor = React.memo<{
       onChange={(e) => actions.editorItem.editText(item.id, e.target.value)}
       onBlur={() => actions.editorMode.clear()}
       onPointerDown={stopPropagation}
-      onPointerMove={onPointerMove}
+      onPointerMove={stopPropagationAndCapturePointer}
       onPointerUp={stopPropagation}
       onClick={stopPropagation}
       onKeyDown={stopPropagation}
@@ -88,14 +88,9 @@ const TextItemEditor = React.memo<{
 /**
  * @param e event
  */
-const onPointerMove = (e: React.PointerEvent): void => {
+const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();
-  if (e.buttons === 1) {
-    // main (left) button
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    return;
-  }
+  e.currentTarget.setPointerCapture(e.pointerId);
 };
 
 /**
