@@ -1,3 +1,4 @@
+import { LruCache } from "../../utils/cache";
 import styles from "./textLayout.module.css";
 import { letterSpacingOf, lineHeightOf } from "./textStyle";
 import type { EditorItem } from "./types";
@@ -5,10 +6,32 @@ import type { EditorItem } from "./types";
 export type TextLayout = Pick<EditorItem.Text, "width" | "fontSize" | "content">;
 
 /**
+ * @note the working set is the text items on the picture, a handful at most. the surplus holds
+ *   onto the keys an edit leaves behind, one per keystroke, so that backspacing through an edit
+ *   stays a hit. an entry costs about twice the length of its content.
+ */
+const lineCache = new LruCache<string, readonly string[]>(1000);
+
+/**
  * @param layout text item
  * @returns splitted lines
+ * @note laying the text out costs a `getClientRects()` per grapheme, while the renderer asks for
+ *   the lines of every item on every frame. only an edit ever changes the answer, hence the cache.
  */
-export const splitLines = (layout: TextLayout): string[] => {
+export const splitLines = (layout: TextLayout): readonly string[] =>
+  lineCache.getOrCompute(cacheKeyOf(layout), () => computeLines(layout));
+
+/**
+ * @param layout text layout
+ * @returns the key the laid out lines are cached under
+ * @note keyed by what the lines are laid out from rather than by the item identity: an item is
+ *   replaced whenever it is dragged, which leaves the line breaks untouched.
+ * @note the content goes last, being the only part that can hold the separator itself.
+ */
+const cacheKeyOf = (layout: TextLayout): string =>
+  [...Object.values(measureStyleOf(layout)), layout.content].join(",");
+
+const computeLines = (layout: TextLayout): string[] => {
   const lines: string[] = [];
   const range = document.createRange();
   const measure = getMeasureElement(layout);
@@ -79,13 +102,23 @@ const mountMeasureElement = (): HTMLDivElement => {
 
 /**
  * @param layout text layout
+ * @returns the CSS the measure element is laid out under, the rest of it being static
+ * @note the cache key of `splitLines` is derived from these very values, so that an input added
+ *   here is keyed on rather than silently serving the line breaks of the previous one.
+ */
+const measureStyleOf = (layout: TextLayout) => ({
+  width: `${layout.width}px`,
+  fontSize: `${layout.fontSize}px`,
+  lineHeight: `${lineHeightOf(layout.fontSize)}px`,
+  letterSpacing: `${letterSpacingOf(layout.fontSize)}px`,
+});
+
+/**
+ * @param layout text layout
  * @returns the measure element, styled for the given layout
  */
 const getMeasureElement = (layout: TextLayout): HTMLDivElement => {
   const element = mountMeasureElement();
-  element.style.width = `${layout.width}px`;
-  element.style.fontSize = `${layout.fontSize}px`;
-  element.style.lineHeight = `${lineHeightOf(layout.fontSize)}px`;
-  element.style.letterSpacing = `${letterSpacingOf(layout.fontSize)}px`;
+  Object.assign(element.style, measureStyleOf(layout));
   return element;
 };
