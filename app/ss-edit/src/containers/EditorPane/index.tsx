@@ -81,6 +81,6 @@ const renderOverlayContent = (editorMode: PageState.Mode): React.ReactNode => {
       return <AddItemMode editorMode={editorMode} />;
     default:
       editorMode satisfies never;
-      return null;
+      throw new Error(`unknown editorMode: ${JSON.stringify(editorMode)}`);
   }
 };

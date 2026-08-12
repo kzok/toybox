@@ -24,7 +24,7 @@ export const SelectMode = React.memo(() => {
         return <TextItem key={item.id} item={item} />;
       default:
         item satisfies never;
-        return null;
+        throw new Error(`unknown item: ${JSON.stringify(item)}`);
     }
   });
 
