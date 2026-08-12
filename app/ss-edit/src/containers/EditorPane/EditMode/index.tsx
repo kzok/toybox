@@ -90,7 +90,11 @@ const TextItemEditor = React.memo<{
  */
 const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();
-  e.currentTarget.setPointerCapture(e.pointerId);
+  if (e.buttons === 1) {
+    // primary button (left click / touch) only
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
 };
 
 /**
