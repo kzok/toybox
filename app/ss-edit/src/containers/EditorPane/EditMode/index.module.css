@@ -5,7 +5,24 @@
   transform-origin: 0 0;
 }
 
-.textarea {
+.imageItem {
+  display: inline-block;
+  position: absolute;
+  transform-origin: 0 0;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  transform: scale(var(--scale, 1));
+  background: rgba(15, 108, 189, 0.2);
+
+  /* a solid outline, as opposed to the dashed one of "select" mode */
+  /* cancel out `transform: scale()` to keep the outline width constant */
+  outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
+}
+
+.textItem {
   display: block;
   position: absolute;
   transform-origin: 0 0;

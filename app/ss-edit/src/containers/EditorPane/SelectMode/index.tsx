@@ -113,7 +113,7 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
     onClick: (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (singleSelect && item.kind === "text" && !e.ctrlKey) {
+      if (singleSelect && !e.ctrlKey) {
         actions.editorMode.enterEdit(item.id);
       } else {
         actions.editorMode.selectItem(item.id, e.ctrlKey);
