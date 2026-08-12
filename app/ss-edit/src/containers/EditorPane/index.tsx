@@ -52,6 +52,9 @@ const usePointerActions = () => {
     onClick: (e) => {
       e.preventDefault();
       e.stopPropagation();
+      // `user-select: none` on this pane (see index.module.css) keeps the browser from
+      // clearing an outside selection on its own, so do it explicitly.
+      window.getSelection()?.removeAllRanges();
       actions.editorMode.clear();
     },
   });
