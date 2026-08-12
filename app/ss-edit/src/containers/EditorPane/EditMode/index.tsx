@@ -1,12 +1,6 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
-import {
-  type EditorItem,
-  letterSpacingOf,
-  lineHeightOf,
-  measureTextSize,
-  paddingOf,
-} from "../../../features/editorItem";
+import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
 import { useCanvasScale } from "../hooks/useCanvasScale";
 import styles from "./index.module.css";
@@ -39,17 +33,10 @@ const TextItemEditor = React.memo<{
   const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const style = React.useMemo((): React.CSSProperties => {
-    const height = `${measureTextSize(item).y}px`;
     return {
+      ...textStyleOf(item),
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      width: `${item.width}px`,
-      height,
-      minHeight: height,
-      fontSize: `${item.fontSize}px`,
-      padding: `${paddingOf(item.fontSize)}px`,
-      lineHeight: `${lineHeightOf(item.fontSize)}px`,
-      letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
       ...({ "--scale": scale } as React.CSSProperties),
     };
   }, [item, scale]);
@@ -68,6 +55,7 @@ const TextItemEditor = React.memo<{
     <textarea
       ref={elementRef}
       className={styles.textarea}
+      rows={splitLines(item).length}
       style={style}
       // NOTE: uncontrolled so that React never rewrites the value being composed
       // by an IME. "input" events fire during a composition as well, hence the

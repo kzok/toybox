@@ -1,6 +1,6 @@
 import { Rect, Vec2 } from "../../utils/geometry";
-import { splitLines, type TextLayout } from "./textLayout";
-import { lineHeightOf, paddingOf } from "./textStyle";
+import { splitLines } from "./textLayout";
+import { textStyleSizeOf } from "./textStyle";
 import type { EditorItem } from "./types";
 
 /** picture rect of an empty item list */
@@ -30,12 +30,13 @@ const measureItem = (item: EditorItem): Rect => {
       size = new Vec2(item.data.width, item.data.height);
       break;
     case "text": {
+      const { padding, lineHeight } = textStyleSizeOf(item);
+      const lineCount = splitLines(item).length;
       // NOTE: the renderer pads the text on every side (see renderText()'s
-      // translate(padding, padding)), but measureTextSize() itself must keep
-      // returning the unpadded content size since EditMode.tsx also relies on
-      // it for the edit textarea's content-box height.
-      const padding = paddingOf(item.fontSize) * 2;
-      size = measureTextSize(item).add([padding, padding]);
+      // translate(padding, padding)), so this bounding rect must include that
+      // padding too, or it would clip what's actually drawn.
+      const doublePadding = padding * 2;
+      size = new Vec2(item.width, lineCount * lineHeight).add([doublePadding, doublePadding]);
       break;
     }
     default:
@@ -44,14 +45,4 @@ const measureItem = (item: EditorItem): Rect => {
   }
   const head = Vec2.new(item.offset);
   return new Rect(head, head.add(size));
-};
-
-/**
- * @param item text item
- * @returns text item size
- * @note the outline stroked by the renderer fits in the slack of the line box, hence only the shadow reaches outside this size and it is deliberately left to be cropped on export.
- */
-export const measureTextSize = (item: TextLayout): Vec2 => {
-  const lineCount = splitLines(item).length;
-  return new Vec2(item.width, lineCount * lineHeightOf(item.fontSize));
 };

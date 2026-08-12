@@ -1,17 +1,46 @@
-/**
- * @param fontSize font size (px)
- * @returns line height (px)
- */
-export const lineHeightOf = (fontSize: number): number => Math.ceil(fontSize * 1.5);
+import type { TextItemLayout } from "./types";
 
 /**
- * @param fontSize font size (px)
- * @returns letter spacing (px)
+ * @param layout text layout
+ * @returns shared style/layout size (px) for text item rendering
  */
-export const letterSpacingOf = (fontSize: number): number => Math.ceil(fontSize / 12);
+export const textStyleSizeOf = (
+  layout: TextItemLayout,
+): {
+  width: number;
+  fontSize: number;
+  padding: number;
+  lineHeight: number;
+  letterSpacing: number;
+} => ({
+  width: layout.width,
+  fontSize: layout.fontSize,
+  padding: Math.ceil(layout.fontSize / 10),
+  lineHeight: Math.ceil(layout.fontSize * 1.5),
+  letterSpacing: Math.ceil(layout.fontSize / 12),
+});
 
 /**
- * @param fontSize font size (px)
- * @returns padding (px)
+ * @param layout text layout
+ * @returns shared inline style for text item rendering
+ * @note the cache key of `splitLines` is derived from these values.
  */
-export const paddingOf = (fontSize: number): number => Math.ceil(fontSize / 10);
+export const textStyleOf = (layout: TextItemLayout) => {
+  const { width, fontSize, padding, lineHeight, letterSpacing } = textStyleSizeOf(layout);
+
+  return {
+    width: `${width}px`,
+    fontSize: `${fontSize}px`,
+    padding: `${padding}px`,
+    lineHeight: `${lineHeight}px`,
+    letterSpacing: `${letterSpacing}px`,
+    margin: "0",
+    border: "0",
+    boxSizing: "content-box",
+    whiteSpace: "pre-wrap",
+    lineBreak: "anywhere",
+    overflowWrap: "break-word",
+    fontFamily: "var(--font-family)",
+    fontWeight: "bold",
+  } as const satisfies Partial<CSSStyleDeclaration>;
+};

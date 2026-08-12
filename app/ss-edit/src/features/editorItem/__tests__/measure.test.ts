@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { measurePicture } from "../measure";
-import { lineHeightOf, paddingOf } from "../textStyle";
+import { textStyleSizeOf } from "../textStyle";
 import type { EditorItem } from "../types";
 
 // NOTE: this environment's jsdom does not implement Range.prototype.getClientRects(), which
@@ -73,8 +73,8 @@ describe(measurePicture, () => {
     const fontSize = 20;
     const item = createTextItem([10, 20], width, fontSize);
     const rect = measurePicture([item]);
-    const padding = paddingOf(fontSize);
-    const height = 2 * lineHeightOf(fontSize);
+    const { padding, lineHeight } = textStyleSizeOf(item);
+    const height = 2 * lineHeight;
     expect(rect.head.tuple()).toStrictEqual([10, 20]);
     expect(rect.size.tuple()).toStrictEqual([width + 2 * padding, height + 2 * padding]);
   });

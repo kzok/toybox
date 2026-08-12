@@ -25,11 +25,6 @@
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 
   text-align: left;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  line-break: anywhere;
-  font-family: var(--font-family);
-  font-weight: bold;
   /* the text itself is painted onto the <canvas/> underneath */
   color: transparent;
   caret-color: #0f6cbd;

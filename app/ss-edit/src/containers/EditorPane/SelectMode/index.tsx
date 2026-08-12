@@ -1,11 +1,6 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
-import {
-  type EditorItem,
-  letterSpacingOf,
-  lineHeightOf,
-  paddingOf,
-} from "../../../features/editorItem";
+import { type EditorItem, textStyleOf } from "../../../features/editorItem";
 import { usePointerEvents } from "../../../hooks";
 import { pageCtx } from "../../../store";
 import { useCanvasScale } from "../hooks/useCanvasScale";
@@ -74,13 +69,9 @@ const TextItem = React.memo<{
   const scale = useCanvasScale();
   const style = React.useMemo(
     (): React.CSSProperties => ({
+      ...textStyleOf(item),
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      width: `${item.width}px`,
-      fontSize: `${item.fontSize}px`,
-      padding: `${paddingOf(item.fontSize)}px`,
-      lineHeight: `${lineHeightOf(item.fontSize)}px`,
-      letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
       ...({ "--scale": scale } as React.CSSProperties),
     }),
     [item, scale],

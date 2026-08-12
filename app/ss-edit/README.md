@@ -45,17 +45,18 @@ overlays' hit-boxes and cursor position visually desync from what's drawn.
 
 ### Text layout invariants
 
-`features/editorItem` exports `paddingOf`, `lineHeightOf`, and `letterSpacingOf`, pure
-functions of `fontSize`. Four independent consumers must call these same functions (not
-recompute inline) for text to render, edit, and hit-test consistently:
+`features/editorItem` exports `textStyleSizeOf` (padding/lineHeight/letterSpacing as
+numbers) and `textStyleOf` (the same values as a CSS style object), both pure functions
+of a text item's layout (`width`, `fontSize`, `content`). Four independent consumers
+must call these same functions (not recompute inline) for text to render, edit, and
+hit-test consistently:
 
 1. the canvas draw in `renderer/`.
 1. `EditMode`'s edit-mode textarea styling.
 1. `SelectMode`'s select-mode hit-target styling for text items.
 1. `editorItem`'s own text layout/line-breaking measurement.
 
-One deliberate exception: the text-size measurement used for the edit textarea's
-content-box height is *unpadded*, while the bounding rect used for canvas-space layout
-adds padding on top. Losing track of this split (e.g. adding padding handling to one but
-not the other) is exactly the kind of change that causes silent visual drift — clipped
-exports, misaligned hit/hover boxes — without any type error to catch it.
+Losing track of this (e.g. a consumer recomputing padding/lineHeight/letterSpacing
+inline instead of calling `textStyleSizeOf`/`textStyleOf`) is exactly the kind of change
+that causes silent visual drift — clipped text, misaligned hit/hover boxes — without any
+type error to catch it.
