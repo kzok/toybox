@@ -1,16 +1,12 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
-import { useFocusOut } from "../../../hooks";
 import { pageCtx } from "../../../store";
 import { useCanvasScale } from "../hooks/useCanvasScale";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
-  const actions = pageCtx.useActions();
-  const elementRef = React.useRef<HTMLDivElement>(null);
-  useFocusOut(elementRef, () => actions.editorMode.clear());
   const canvasOffset = pageCtx.useCanvasOffset();
   const item = useEditingItem();
   const children = React.useMemo((): React.ReactNode => {
@@ -26,7 +22,6 @@ export const EditMode = React.memo(() => {
 
   return (
     <div
-      ref={elementRef}
       className={styles.container}
       style={{
         transform: `translate(${canvasOffset.x.toFixed(1)}px, ${canvasOffset.y.toFixed(1)}px)`,
@@ -138,9 +133,7 @@ const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
 /**
  * @param e event
  */
-const stopPropagation = (e: React.SyntheticEvent): void => {
-  e.stopPropagation();
-};
+const stopPropagation = (e: React.SyntheticEvent): void => e.stopPropagation();
 
 /**
  * @returns the text item being edited, or null if there is none.
