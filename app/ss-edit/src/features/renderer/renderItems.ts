@@ -1,10 +1,4 @@
-import {
-  type EditorItem,
-  letterSpacingOf,
-  lineHeightOf,
-  measuredFontFamily,
-  splitLines,
-} from "../editorItem";
+import { type EditorItem, measuredFontFamily, splitLines, textStyleSizeOf } from "../editorItem";
 import type { CanvasContext2D } from "./types";
 
 /**
@@ -45,14 +39,14 @@ const shadowBlurOf = (fontSize: number): number => Math.ceil(fontSize / 3);
 const shadowOffsetOf = (fontSize: number): number => Math.ceil(fontSize / 12);
 
 const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
-  const lineHeight = lineHeightOf(item.fontSize);
+  const { padding, lineHeight, letterSpacing } = textStyleSizeOf(item);
   const strokeWidth = Math.ceil(item.fontSize / 6);
-  const letterSpacing = letterSpacingOf(item.fontSize);
   const shadowBlur = shadowBlurOf(item.fontSize);
   const shadowOffset = shadowOffsetOf(item.fontSize);
 
   ctx.save();
   ctx.translate(...item.offset);
+  ctx.translate(padding, padding);
   ctx.font = `bold ${item.fontSize}px ${measuredFontFamily()}`;
   ctx.letterSpacing = `${letterSpacing}px`;
   ctx.textAlign = "left";

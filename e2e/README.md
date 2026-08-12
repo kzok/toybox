@@ -1,6 +1,7 @@
 # E2E tests
 
-Playwright tests driving the built applications through a real browser.
+Playwright tests driving the built applications through a real browser. For when to
+reach for e2e over vitest/storybook, see [`docs/TEST_STRATEGY.md`](../docs/TEST_STRATEGY.md).
 
 ## How to run
 

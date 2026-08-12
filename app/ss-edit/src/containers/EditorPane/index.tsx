@@ -52,6 +52,9 @@ const usePointerActions = () => {
     onClick: (e) => {
       e.preventDefault();
       e.stopPropagation();
+      // `user-select: none` on this pane (see index.module.css) keeps the browser from
+      // clearing an outside selection on its own, so do it explicitly.
+      window.getSelection()?.removeAllRanges();
       actions.editorMode.clear();
     },
   });
@@ -81,6 +84,6 @@ const renderOverlayContent = (editorMode: PageState.Mode): React.ReactNode => {
       return <AddItemMode editorMode={editorMode} />;
     default:
       editorMode satisfies never;
-      return null;
+      throw new Error(`unknown editorMode: ${JSON.stringify(editorMode)}`);
   }
 };

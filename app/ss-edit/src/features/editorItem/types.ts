@@ -30,3 +30,6 @@ export namespace EditorItem {
     color: string;
   }>;
 }
+
+/** text item layout part */
+export type TextItemLayout = Pick<EditorItem.Text, "width" | "fontSize" | "content">;

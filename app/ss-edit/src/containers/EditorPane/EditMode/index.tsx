@@ -1,14 +1,9 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
-import {
-  type EditorItem,
-  letterSpacingOf,
-  lineHeightOf,
-  measureTextSize,
-} from "../../features/editorItem";
-import { pageCtx } from "../../store";
-import styles from "./EditMode.module.css";
-import { useCanvasScale } from "./hooks/useCanvasScale";
+import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
+import { pageCtx } from "../../../store";
+import { useCanvasScale } from "../hooks/useCanvasScale";
+import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
@@ -38,16 +33,10 @@ const TextItemEditor = React.memo<{
   const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const style = React.useMemo((): React.CSSProperties => {
-    const height = `${measureTextSize(item).y}px`;
     return {
+      ...textStyleOf(item),
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      width: `${item.width}px`,
-      height,
-      minHeight: height,
-      fontSize: `${item.fontSize}px`,
-      lineHeight: `${lineHeightOf(item.fontSize)}px`,
-      letterSpacing: `${letterSpacingOf(item.fontSize)}px`,
       ...({ "--scale": scale } as React.CSSProperties),
     };
   }, [item, scale]);
@@ -66,6 +55,7 @@ const TextItemEditor = React.memo<{
     <textarea
       ref={elementRef}
       className={styles.textarea}
+      rows={splitLines(item).length}
       style={style}
       // NOTE: uncontrolled so that React never rewrites the value being composed
       // by an IME. "input" events fire during a composition as well, hence the
@@ -75,7 +65,7 @@ const TextItemEditor = React.memo<{
       onChange={(e) => actions.editorItem.editText(item.id, e.target.value)}
       onBlur={() => actions.editorMode.clear()}
       onPointerDown={stopPropagation}
-      onPointerMove={onPointerMove}
+      onPointerMove={stopPropagationAndCapturePointer}
       onPointerUp={stopPropagation}
       onClick={stopPropagation}
       onKeyDown={stopPropagation}
@@ -86,13 +76,12 @@ const TextItemEditor = React.memo<{
 /**
  * @param e event
  */
-const onPointerMove = (e: React.PointerEvent): void => {
+const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();
   if (e.buttons === 1) {
-    // main (left) button
+    // primary button (left click / touch) only
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
-    return;
   }
 };
 

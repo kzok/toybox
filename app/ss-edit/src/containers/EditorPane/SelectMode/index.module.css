@@ -33,10 +33,5 @@
 
 .textItem {
   text-align: left;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  line-break: anywhere;
-  font-family: var(--font-family);
-  font-weight: bold;
   color: transparent;
 }

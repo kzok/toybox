@@ -10,6 +10,7 @@ import {
   enterAddText,
   expectBoxOnScreen,
   expectMode,
+  growBox,
   openApp,
   paneRectToViewport,
   parkCursor,
@@ -24,10 +25,13 @@ import {
 
 /**
  * a range dragged on an arbitrary spot of the pane. the height drives the font size
- * (`round(48 / 1.5)` = 32px) and the width is kept above `fontSize * 10`, so that the item keeps
- * exactly the dragged size.
+ * (`round(48 / 1.5)` = 32px) and the width is kept above `fontSize * 10`, so that the item's
+ * layout (its wrap width and the dragged font size) keeps exactly the dragged size. the box it
+ * actually occupies on screen is bigger: `paddingOf(32)` is 4px, added on every side.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 48 };
+/** `paddingOf(32)` is 4px, added on every side, hence 8px on both width and height. */
+const MAIN_RANGE_PADDING = 8;
 
 test("adds a text item by dragging a range", async ({ page }) => {
   await openApp(page);
@@ -60,7 +64,7 @@ test("adds a text item by dragging a range", async ({ page }) => {
     await expect(editor).toHaveValue("");
     await expect(editor).toHaveCSS("font-size", "32px");
     await expect(editor).toHaveCSS("width", "400px");
-    await expectBoxOnScreen(editor, range);
+    await expectBoxOnScreen(editor, growBox(range, MAIN_RANGE_PADDING));
   });
 
   await test.step("paint the typed text onto the canvas", async () => {
@@ -73,8 +77,9 @@ test("adds a text item by dragging a range", async ({ page }) => {
     await commitText(page);
     await expect(textItems(page)).toHaveCount(1);
     await expect(textItems(page).first()).toHaveText("Hello");
-    // the picture spans the width of the item and a single line of its line height.
-    await expect(pictureSize(page)).toHaveText("400 x 48");
+    // the picture spans the width of the item and a single line of its line height, padded on
+    // every side.
+    await expect(pictureSize(page)).toHaveText("408 x 56");
     expect.soft(await saveAsPng(page)).toMatchSnapshot("export-text.png");
   });
 });
@@ -104,10 +109,10 @@ test("sorts the corners of a range dragged up and left", async ({ page }) => {
   );
 
   // the item is anchored on the top left corner no matter which way the range was drawn.
-  await expectBoxOnScreen(textEditor(page), range);
+  await expectBoxOnScreen(textEditor(page), growBox(range, MAIN_RANGE_PADDING));
   await typeText(page, "Hello");
   await commitText(page);
-  await expectBoxOnScreen(textItems(page).first(), range);
+  await expectBoxOnScreen(textItems(page).first(), growBox(range, MAIN_RANGE_PADDING));
 });
 
 test("clamps the font size of a tall range", async ({ page }) => {
@@ -170,7 +175,7 @@ test("adds the text where it was dragged after zooming and panning", async ({ pa
 
   /**
    * 600 x 72 on screen is 400 x 48 on the canvas at 150%, which keeps the width above
-   * `fontSize * 10` and hence makes the item cover exactly the dragged range again.
+   * `fontSize * 10` and hence makes the item's layout match the dragged range again.
    */
   const range: Box = await paneRectToViewport(page, { x: 200, y: 160, width: 600, height: 72 });
   await enterAddText(page);
@@ -178,8 +183,9 @@ test("adds the text where it was dragged after zooming and panning", async ({ pa
   await typeText(page, "Hello");
   await commitText(page);
 
-  // the range is mapped through the current offset and scale, so it lands where it was drawn...
-  await expectBoxOnScreen(textItems(page).first(), range);
-  // ...while the item itself is stored in canvas coordinates, free of the view.
-  await expect(pictureSize(page)).toHaveText("400 x 48");
+  // the range is mapped through the current offset and scale, so it lands where it was drawn,
+  // grown by the padding (8px on the canvas) scaled up by the 150% zoom.
+  await expectBoxOnScreen(textItems(page).first(), growBox(range, MAIN_RANGE_PADDING * 1.5));
+  // ...while the item itself is stored in canvas coordinates, free of the view and its zoom.
+  await expect(pictureSize(page)).toHaveText("408 x 56");
 });

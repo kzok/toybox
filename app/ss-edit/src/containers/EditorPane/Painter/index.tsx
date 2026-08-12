@@ -1,7 +1,7 @@
 import React from "react";
-import { renderEditorItems } from "../../features/renderer";
-import { pageCtx } from "../../store";
-import styles from "./Painter.module.css";
+import { renderEditorItems } from "../../../features/renderer";
+import { pageCtx } from "../../../store";
+import styles from "./index.module.css";
 
 /** editor canvas painter that renders items onto a `<canvas/>`. */
 export const Painter = React.memo(() => {
