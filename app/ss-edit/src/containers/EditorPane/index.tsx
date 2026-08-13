@@ -44,7 +44,6 @@ const usePointerActions = () => {
       e.stopPropagation();
       if (e.buttons === 1) {
         // main (left) button
-        e.preventDefault();
         e.currentTarget.setAttribute("data-scrolling", "");
         actions.editorView.scroll(e.movementX, e.movementY);
         return;
@@ -52,12 +51,10 @@ const usePointerActions = () => {
     },
     onPointerUp: (e) => {
       e.stopPropagation();
-      e.preventDefault();
       e.currentTarget.removeAttribute("data-scrolling");
     },
     onClick: (e) => {
       e.stopPropagation();
-      e.preventDefault();
       // `user-select: none` on this pane (see index.module.css) keeps the browser from
       // clearing an outside selection on its own, so do it explicitly.
       window.getSelection()?.removeAllRanges();

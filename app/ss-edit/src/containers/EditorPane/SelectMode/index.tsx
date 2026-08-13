@@ -93,7 +93,6 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
     },
     onPointerMove: (e) => {
       e.stopPropagation();
-      e.preventDefault();
       // main (left) button
       if (e.buttons === 1) {
         actions.editorItem.move(item.id, [e.movementX, e.movementY]);
@@ -102,7 +101,6 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
     },
     onClick: (e) => {
       e.stopPropagation();
-      e.preventDefault();
       if (singleSelect && !e.ctrlKey) {
         actions.editorMode.enterEdit(item.id);
       } else {

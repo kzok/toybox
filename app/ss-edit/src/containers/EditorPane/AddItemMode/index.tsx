@@ -66,13 +66,11 @@ const usePointerActions = () => {
       updateRange(e);
     };
     const onPointerMove: React.PointerEventHandler = (e) => {
-      e.preventDefault();
       e.stopPropagation();
       if (draggingIdRef.current !== e.pointerId || e.buttons !== 1) return;
       updateRange(e);
     };
     const onPointerUp: React.PointerEventHandler = (e) => {
-      e.preventDefault();
       e.stopPropagation();
       if (draggingIdRef.current !== e.pointerId || e.button !== 0) return;
       draggingIdRef.current = null;
@@ -85,7 +83,6 @@ const usePointerActions = () => {
       actions.editorMode.cancelAddItem();
     };
     const onClick: React.MouseEventHandler = (e) => {
-      e.preventDefault();
       e.stopPropagation();
     };
 

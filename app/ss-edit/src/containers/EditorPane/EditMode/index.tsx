@@ -70,7 +70,6 @@ const ImageItem = React.memo<{
         onPointerMove={(e) => {
           e.stopPropagation();
           if (e.buttons === 1) {
-            e.preventDefault();
             const anchor = elementRef.current?.getBoundingClientRect();
             if (anchor == null) return;
             actions.editorItem.resizeImage(item.id, [
