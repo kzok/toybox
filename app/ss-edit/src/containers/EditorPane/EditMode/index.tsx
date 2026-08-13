@@ -8,6 +8,7 @@ import styles from "./index.module.css";
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
   const canvasOffset = pageCtx.useCanvasOffset();
+  const scale = useCanvasScale();
   const item = useEditingItem();
   const children = React.useMemo((): React.ReactNode => {
     switch (item?.kind) {
@@ -24,7 +25,9 @@ export const EditMode = React.memo(() => {
     <div
       className={styles.container}
       style={{
-        transform: `translate(${canvasOffset.x.toFixed(1)}px, ${canvasOffset.y.toFixed(1)}px)`,
+        // NOTE: the same transform the `<canvas/>` is painted through (see `Painter`).
+        transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${scale})`,
+        ...({ "--scale": scale } as React.CSSProperties),
       }}
     >
       {children}
@@ -36,17 +39,15 @@ const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLButtonElement>(null);
   const style = React.useMemo(
     (): React.CSSProperties => ({
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
       width: `${item.width}px`,
       height: `${item.height}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
     }),
-    [item, scale],
+    [item],
   );
 
   React.useEffect(() => {
@@ -105,16 +106,14 @@ const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const style = React.useMemo((): React.CSSProperties => {
     return {
       ...textStyleOf(item),
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
     };
-  }, [item, scale]);
+  }, [item]);
 
   React.useEffect(() => {
     const element = elementRef.current;

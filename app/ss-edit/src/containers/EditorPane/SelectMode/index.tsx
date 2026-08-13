@@ -10,6 +10,7 @@ import styles from "./index.module.css";
 export const SelectMode = React.memo(() => {
   const items = pageCtx.useEditorItems();
   const canvasOffset = pageCtx.useCanvasOffset();
+  const scale = useCanvasScale();
 
   const children = items.map((item): React.ReactNode => {
     switch (item.kind) {
@@ -27,7 +28,9 @@ export const SelectMode = React.memo(() => {
     <div
       className={styles.container}
       style={{
-        transform: `translate(${canvasOffset.x.toFixed(1)}px, ${canvasOffset.y.toFixed(1)}px)`,
+        // NOTE: the same transform the `<canvas/>` is painted through (see `Painter`).
+        transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${scale})`,
+        ...({ "--scale": scale } as React.CSSProperties),
       }}
     >
       {children}
@@ -38,16 +41,14 @@ export const SelectMode = React.memo(() => {
 const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
-  const scale = useCanvasScale();
   const style = React.useMemo(
     (): React.CSSProperties => ({
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
       width: `${item.width}px`,
       height: `${item.height}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
     }),
-    [item, scale],
+    [item],
   );
   const { selected, singleSelect } = useItemSelected(item.id);
 
@@ -66,15 +67,13 @@ const ImageItem = React.memo<{
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
-  const scale = useCanvasScale();
   const style = React.useMemo(
     (): React.CSSProperties => ({
       ...textStyleOf(item),
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
     }),
-    [item, scale],
+    [item],
   );
   const { selected, singleSelect } = useItemSelected(item.id);
 

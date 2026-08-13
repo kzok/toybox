@@ -8,13 +8,11 @@
 .imageItem {
   display: inline-block;
   position: absolute;
-  transform-origin: 0 0;
 
   margin: 0;
   padding: 0;
   border: 0;
 
-  transform: scale(var(--scale, 1));
   background: rgba(15, 108, 189, 0.2);
 
   /* a solid outline, as opposed to the dashed one of "select" mode */
@@ -26,7 +24,7 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  /* cancel out the ancestor's `transform: scale()` to keep a constant on-screen size */
+  /* cancel out `transform: scale()` to keep a constant on-screen size */
   width: calc(14px / var(--scale, 1));
   height: calc(14px / var(--scale, 1));
   transform: translate(50%, 50%);
@@ -39,7 +37,6 @@
 .textItem {
   display: block;
   position: absolute;
-  transform-origin: 0 0;
 
   background: transparent;
   box-sizing: content-box;
@@ -50,7 +47,6 @@
   overflow: hidden;
   user-select: text;
 
-  transform: scale(var(--scale, 1));
   /* a solid outline, as opposed to the dashed one of "select" mode */
   /* cancel out `transform: scale()` to keep the outline width constant */
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
