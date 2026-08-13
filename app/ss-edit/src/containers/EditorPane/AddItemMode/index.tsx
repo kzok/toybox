@@ -1,7 +1,7 @@
 import React from "react";
 import { type PageState, pageCtx } from "../../../store";
 import { Rect, Vec2 } from "../../../utils/geometry";
-import { useCanvasScale } from "../hooks/useCanvasScale";
+import { CanvasLayer } from "../CanvasLayer";
 import styles from "./index.module.css";
 
 type Range = NonNullable<PageState.Mode.AddItem["range"]>;
@@ -11,8 +11,14 @@ export const AddItemMode = React.memo<{
   editorMode: PageState.Mode.AddItem;
 }>(({ editorMode }) => {
   return (
+    // NOTE: this element must stay free of any transform: `usePointerActions` reads pointer
+    // positions relative to its bounding rect (see `updateRange`).
     <div className={styles.container} {...usePointerActions()}>
-      {editorMode.range && <RangePreview range={editorMode.range} />}
+      {editorMode.range && (
+        <CanvasLayer>
+          <RangePreview range={editorMode.range} />
+        </CanvasLayer>
+      )}
     </div>
   );
 });
@@ -21,19 +27,16 @@ export const AddItemMode = React.memo<{
 const RangePreview = React.memo<{
   range: Range;
 }>(({ range }) => {
-  const canvasOffset = pageCtx.useCanvasOffset();
-  const scale = useCanvasScale();
   const style = React.useMemo((): React.CSSProperties => {
     const { head, size } = new Rect(...range);
-    const offset = head.mul(scale).add(canvasOffset);
-    const scaledSize = size.mul(scale);
+    // NOTE: an ancestor component applies the offset and the scale.
     return {
-      left: `${offset.x.toFixed(1)}px`,
-      top: `${offset.y.toFixed(1)}px`,
-      width: `${scaledSize.x.toFixed(1)}px`,
-      height: `${scaledSize.y.toFixed(1)}px`,
+      left: `${head.x}px`,
+      top: `${head.y}px`,
+      width: `${size.x}px`,
+      height: `${size.y}px`,
     };
-  }, [range, canvasOffset, scale]);
+  }, [range]);
 
   // NOTE: `data-range-preview` is the only stable handle on this element from outside
   // (e.g. e2e tests), since the class name comes from a CSS module.

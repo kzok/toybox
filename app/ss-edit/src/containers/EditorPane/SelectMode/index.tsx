@@ -3,14 +3,12 @@ import React from "react";
 import { type EditorItem, textStyleOf } from "../../../features/editorItem";
 import { usePointerEvents } from "../../../hooks";
 import { pageCtx } from "../../../store";
-import { useCanvasScale } from "../hooks/useCanvasScale";
+import { CanvasLayer } from "../CanvasLayer";
 import styles from "./index.module.css";
 
 /** editor overlay content for "select" mode */
 export const SelectMode = React.memo(() => {
   const items = pageCtx.useEditorItems();
-  const canvasOffset = pageCtx.useCanvasOffset();
-  const scale = useCanvasScale();
 
   const children = items.map((item): React.ReactNode => {
     switch (item.kind) {
@@ -24,18 +22,7 @@ export const SelectMode = React.memo(() => {
     }
   });
 
-  return (
-    <div
-      className={styles.container}
-      style={{
-        // NOTE: the same transform the `<canvas/>` is painted through (see `Painter`).
-        transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${scale})`,
-        ...({ "--scale": scale } as React.CSSProperties),
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <CanvasLayer>{children}</CanvasLayer>;
 });
 
 const ImageItem = React.memo<{
@@ -43,6 +30,7 @@ const ImageItem = React.memo<{
 }>(({ item }) => {
   const style = React.useMemo(
     (): React.CSSProperties => ({
+      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.width}px`,

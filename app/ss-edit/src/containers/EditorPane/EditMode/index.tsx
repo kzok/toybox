@@ -2,13 +2,11 @@ import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
-import { useCanvasScale } from "../hooks/useCanvasScale";
+import { CanvasLayer } from "../CanvasLayer";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
-  const canvasOffset = pageCtx.useCanvasOffset();
-  const scale = useCanvasScale();
   const item = useEditingItem();
   const children = React.useMemo((): React.ReactNode => {
     switch (item?.kind) {
@@ -21,18 +19,7 @@ export const EditMode = React.memo(() => {
     }
   }, [item]);
 
-  return (
-    <div
-      className={styles.container}
-      style={{
-        // NOTE: the same transform the `<canvas/>` is painted through (see `Painter`).
-        transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px) scale(${scale})`,
-        ...({ "--scale": scale } as React.CSSProperties),
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <CanvasLayer>{children}</CanvasLayer>;
 });
 
 const ImageItem = React.memo<{
@@ -42,6 +29,7 @@ const ImageItem = React.memo<{
   const elementRef = React.useRef<HTMLButtonElement>(null);
   const style = React.useMemo(
     (): React.CSSProperties => ({
+      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.width}px`,
