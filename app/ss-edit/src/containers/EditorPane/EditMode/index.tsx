@@ -69,13 +69,19 @@ const ImageItem = React.memo<{
       only swallows the click so it doesn't reach the parent button, it triggers no action. */}
       <span
         className={styles.resizeHandle}
-        onPointerDown={stopPropagation}
+        data-resize-handle
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          // capture the pointer only when main (left) button.
+          if (e.buttons === 1) {
+            e.preventDefault();
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }
+        }}
         onPointerMove={(e) => {
           e.stopPropagation();
           if (e.buttons === 1) {
-            // primary button (left click / touch) only
             e.preventDefault();
-            e.currentTarget.setPointerCapture(e.pointerId);
             const anchor = elementRef.current?.getBoundingClientRect();
             if (anchor == null) return;
             actions.editorItem.resizeImage(item.id, [
@@ -133,8 +139,8 @@ const TextItem = React.memo<{
       defaultValue={item.content}
       spellCheck={false}
       onChange={(e) => actions.editorItem.editText(item.id, e.target.value)}
-      onPointerDown={stopPropagation}
-      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerDown={stopPropagationAndCapturePointer}
+      onPointerMove={stopPropagation}
       onPointerUp={stopPropagation}
       onClick={stopPropagation}
       onKeyDown={stopPropagation}
@@ -147,9 +153,8 @@ const TextItem = React.memo<{
  */
 const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();
+  // capture the pointer only when main (left) button.
   if (e.buttons === 1) {
-    // primary button (left click / touch) only
-    e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 };

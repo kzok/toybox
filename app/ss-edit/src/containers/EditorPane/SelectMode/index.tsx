@@ -97,22 +97,25 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
 
   return usePointerEvents({
     onPointerDown: (e) => {
-      e.preventDefault();
       e.stopPropagation();
+      // capture the pointer only when main (left) button.
+      if (e.buttons === 1) {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
     },
     onPointerMove: (e) => {
-      e.preventDefault();
       e.stopPropagation();
+      e.preventDefault();
+      // main (left) button
       if (e.buttons === 1) {
-        // main (left) button
-        e.currentTarget.setPointerCapture(e.pointerId);
         actions.editorItem.move(item.id, [e.movementX, e.movementY]);
         return;
       }
     },
     onClick: (e) => {
-      e.preventDefault();
       e.stopPropagation();
+      e.preventDefault();
       if (singleSelect && !e.ctrlKey) {
         actions.editorMode.enterEdit(item.id);
       } else {
