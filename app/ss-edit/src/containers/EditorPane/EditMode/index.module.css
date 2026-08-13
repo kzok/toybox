@@ -1,14 +1,35 @@
-.container {
+.imageItem {
+  display: inline-block;
   position: absolute;
-  top: 0;
-  left: 0;
-  transform-origin: 0 0;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  background: rgba(15, 108, 189, 0.2);
+
+  /* a solid outline, as opposed to the dashed one of "select" mode */
+  /* cancel out `transform: scale()` to keep the outline width constant */
+  outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
 
-.textarea {
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  /* cancel out `transform: scale()` to keep a constant on-screen size */
+  width: calc(14px / var(--scale, 1));
+  height: calc(14px / var(--scale, 1));
+  transform: translate(50%, 50%);
+  border-radius: 50%;
+  border: calc(2px / var(--scale, 1)) solid #fff;
+  background: #0f6cbd;
+  cursor: nwse-resize;
+}
+
+.textItem {
   display: block;
   position: absolute;
-  transform-origin: 0 0;
 
   background: transparent;
   box-sizing: content-box;
@@ -19,7 +40,6 @@
   overflow: hidden;
   user-select: text;
 
-  transform: scale(var(--scale, 1));
   /* a solid outline, as opposed to the dashed one of "select" mode */
   /* cancel out `transform: scale()` to keep the outline width constant */
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;

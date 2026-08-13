@@ -51,7 +51,6 @@ export const usePointerEvents = <E extends Element = HTMLElement>(params: Params
       onClick: (e) => {
         if (downP && moveP && downP.distance(moveP) > 2) {
           // dragged. swallow the click so that ancestors don't handle it.
-          e.preventDefault();
           e.stopPropagation();
           return;
         }

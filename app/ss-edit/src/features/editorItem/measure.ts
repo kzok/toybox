@@ -27,7 +27,7 @@ const measureItem = (item: EditorItem): Rect => {
   let size: Vec2;
   switch (item.kind) {
     case "image":
-      size = new Vec2(item.data.width, item.data.height);
+      size = new Vec2(item.width, item.height);
       break;
     case "text": {
       const { padding, lineHeight } = textStyleSizeOf(item);

@@ -17,8 +17,10 @@ const createImageItem = (
 ): EditorItem.Image => ({
   kind: "image",
   id: `item-${offset.join(",")}`,
-  data: { width: size[0], height: size[1] } as ImageBitmap,
+  data: {} as ImageBitmap,
   offset,
+  width: size[0],
+  height: size[1],
 });
 
 const createTextItem = (

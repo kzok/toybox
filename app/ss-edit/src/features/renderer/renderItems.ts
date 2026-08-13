@@ -23,7 +23,7 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
 };
 
 const renderImage = (ctx: CanvasContext2D, item: EditorItem.Image): void => {
-  ctx.drawImage(item.data, ...item.offset);
+  ctx.drawImage(item.data, item.offset[0], item.offset[1], item.width, item.height);
 };
 
 /**
