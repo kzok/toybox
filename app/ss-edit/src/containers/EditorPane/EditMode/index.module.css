@@ -22,6 +22,20 @@
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
 
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  /* cancel out the ancestor's `transform: scale()` to keep a constant on-screen size */
+  width: calc(14px / var(--scale, 1));
+  height: calc(14px / var(--scale, 1));
+  transform: translate(50%, 50%);
+  border-radius: 50%;
+  border: calc(2px / var(--scale, 1)) solid #fff;
+  background: #0f6cbd;
+  cursor: nwse-resize;
+}
+
 .textItem {
   display: block;
   position: absolute;

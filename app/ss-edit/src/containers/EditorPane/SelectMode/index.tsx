@@ -43,8 +43,8 @@ const ImageItem = React.memo<{
     (): React.CSSProperties => ({
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      width: `${item.data.width}px`,
-      height: `${item.data.height}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
       ...({ "--scale": scale } as React.CSSProperties),
     }),
     [item, scale],

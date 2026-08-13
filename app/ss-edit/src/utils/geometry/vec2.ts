@@ -77,6 +77,14 @@ export class Vec2 {
     const diff = this.sub(another);
     return Math.sqrt(diff.x ** 2 + diff.y ** 2);
   }
+  /**
+   * @param arg another operand
+   * @returns dot product
+   */
+  dot(arg: Vec2.Param): number {
+    const [x, y] = toTuple(arg);
+    return this.x * x + this.y * y;
+  }
 }
 
 export namespace Vec2 {

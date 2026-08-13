@@ -12,6 +12,10 @@ export namespace EditorItem {
     data: ImageBitmap;
     /** top-left offset */
     offset: Vec2.Tuple;
+    /** display width */
+    width: number;
+    /** display height */
+    height: number;
   }>;
 
   /** text item */

@@ -35,14 +35,15 @@ export const EditMode = React.memo(() => {
 const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
+  const actions = pageCtx.useActions();
   const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLButtonElement>(null);
   const style = React.useMemo(
     (): React.CSSProperties => ({
       left: `${(item.offset[0] * scale).toFixed(1)}px`,
       top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      width: `${item.data.width}px`,
-      height: `${item.data.height}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
       ...({ "--scale": scale } as React.CSSProperties),
     }),
     [item, scale],
@@ -63,7 +64,30 @@ const ImageItem = React.memo<{
       onPointerMove={stopPropagationAndCapturePointer}
       onPointerUp={stopPropagation}
       onClick={stopPropagation}
-    />
+    >
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: pointer-only drag handle; onClick here
+      only swallows the click so it doesn't reach the parent button, it triggers no action. */}
+      <span
+        className={styles.resizeHandle}
+        onPointerDown={stopPropagation}
+        onPointerMove={(e) => {
+          e.stopPropagation();
+          if (e.buttons === 1) {
+            // primary button (left click / touch) only
+            e.preventDefault();
+            e.currentTarget.setPointerCapture(e.pointerId);
+            const anchor = elementRef.current?.getBoundingClientRect();
+            if (anchor == null) return;
+            actions.editorItem.resizeImage(item.id, [
+              e.clientX - anchor.left,
+              e.clientY - anchor.top,
+            ]);
+          }
+        }}
+        onPointerUp={stopPropagation}
+        onClick={stopPropagation}
+      />
+    </button>
   );
 });
 
