@@ -10,11 +10,12 @@ An image editor specialized for editing screenshots.
   - React components wired to application state managements.
 - `src/components/`
   - Presentational React components.
-- `src/features/`
-  - `editorItem/`: the item data model (`EditorItem` union of `Image`/`Text`), the
-    shared text style values, and text layout/measurement. No canvas code lives here.
-  - `renderer/`: canvas drawing and image export. Consumes `editorItem`'s data and
-    style values to paint pixels; this is where visuals are actually produced.
+- `src/features/editorItem/`
+  - The item data model (`EditorItem` union of `Image`/`Text`), the shared text style
+    values, and text layout/measurement. No canvas code lives here.
+- `src/features/renderer/`
+  - Canvas drawing and image export. Consumes `editorItem`'s data and style values to
+    paint pixels; this is where visuals are actually produced.
 - `src/hooks/`
   - React hooks shared across the application.
 - `src/store/`
@@ -64,3 +65,18 @@ Losing track of this (e.g. a consumer recomputing padding/lineHeight/letterSpaci
 inline instead of calling `textStyleSizeOf`/`textStyleOf`) is exactly the kind of change
 that causes silent visual drift — clipped text, misaligned hit/hover boxes — without any
 type error to catch it.
+
+### Action grouping
+
+`store/actions/` is split by the user-facing concern each action serves — `view`,
+`selection`, `edit`, `addItem`, `picture` — not by the slice of `PageState` it writes.
+The slice axis does not hold here: the editor mode carries the `itemId` it acts on, so a
+mode transition and an item mutation are often the same operation (`addItem`'s commit
+pushes an item; `selection`'s move rewrites the selection), and every action updates the
+single `state` atom regardless.
+
+One rule keeps the split decidable: the action that *enters* a mode belongs to that
+mode's file — `edit.enter`, `addItem.enter`, and `selection.clear`, which returns to the
+default empty selection. Operating within a mode belongs there too, so each file lines up
+with the containers that drive it: the three mode overlays under `EditorPane`, the view
+controls in `EditorPane`/`Footer`, and the menus in `Header`.

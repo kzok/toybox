@@ -95,16 +95,16 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
       e.stopPropagation();
       // main (left) button
       if (e.buttons === 1) {
-        actions.editorItem.move(item.id, [e.movementX, e.movementY]);
+        actions.selection.move(item.id, [e.movementX, e.movementY]);
         return;
       }
     },
     onClick: (e) => {
       e.stopPropagation();
       if (singleSelect && !e.ctrlKey) {
-        actions.editorMode.enterEdit(item.id);
+        actions.edit.enter(item.id);
       } else {
-        actions.editorMode.selectItem(item.id, e.ctrlKey);
+        actions.selection.select(item.id, e.ctrlKey);
       }
     },
   });

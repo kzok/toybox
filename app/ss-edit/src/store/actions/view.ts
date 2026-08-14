@@ -6,9 +6,9 @@ const ZOOM_MAX = 2.0;
 
 /**
  * @param params store, atoms and updateAtom
- * @returns actions for editor view
+ * @returns actions for the editor view
  */
-export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /**
      * update editor pane size

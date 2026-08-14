@@ -42,7 +42,7 @@ class PointerEventHandler {
    * @param e
    */
   private handleWheelScroll(e: WheelEvent): void {
-    this.actions.editorView.scroll(-e.deltaX, -e.deltaY);
+    this.actions.view.scroll(-e.deltaX, -e.deltaY);
   }
   /**
    * handle wheel zoom event.
@@ -50,7 +50,7 @@ class PointerEventHandler {
    */
   private handleWheelZoom(e: WheelEvent): void {
     const cursor = Vec2.new(e.clientX, e.clientY).sub(this.element.getBoundingClientRect());
-    this.actions.editorView.zoom((scale) => {
+    this.actions.view.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {
         return 1; // snap to 100%

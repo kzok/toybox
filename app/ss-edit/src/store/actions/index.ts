@@ -1,9 +1,11 @@
 import { produce } from "immer";
 import type { Atoms } from "../atoms";
-import { createEditorItemActions } from "./editorItem";
-import { createEditorModeActions } from "./editorMode";
-import { createEditorViewActions } from "./editorView";
+import { createAddItemActions } from "./addItem";
+import { createEditActions } from "./edit";
+import { createPictureActions } from "./picture";
+import { createSelectionActions } from "./selection";
 import type { ActionCreatorParam, StoreInterface, UpdateAtom } from "./types";
+import { createViewActions } from "./view";
 
 /**
  * @param store
@@ -21,14 +23,13 @@ export const createActions = (store: StoreInterface, atoms: Atoms) => {
   };
 
   const params: ActionCreatorParam = { store, atoms, updateAtom };
-  const editorView = createEditorViewActions(params);
-  const editorItem = createEditorItemActions(params);
-  const editorMode = createEditorModeActions(params);
 
   return {
-    editorView,
-    editorItem,
-    editorMode,
+    view: createViewActions(params),
+    selection: createSelectionActions(params),
+    edit: createEditActions(params),
+    addItem: createAddItemActions(params),
+    picture: createPictureActions(params),
   } as const;
 };
 

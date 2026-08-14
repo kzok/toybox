@@ -1,17 +1,14 @@
 import { produce } from "immer";
-import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import { Vec2 } from "../../../utils/geometry";
-import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
-import { createActions } from "..";
-import { createEditorViewActions } from "../editorView";
+import { INITIAL_EDITOR_STATE } from "../../atoms";
+import { createViewActions } from "../view";
+import { createTestTarget as createFullTarget } from "./fixtures";
 
-describe(createEditorViewActions, () => {
+describe(createViewActions, () => {
   const createTestTarget = () => {
-    const store = createStore();
-    const atoms = createAtoms();
-    const actions = createActions(store, atoms).editorView;
-    return { store, actions, atoms } as const;
+    const { store, actions, atoms } = createFullTarget();
+    return { store, actions: actions.view, atoms } as const;
   };
 
   describe("syncCanvasSize()", () => {

@@ -72,10 +72,7 @@ const ImageItem = React.memo<{
           if (e.buttons === 1) {
             const anchor = elementRef.current?.getBoundingClientRect();
             if (anchor == null) return;
-            actions.editorItem.resizeImage(item.id, [
-              e.clientX - anchor.left,
-              e.clientY - anchor.top,
-            ]);
+            actions.edit.resizeImage(item.id, [e.clientX - anchor.left, e.clientY - anchor.top]);
           }
         }}
         onPointerUp={stopPropagation}
@@ -124,7 +121,7 @@ const TextItem = React.memo<{
       // canvas previews the text before it is confirmed.
       defaultValue={item.content}
       spellCheck={false}
-      onChange={(e) => actions.editorItem.editText(item.id, e.target.value)}
+      onChange={(e) => actions.edit.setText(item.id, e.target.value)}
       onPointerDown={stopPropagationAndCapturePointer}
       onPointerMove={stopPropagation}
       onPointerUp={stopPropagation}
