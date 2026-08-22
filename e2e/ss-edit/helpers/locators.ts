@@ -37,8 +37,13 @@ export const addItemLayer = (page: Page): Locator =>
 /** the outline of the item about to be added, shown while a range is being dragged. */
 export const rangePreview = (page: Page): Locator => page.locator("[data-range-preview]");
 
-/** the resize handle on the bottom-right corner of an image item in edit mode. */
-export const resizeHandle = (page: Page): Locator => page.locator("[data-resize-handle]");
+/** the resize handle on the bottom-right corner of the item being edited. */
+export const bottomRightResizeHandle = (page: Page): Locator =>
+  page.locator("[data-resize-handle='bottom-right']");
+
+/** the resize handle on the middle of the right edge of a text item being edited. */
+export const rightResizeHandle = (page: Page): Locator =>
+  page.locator("[data-resize-handle='right']");
 
 export const zoomLevel = (page: Page): Locator => page.getByTitle("Zoom level");
 

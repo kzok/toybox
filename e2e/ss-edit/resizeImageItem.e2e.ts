@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   addImage,
+  bottomRightResizeHandle,
   boundingBoxOf,
   centerOf,
   dragBy,
@@ -10,7 +11,6 @@ import {
   imageItems,
   openApp,
   parkCursor,
-  resizeHandle,
   saveAsPng,
 } from "./helpers";
 
@@ -26,7 +26,7 @@ test("resizes the image by dragging the handle, keeping the aspect ratio and the
   await expectMode(page, "edit");
 
   const before = await boundingBoxOf(item);
-  const handle = resizeHandle(page);
+  const handle = bottomRightResizeHandle(page);
 
   // proportional to the item's current on-screen aspect ratio, so the handle ends up exactly under
   // the cursor regardless of the canvas zoom level. this also exercises the multi-step drag
@@ -53,7 +53,7 @@ test("does not collapse the image below the minimum size", async ({ page }) => {
   await expectMode(page, "edit");
 
   const before = await boundingBoxOf(item);
-  const handle = resizeHandle(page);
+  const handle = bottomRightResizeHandle(page);
 
   await dragBy(page, centerOf(await boundingBoxOf(handle)), {
     x: -before.width,
@@ -77,7 +77,7 @@ test("keeps the resized image in the exported picture", async ({ page }) => {
   await expectMode(page, "edit");
 
   const before = await boundingBoxOf(item);
-  const handle = resizeHandle(page);
+  const handle = bottomRightResizeHandle(page);
   const delta = { x: 80, y: (80 * before.height) / before.width };
   await dragBy(page, centerOf(await boundingBoxOf(handle)), delta);
 

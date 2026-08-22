@@ -14,6 +14,18 @@ There's no standalone `postcss.config.*` in this repo.
 - **Where**: colocated as `<name>.module.css` next to the component, imported as
   `styles`.
 
+### Variants
+
+When classes share their chrome and differ only in placement or state, keep one base class and
+nest each variant under it as an `.isSomething` modifier, applied together through `clsx`. A
+standalone `.rightResizeHandle` reads as complete on its own when it only places an element some
+other class already styled; nesting also keeps the modifier from applying without its base.
+
+- **Example**: `.resizeHandle` with `&.isRight` / `&.isBottomRight` in `app/ss-edit`'s
+  `EditMode`.
+- **Note**: `composes:` says the same thing, but biome rejects it as non-standard CSS unless
+  `css.parser.cssModules` is enabled in `biome.jsonc` — which it is not.
+
 ## Inline styles
 
 - **Scope**: only when CSS Modules can't express it — a value computed at runtime from

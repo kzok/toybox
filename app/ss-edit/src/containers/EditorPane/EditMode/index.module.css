@@ -9,21 +9,35 @@
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
 
+/* the chrome every resize handle shares. the modifiers below say where one sits, and are */
+/* nested here because neither places anything on its own: both are applied along with this one. */
 .resizeHandle {
   position: absolute;
-  right: 0;
-  bottom: 0;
   /* cancel out `transform: scale()` to keep a constant on-screen size */
   width: calc(14px / var(--scale, 1));
   height: calc(14px / var(--scale, 1));
-  transform: translate(50%, 50%);
   border-radius: 50%;
   border: calc(2px / var(--scale, 1)) solid #fff;
   background: #0f6cbd;
-  cursor: nwse-resize;
+
+  /* resizes the item as a whole, from its bottom right corner. */
+  &.isBottomRight {
+    right: 0;
+    bottom: 0;
+    transform: translate(50%, 50%);
+    cursor: nwse-resize;
+  }
+
+  /* resizes the width alone, from the middle of the right edge. */
+  &.isRight {
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%);
+    cursor: ew-resize;
+  }
 }
 
-/* carries the item offset and lets the resize handle sit at the <textarea/>'s corner. */
+/* carries the item offset and lets the resize handles sit on the <textarea/>'s edge and corner. */
 /* left to shrink to fit, hence exactly the box of the <textarea/> it wraps. */
 .textItemBox {
   display: block;

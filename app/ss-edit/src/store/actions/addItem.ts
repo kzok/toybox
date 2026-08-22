@@ -1,5 +1,5 @@
 import { castDraft } from "immer";
-import { clampFontSize, type EditorItem } from "../../features/editorItem";
+import { clampFontSize, clampTextWidth, type EditorItem } from "../../features/editorItem";
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { canvasOffset } from "../selectors";
 import type { PageState } from "../types";
@@ -61,7 +61,7 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
         const { head, size } = new Rect(...range);
         // NOTE: the dragged height is a single line box, hence the inverse of `lineHeightOf()`.
         const fontSize = clampFontSize(size.y / 1.5);
-        const width = Math.max(Math.round(size.x), fontSize * 10);
+        const width = clampTextWidth(size.x, fontSize);
 
         const newItem: EditorItem.Text = {
           kind: "text",

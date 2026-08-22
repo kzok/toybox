@@ -14,6 +14,19 @@ const MAX_FONT_SIZE_PX = 72;
 export const clampFontSize = (fontSize: number): number =>
   Math.min(Math.max(Math.round(fontSize), MIN_FONT_SIZE_PX), MAX_FONT_SIZE_PX);
 
+/** the fewest full-width graphemes a text item's line box is ever laid out to hold */
+const MIN_WIDTH_IN_GRAPHEMES = 10;
+
+/**
+ * @param width desired width (px), fractional or below the minimum
+ * @param fontSize the font size (px) the text is laid out at
+ * @returns the width a text item can actually take
+ * @note rounded as well as clamped, for the same reason as `clampFontSize`: the cache key of
+ *   `splitLines` is derived from the width too.
+ */
+export const clampTextWidth = (width: number, fontSize: number): number =>
+  Math.max(Math.round(width), fontSize * MIN_WIDTH_IN_GRAPHEMES);
+
 /**
  * @param layout text layout
  * @returns shared style/layout size (px) for text item rendering
@@ -33,9 +46,9 @@ export const textStyleSizeOf = (
   lineHeight: Math.ceil(layout.fontSize * 1.5),
   // NOTE: deliberately left fractional, unlike the two above. rounding it up would step the
   // grapheme advance out of proportion with the font size, and a resize scaling the width and the
-  // font size together (see `resizeText`) would then re-wrap the text every few pixels of the
-  // drag. the padding and the line height are free to be whole pixels: neither takes part in the
-  // wrapping, the padding sitting outside the content box the text is laid out in.
+  // font size together (see `resizeTextFontSize`) would then re-wrap the text every few pixels
+  // of the drag. the padding and the line height are free to be whole pixels: neither takes part
+  // in the wrapping, the padding sitting outside the content box the text is laid out in.
   letterSpacing: layout.fontSize / 12,
 });
 

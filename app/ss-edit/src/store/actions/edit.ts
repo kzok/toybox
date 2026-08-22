@@ -1,4 +1,9 @@
-import { clampFontSize, textItemSizeOf } from "../../features/editorItem";
+import {
+  clampFontSize,
+  clampTextWidth,
+  textItemSizeOf,
+  textStyleSizeOf,
+} from "../../features/editorItem";
 import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
 import { dropBlankEditTarget } from "./utils";
@@ -71,7 +76,7 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
      *   to the font size for this. only as far as the font itself is linear, though: its hinting
      *   is not, hence the text stays free to re-wrap on the way.
      */
-    resizeText: (itemId: string, cursor: Vec2.Tuple): void => {
+    resizeTextFontSize: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item?.kind !== "text") return;
@@ -88,6 +93,27 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
         // the requested factor there would drift the two apart and re-wrap the whole text.
         item.width = Math.round(item.width * (fontSize / item.fontSize));
         item.fontSize = fontSize;
+      });
+    },
+    /**
+     * resize the width of a text item, keeping its font size and its top-left offset fixed.
+     * @param itemId item.id to resize
+     * @param cursor [width, height] distance from the item's top-left offset to the pointer
+     * @note only the x component is read: the height follows from how the text wraps at the new
+     *   width. unlike `resizeTextFontSize`, re-wrapping is what this is for rather than what it
+     *   avoids.
+     * @note the padding is subtracted because `cursor` is measured against the drawn box, which
+     *   `textStyleSizeOf` pads on every side, while `width` names the content box alone. it is a
+     *   constant offset here, the padding following the font size this leaves untouched.
+     */
+    resizeTextWidth: (itemId: string, cursor: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "text") return;
+
+        const { padding } = textStyleSizeOf(item);
+        const scaledCursorX = cursor[0] / draft.editorView.scale;
+        item.width = clampTextWidth(scaledCursorX - padding * 2, item.fontSize);
       });
     },
   } as const;

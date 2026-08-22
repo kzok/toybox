@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import {
   addTextByDrag,
+  bottomRightResizeHandle,
   boundingBoxOf,
   centerOf,
   commitText,
@@ -8,7 +9,7 @@ import {
   openApp,
   type Point,
   parkCursor,
-  resizeHandle,
+  rightResizeHandle,
   saveAsPng,
 } from "./helpers";
 
@@ -42,7 +43,16 @@ const layoutOf = (editor: Locator): Promise<{ width: number; fontSize: number }>
  *   diagonal — which is the only direction the resize follows.
  */
 const dragHandleBy = async (page: Page, delta: Point): Promise<void> => {
-  await dragBy(page, centerOf(await boundingBoxOf(resizeHandle(page))), delta);
+  await dragBy(page, centerOf(await boundingBoxOf(bottomRightResizeHandle(page))), delta);
+};
+
+/**
+ * drags the width handle by `delta`.
+ * @note it sits centred on the middle of the item's right edge, so its centre is the right edge
+ *   of the drawn box — which is what the resize measures the new width from.
+ */
+const dragWidthHandleBy = async (page: Page, delta: Point): Promise<void> => {
+  await dragBy(page, centerOf(await boundingBoxOf(rightResizeHandle(page))), delta);
 };
 
 test("scales the font size and the width together, keeping the top-left corner fixed", async ({
@@ -97,7 +107,7 @@ test("does not re-wrap the text on the way through a drag", async ({ page }) => 
   const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
   await expect(editor).toHaveAttribute("rows", "2");
 
-  const handle = centerOf(await boundingBoxOf(resizeHandle(page)));
+  const handle = centerOf(await boundingBoxOf(bottomRightResizeHandle(page)));
   await page.mouse.move(handle.x, handle.y);
   await page.mouse.down();
 
@@ -146,4 +156,60 @@ test("keeps the resized text in the exported picture", async ({ page }) => {
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-text.png");
   expect.soft(await saveAsPng(page)).toMatchSnapshot("export-resized-text.png");
+});
+
+test("narrows the width alone, re-wrapping the text at the same font size", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  await expect(editor).toHaveAttribute("rows", "2");
+
+  const before = await boundingBoxOf(editor);
+
+  // the handle sits on the right edge of the 244px box, so -20 asks for a 220px content width.
+  await dragWidthHandleBy(page, { x: -20, y: 0 });
+
+  // re-wrapping is the point of this handle, unlike the one on the corner.
+  await expect(editor).toHaveAttribute("rows", "3");
+  await expect(editor).toHaveCSS("font-size", "20px");
+  await expect(editor).toHaveCSS("width", "220px");
+
+  // the offset is the anchor of the resize, as it is for the handle on the corner.
+  const after = await boundingBoxOf(editor);
+  expect(after.x).toBeCloseTo(before.x, 0);
+  expect(after.y).toBeCloseTo(before.y, 0);
+});
+
+test("widens the width alone, leaving the font size where it was", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+
+  await dragWidthHandleBy(page, { x: 100, y: 0 });
+
+  await expect(editor).toHaveCSS("width", "340px");
+  await expect(editor).toHaveCSS("font-size", "20px");
+  // wide enough to hold more graphemes per line, but not all 22 of them.
+  await expect(editor).toHaveAttribute("rows", "2");
+});
+
+test("stops narrowing at the minimum width", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+
+  await dragWidthHandleBy(page, { x: -2000, y: 0 });
+
+  // ten graphemes' worth of the font size, the same floor a new text item is given.
+  await expect(editor).toHaveCSS("width", "200px");
+  await expect(editor).toHaveCSS("font-size", "20px");
+});
+
+test("keeps the narrowed text in the exported picture", async ({ page }) => {
+  await openApp(page);
+  await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+
+  await dragWidthHandleBy(page, { x: -20, y: 0 });
+  await commitText(page);
+
+  await parkCursor(page);
+  await expect.soft(page).toHaveScreenshot("screenshot-narrowed-text.png");
+  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-narrowed-text.png");
 });

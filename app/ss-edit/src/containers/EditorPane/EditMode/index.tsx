@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
@@ -23,18 +24,27 @@ export const EditMode = React.memo(() => {
   return <CanvasLayer>{children}</CanvasLayer>;
 });
 
+/** the edge or corner of the item's box a resize handle sits on. */
+type ResizeHandleDirection = "bottom-right" | "right";
+
 /**
- * the round grip at the bottom right corner of the item being edited.
+ * the round grip on an edge or a corner of the item being edited.
  * @note the pointer is reported relative to the top-left corner of `anchorRef`, which must
  *   therefore be the element laid out at the item's offset.
+ * @note `direction` drives both the styling and `data-resize-handle`, the only stable handle on
+ *   this element from outside (e.g. e2e tests), so that the two can never name different grips.
  */
 const ResizeHandle = React.memo<{
+  direction: ResizeHandleDirection;
   anchorRef: React.RefObject<HTMLElement | null>;
   onResize: (cursor: Vec2.Tuple) => void;
-}>(({ anchorRef, onResize }) => (
+}>(({ direction, anchorRef, onResize }) => (
   <span
-    className={styles.resizeHandle}
-    data-resize-handle
+    className={clsx(
+      styles.resizeHandle,
+      direction === "bottom-right" ? styles.isBottomRight : styles.isRight,
+    )}
+    data-resize-handle={direction}
     onPointerDown={(e) => {
       e.stopPropagation();
       // capture the pointer only when main (left) button.
@@ -91,7 +101,7 @@ const ImageItem = React.memo<{
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      <ResizeHandle anchorRef={elementRef} onResize={onResize} />
+      <ResizeHandle direction="bottom-right" anchorRef={elementRef} onResize={onResize} />
     </span>
   );
 });
@@ -99,9 +109,9 @@ const ImageItem = React.memo<{
 /**
  * a transparent `<textarea/>` laid over the text rendered on the `<canvas/>`,
  * so that the caret and the selection are the only visible part of it.
- * @note a `<textarea/>` takes no children, hence the resize handle is a sibling of it and the
- *   offset is carried by the box wrapping the two. the wrapper is left to shrink to fit, so it
- *   stays exactly the `<textarea/>`'s box and the handle lands on its bottom right corner.
+ * @note a `<textarea/>` takes no children, hence the resize handles are siblings of it and the
+ *   offset is carried by the box wrapping them. the wrapper is left to shrink to fit, so it stays
+ *   exactly the `<textarea/>`'s box and the handles land on its right edge and bottom right corner.
  */
 const TextItem = React.memo<{
   item: EditorItem.Text;
@@ -119,8 +129,12 @@ const TextItem = React.memo<{
     [item.offset],
   );
   const style = React.useMemo((): React.CSSProperties => textStyleOf(item), [item]);
-  const onResize = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeText(item.id, cursor),
+  const onResizeFontSize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeTextFontSize(item.id, cursor),
+    [actions, item.id],
+  );
+  const onResizeWidth = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeTextWidth(item.id, cursor),
     [actions, item.id],
   );
 
@@ -157,7 +171,8 @@ const TextItem = React.memo<{
         onClick={stopPropagation}
         onKeyDown={stopPropagation}
       />
-      <ResizeHandle anchorRef={boxRef} onResize={onResize} />
+      <ResizeHandle direction="right" anchorRef={boxRef} onResize={onResizeWidth} />
+      <ResizeHandle direction="bottom-right" anchorRef={boxRef} onResize={onResizeFontSize} />
     </span>
   );
 });
