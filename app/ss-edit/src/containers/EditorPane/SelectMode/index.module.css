@@ -4,12 +4,6 @@
   position: absolute;
   cursor: move;
 
-  background: transparent;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  outline: none;
-
   &:hover {
     background: rgba(255, 255, 255, 0.2);
   }

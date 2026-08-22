@@ -41,8 +41,7 @@ const ImageItem = React.memo<{
   const { selected, singleSelect } = useItemSelected(item.id);
 
   return (
-    <button
-      type="button"
+    <span
       className={styles.imageItem}
       data-item-kind={item.kind}
       data-selected={selected}
@@ -66,8 +65,7 @@ const TextItem = React.memo<{
   const { selected, singleSelect } = useItemSelected(item.id);
 
   return (
-    <button
-      type="button"
+    <span
       className={styles.textItem}
       data-item-kind={item.kind}
       data-selected={selected}
@@ -75,7 +73,7 @@ const TextItem = React.memo<{
       {...usePointerActions(item, singleSelect)}
     >
       {item.content}
-    </button>
+    </span>
   );
 });
 

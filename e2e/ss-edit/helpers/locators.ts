@@ -16,16 +16,16 @@ export const editorOverlay = (page: Page): Locator => page.locator("[data-editor
 
 /**
  * every item on the editor overlay, in the order they were added. mainly for select mode, but note
- * that edit mode's image item is a `<button data-item-kind="image">` too and hence also matches
- * (edit mode's text item is a `<textarea>`, so it alone stays select-mode-only).
+ * that edit mode's item carries the attribute too and hence also matches: its image item is a
+ * `<span data-item-kind="image">` and its text item is a `<textarea data-item-kind="text">`.
  */
-export const items = (page: Page): Locator => page.locator("button[data-item-kind]");
+export const items = (page: Page): Locator => page.locator("[data-item-kind]");
 
-/** image items on the editor overlay, in the order they were added. */
-export const imageItems = (page: Page): Locator => page.locator("button[data-item-kind='image']");
+/** image items on the editor overlay, in the order they were added. see `items` on edit mode. */
+export const imageItems = (page: Page): Locator => page.locator("[data-item-kind='image']");
 
-/** text items on the editor overlay, in the order they were added. */
-export const textItems = (page: Page): Locator => page.locator("button[data-item-kind='text']");
+/** text items on the editor overlay, in the order they were added. see `items` on edit mode. */
+export const textItems = (page: Page): Locator => page.locator("[data-item-kind='text']");
 
 /** the transparent `<textarea/>` of edit mode. there is at most one of it. */
 export const textEditor = (page: Page): Locator => page.locator("textarea");

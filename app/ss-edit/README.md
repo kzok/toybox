@@ -37,8 +37,9 @@ transparent DOM overlays stacked on top of the canvas, not independent visual la
 - `EditMode` renders a `<textarea>` per item being edited, with `color: transparent` —
   only the caret/selection are visible; the glyphs themselves are painted on the canvas
   underneath.
-- `SelectMode` renders a `<button>` per item as a selection/drag hit-target, also
-  `color: transparent`, showing only hover/selected chrome.
+- `SelectMode` renders a `<span>` per item as a selection/drag hit-target, also
+  `color: transparent`, showing only hover/selected chrome. The hit-targets are
+  presentational and pointer-only on purpose.
 
 Every overlay lines up with the canvas through `CanvasLayer`
 (`src/containers/EditorPane/CanvasLayer`), which owns the offset/scale transform and

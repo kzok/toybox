@@ -42,6 +42,18 @@
     }
   },
   "overrides": [
+    // override for the canvas overlay, which is driven by pointer events alone
+    {
+      "includes": ["app/ss-edit/src/containers/EditorPane/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            // the overlay items are presentational: they offer no keyboard interaction on purpose.
+            "useKeyWithClickEvents": "off"
+          }
+        }
+      }
+    },
     // override for test files
     {
       "includes": ["**/__tests__/**", "e2e/**"],

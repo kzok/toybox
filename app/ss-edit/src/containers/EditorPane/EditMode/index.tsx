@@ -26,7 +26,8 @@ const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const elementRef = React.useRef<HTMLButtonElement>(null);
+  /** the anchor the resize handle measures the new size against. */
+  const elementRef = React.useRef<HTMLSpanElement>(null);
   const style = React.useMemo(
     (): React.CSSProperties => ({
       // NOTE: an ancestor component applies the offset and the scale.
@@ -38,24 +39,18 @@ const ImageItem = React.memo<{
     [item],
   );
 
-  React.useEffect(() => {
-    elementRef.current?.focus();
-  }, []);
-
   return (
-    <button
+    <span
       ref={elementRef}
-      type="button"
       className={styles.imageItem}
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
       onPointerMove={stopPropagationAndCapturePointer}
       onPointerUp={stopPropagation}
+      // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: pointer-only drag handle; onClick here
-      only swallows the click so it doesn't reach the parent button, it triggers no action. */}
       <span
         className={styles.resizeHandle}
         data-resize-handle
@@ -76,9 +71,8 @@ const ImageItem = React.memo<{
           }
         }}
         onPointerUp={stopPropagation}
-        onClick={stopPropagation}
       />
-    </button>
+    </span>
   );
 });
 
