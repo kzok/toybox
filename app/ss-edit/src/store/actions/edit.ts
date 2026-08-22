@@ -67,8 +67,9 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
      * @param itemId item.id to resize
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      * @note the font size and the width are scaled by the same factor, which keeps the number of
-     *   graphemes a line holds roughly as it was. only roughly: the letter spacing steps up in
-     *   whole pixels (see `textStyleSizeOf`), hence the text is free to re-wrap on the way.
+     *   graphemes a line holds as it was — `textStyleSizeOf` keeps the letter spacing proportional
+     *   to the font size for this. only as far as the font itself is linear, though: its hinting
+     *   is not, hence the text stays free to re-wrap on the way.
      */
     resizeText: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {

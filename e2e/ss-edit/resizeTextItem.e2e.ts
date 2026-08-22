@@ -19,6 +19,15 @@ import {
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 48 };
 
+/** narrow enough that `WRAPPED_TEXT` cannot fit on a single line. drawn, a 244 x 64 box. */
+const WRAPPED_RANGE = { x: 200, y: 160, width: 240, height: 30 };
+/**
+ * 22 full-width graphemes, which is what makes a re-wrap observable at all: a line of this range
+ * holds 11 of them, so losing a single one per line spills the text onto a third line. at 20
+ * graphemes the same drift stays hidden — both 10 and 11 per line come to two lines.
+ */
+const WRAPPED_TEXT = "あいうえおかきくけこさしすせそたちつてとなに";
+
 /** the item's laid out width and font size, which the resize has to keep proportional. */
 const layoutOf = (editor: Locator): Promise<{ width: number; fontSize: number }> =>
   editor.evaluate((element) => {
@@ -65,9 +74,7 @@ test("scales the font size and the width together, keeping the top-left corner f
 
 test("keeps a wrapped text on the same number of lines", async ({ page }) => {
   await openApp(page);
-  /** narrow enough that the text below cannot fit on a single line. */
-  const narrowRange = { x: 200, y: 160, width: 240, height: 30 };
-  const editor = await addTextByDrag(page, narrowRange, "あいうえおかきくけこさしすせそたちつてと");
+  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
 
   // the `rows` of the `<textarea/>` is the line count the text was laid out into.
   await expect(editor).toHaveAttribute("rows", "2");
@@ -78,6 +85,35 @@ test("keeps a wrapped text on the same number of lines", async ({ page }) => {
   await expect(editor).toHaveCSS("font-size", "30px");
   // the point of scaling the width along with the font size: the text re-wraps the same way.
   await expect(editor).toHaveAttribute("rows", "2");
+});
+
+/**
+ * the regression this guards: the letter spacing used to be rounded up to whole pixels, which put
+ * the grapheme advance out of proportion with the font size and re-wrapped the text every few
+ * pixels of a drag. a single before/after assertion misses that — the flicker is in between.
+ */
+test("does not re-wrap the text on the way through a drag", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  await expect(editor).toHaveAttribute("rows", "2");
+
+  const handle = centerOf(await boundingBoxOf(resizeHandle(page)));
+  await page.mouse.move(handle.x, handle.y);
+  await page.mouse.down();
+
+  // out to the maximum font size, sampling the line count the whole way rather than at the ends.
+  const steps = 40;
+  const seen = new Set<string | null>();
+  for (let step = 1; step <= steps; step++) {
+    const ratio = step / steps;
+    await page.mouse.move(handle.x + 634 * ratio, handle.y + 166 * ratio);
+    seen.add(await editor.getAttribute("rows"));
+  }
+  await page.mouse.up();
+
+  expect(await editor.evaluate((element) => getComputedStyle(element).fontSize)).toBe("72px");
+  // every sample laid the text out into the same two lines.
+  expect([...seen]).toEqual(["2"]);
 });
 
 test("clamps the font size at both ends of the drag", async ({ page }) => {

@@ -31,7 +31,12 @@ export const textStyleSizeOf = (
   fontSize: layout.fontSize,
   padding: Math.ceil(layout.fontSize / 10),
   lineHeight: Math.ceil(layout.fontSize * 1.5),
-  letterSpacing: Math.ceil(layout.fontSize / 12),
+  // NOTE: deliberately left fractional, unlike the two above. rounding it up would step the
+  // grapheme advance out of proportion with the font size, and a resize scaling the width and the
+  // font size together (see `resizeText`) would then re-wrap the text every few pixels of the
+  // drag. the padding and the line height are free to be whole pixels: neither takes part in the
+  // wrapping, the padding sitting outside the content box the text is laid out in.
+  letterSpacing: layout.fontSize / 12,
 });
 
 /**
