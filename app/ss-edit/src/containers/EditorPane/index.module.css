@@ -4,9 +4,9 @@
   padding: 0;
   position: relative;
   /**
-   * NOTE: `clip` instead of `hidden`, which still lets the browser scroll the
-   * box in order to reveal the caret of the overlaid <textarea/> and hence
-   * shifts the overlay away from the <canvas/> underneath.
+   * @note `clip` instead of `hidden`, which still lets the browser scroll the
+   *   box in order to reveal the caret of the overlaid <textarea/> and hence
+   *   shifts the overlay away from the <canvas/> underneath.
    */
   overflow: clip;
   user-select: none;

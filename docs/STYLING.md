@@ -1,18 +1,34 @@
 # Styling
 
 Policy for how styling is organized across the repo.
-For detailed conventions, follow the links in each section.
 
 ## Build Pipeline
 
 Styles go through Vite's built-in CSS pipeline (CSS Modules transform, etc.), which is PostCSS-based.
 There's no standalone `postcss.config.*` in this repo.
 
-## CSS Modules
+## Methods and Situations
+
+### CSS Modules
 
 - **Default choice** for component-scoped styles.
 - **Where**: colocated as `<name>.module.css` next to the component, imported as
   `styles`.
+
+### Inline styles
+
+- **Scope**: only when CSS Modules can't express it — a value computed at runtime from
+  state, not a fixed set of variants a class can switch between.
+- **Example**: `EditMode`/`SelectMode` in `app/ss-edit` compute canvas offset/scale
+  dynamically to align transparent DOM overlays with the canvas underneath; those
+  numeric values can't be pre-declared as module classes.
+
+### Global styles
+
+- Workspace is allowed to have its own global styles.
+- Shared styles live in [`@~/ui`](../lib/ui/README.md).
+
+## Conventions
 
 ### Variants
 
@@ -26,15 +42,14 @@ other class already styled; nesting also keeps the modifier from applying withou
 - **Note**: `composes:` says the same thing, but biome rejects it as non-standard CSS unless
   `css.parser.cssModules` is enabled in `biome.jsonc` — which it is not.
 
-## Inline styles
+### Comments
 
-- **Scope**: only when CSS Modules can't express it — a value computed at runtime from
-  state, not a fixed set of variants a class can switch between.
-- **Example**: `EditMode`/`SelectMode` in `app/ss-edit` compute canvas offset/scale
-  dynamically to align transparent DOM overlays with the canvas underneath; those
-  numeric values can't be pre-declared as module classes.
+Comments follow the same rules in CSS as they do in TypeScript, the form deciding the marker
+rather than the language.
 
-## Global styles
-
-- Workspace is allowed to have its own global styles.
-- Shared styles live in [`@~/ui`](../lib/ui/README.md).
+- **Block**: anything spanning more than one line is a single `/** */` block attached to the rule
+  or the declaration it explains, never a run of `/* */` lines. Constraints inside it are tagged
+  `@note`, one per constraint, so that what the rule *is* stays separate from what must not be
+  broken.
+- **Single line**: a plain `/* */`, with `NOTE:` where it flags a constraint — the counterpart of
+  `// NOTE:` in TypeScript.

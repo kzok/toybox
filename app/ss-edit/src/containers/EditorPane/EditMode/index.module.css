@@ -1,7 +1,9 @@
 .imageItem,
 .textItem {
-  /* a solid outline, as opposed to the dashed one of "select" mode */
-  /* cancel out `transform: scale()` to keep the outline width constant */
+  /**
+   * a solid outline, as opposed to the dashed one of "select" mode.
+   * @note `calc()` cancels out `transform: scale()`, to keep the outline width constant.
+   */
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
 

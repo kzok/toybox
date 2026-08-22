@@ -1,7 +1,7 @@
 .canvas {
   /**
-   * NOTE: taken out of the flow so that its size, which is derived from the
-   * measured size of the pane, never feeds back into the size of the pane.
+   * @note taken out of the flow so that its size, which is derived from the
+   *   measured size of the pane, never feeds back into the size of the pane.
    */
   position: absolute;
   top: 0;
