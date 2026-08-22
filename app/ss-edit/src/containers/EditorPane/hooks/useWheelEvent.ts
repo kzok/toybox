@@ -20,7 +20,8 @@ export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): 
 
 /**
  * Wheel event handlers via DOM API
- * @note React onWheel callback didn't work.
+ * @note React onWheel callback didn't work: it registers `wheel` as a passive listener, so the
+ *   `preventDefault()` below is ignored there and the browser scrolls or zooms the page as well.
  */
 class PointerEventHandler {
   /**

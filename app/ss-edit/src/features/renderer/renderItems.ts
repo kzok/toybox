@@ -71,7 +71,9 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   for (const [index, line] of lines.entries()) {
     const y = firstBaseline + index * lineHeight;
 
-    // text shadow
+    // NOTE: cast once, off the black outline, and switched off again right after: a shadow is
+    // cast by every draw call, hence leaving it on would have the white stroke and the fill each
+    // lay their own copy over this one.
     ctx.shadowColor = "#000";
     ctx.strokeStyle = "#000";
     ctx.strokeText(line, 0, y);

@@ -51,6 +51,12 @@ const ImageItem = React.memo<{
   );
 });
 
+/**
+ * the hit-target of a text item in select mode.
+ * @note the content is rendered into it, transparent, only to give the span its box: the shared
+ *   text style sets the width, and without children there would be no height and hence no hit
+ *   area at all.
+ */
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {

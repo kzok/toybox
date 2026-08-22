@@ -140,6 +140,9 @@ const TextItem = React.memo<{
         ref={elementRef}
         className={styles.textItem}
         data-item-kind={item.kind}
+        // NOTE: a <textarea/> does not grow with its content, hence the row count comes from the
+        // laid out lines. that lands on the box the canvas paints because the lines and the line
+        // height both come from `editorItem`.
         rows={splitLines(item).length}
         style={style}
         // NOTE: uncontrolled so that React never rewrites the value being composed
