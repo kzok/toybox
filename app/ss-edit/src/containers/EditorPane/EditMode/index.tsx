@@ -1,10 +1,10 @@
-import clsx from "clsx";
 import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
 import type { Vec2 } from "../../../utils/geometry";
 import { CanvasLayer } from "../CanvasLayer";
+import { ResizeContainer, ResizeHandle } from "../ResizeHandle";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
@@ -24,56 +24,10 @@ export const EditMode = React.memo(() => {
   return <CanvasLayer>{children}</CanvasLayer>;
 });
 
-/** the edge or corner of the item's box a resize handle sits on. */
-type ResizeHandleDirection = "bottom-right" | "right";
-
-/**
- * the round grip on an edge or a corner of the item being edited.
- * @note the pointer is reported relative to the top-left corner of `anchorRef`, which must
- *   therefore be the element laid out at the item's offset.
- * @note `direction` drives both the styling and `data-resize-handle`, the only stable handle on
- *   this element from outside (e.g. e2e tests), so that the two can never name different grips.
- */
-const ResizeHandle = React.memo<{
-  direction: ResizeHandleDirection;
-  anchorRef: React.RefObject<HTMLElement | null>;
-  onResize: (cursor: Vec2.Tuple) => void;
-}>(({ direction, anchorRef, onResize }) => (
-  <span
-    className={clsx(
-      styles.resizeHandle,
-      direction === "bottom-right" ? styles.isBottomRight : styles.isRight,
-    )}
-    data-resize-handle={direction}
-    onPointerDown={(e) => {
-      e.stopPropagation();
-      // capture the pointer only when main (left) button.
-      if (e.buttons === 1) {
-        e.preventDefault();
-        e.currentTarget.setPointerCapture(e.pointerId);
-      }
-    }}
-    onPointerMove={(e) => {
-      e.stopPropagation();
-      if (e.buttons === 1) {
-        const anchor = anchorRef.current?.getBoundingClientRect();
-        if (anchor == null) return;
-        onResize([e.clientX - anchor.left, e.clientY - anchor.top]);
-      }
-    }}
-    onPointerUp={stopPropagation}
-    // NOTE: the "click" the drag ends with is a separate event from the pointer ones above.
-    // letting it reach the pane would clear the selection and leave edit mode on every resize.
-    onClick={stopPropagation}
-  />
-));
-
 const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  /** the anchor the resize handle measures the new size against. */
-  const elementRef = React.useRef<HTMLSpanElement>(null);
   const style = React.useMemo(
     (): React.CSSProperties => ({
       // NOTE: an ancestor component applies the offset and the scale.
@@ -90,8 +44,7 @@ const ImageItem = React.memo<{
   );
 
   return (
-    <span
-      ref={elementRef}
+    <ResizeContainer
       className={styles.imageItem}
       data-item-kind={item.kind}
       style={style}
@@ -101,8 +54,8 @@ const ImageItem = React.memo<{
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      <ResizeHandle direction="bottom-right" anchorRef={elementRef} onResize={onResize} />
-    </span>
+      <ResizeHandle direction="bottom-right" onResize={onResize} />
+    </ResizeContainer>
   );
 });
 
@@ -117,8 +70,6 @@ const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  /** the anchor the resize handle measures the new size against. */
-  const boxRef = React.useRef<HTMLSpanElement>(null);
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const boxStyle = React.useMemo(
     (): React.CSSProperties => ({
@@ -149,7 +100,7 @@ const TextItem = React.memo<{
   }, []);
 
   return (
-    <span ref={boxRef} className={styles.textItemBox} style={boxStyle}>
+    <ResizeContainer style={boxStyle}>
       <textarea
         ref={elementRef}
         className={styles.textItem}
@@ -171,9 +122,9 @@ const TextItem = React.memo<{
         onClick={stopPropagation}
         onKeyDown={stopPropagation}
       />
-      <ResizeHandle direction="right" anchorRef={boxRef} onResize={onResizeWidth} />
-      <ResizeHandle direction="bottom-right" anchorRef={boxRef} onResize={onResizeFontSize} />
-    </span>
+      <ResizeHandle direction="right" onResize={onResizeWidth} />
+      <ResizeHandle direction="bottom-right" onResize={onResizeFontSize} />
+    </ResizeContainer>
   );
 });
 

@@ -36,9 +36,10 @@ transparent DOM overlays stacked on top of the canvas, not independent visual la
 
 - `EditMode` renders a `<textarea>` per item being edited, with `color: transparent` —
   only the caret/selection are visible; the glyphs themselves are painted on the canvas
-  underneath. It also carries the resize handles: one on the bottom right corner, resizing the
-  item as a whole, and — on a text item — one on the middle of the right edge, resizing the
-  width alone so that the text re-wraps at the same font size.
+  underneath. It also places the `ResizeHandle`s (`src/containers/EditorPane/ResizeHandle`): one
+  on the bottom right corner, resizing the item as a whole, and — on a text item — one on the
+  middle of the right edge, resizing the width alone so that the text re-wraps at the same font
+  size. A handle sizes itself against `--scale`, hence it only belongs inside a `CanvasLayer`.
 - `SelectMode` renders a `<span>` per item as a selection/drag hit-target, also
   `color: transparent`, showing only hover/selected chrome. The hit-targets are
   presentational and pointer-only on purpose.
