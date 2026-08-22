@@ -62,6 +62,8 @@ const exampleState = (image: ImageBitmap): PageState =>
         id: "story-image",
         data: image,
         offset: [-image.width / 2, -image.height / 2],
+        width: image.width,
+        height: image.height,
       } satisfies EditorItem.Image),
     );
     draft.editorItems.push(

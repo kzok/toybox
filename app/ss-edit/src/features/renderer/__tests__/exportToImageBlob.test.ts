@@ -8,8 +8,10 @@ const createImageItem = (
 ): EditorItem.Image => ({
   kind: "image",
   id: `item-${offset.join(",")}`,
-  data: { width: size[0], height: size[1] } as ImageBitmap,
+  data: {} as ImageBitmap,
   offset,
+  width: size[0],
+  height: size[1],
 });
 
 afterEach(() => {
@@ -38,7 +40,7 @@ describe(exportToImageBlob, () => {
 
     expect(constructorArgs).toStrictEqual([[100, 50]]);
     expect(translate).toHaveBeenCalledWith(-10, -20);
-    expect(drawImage).toHaveBeenCalledWith(item.data, 10, 20);
+    expect(drawImage).toHaveBeenCalledWith(item.data, 10, 20, 100, 50);
     expect(convertToBlob).toHaveBeenCalledWith({ type: "image/png" });
     expect(result).toBe(blob);
   });

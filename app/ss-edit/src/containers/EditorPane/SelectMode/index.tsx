@@ -3,13 +3,12 @@ import React from "react";
 import { type EditorItem, textStyleOf } from "../../../features/editorItem";
 import { usePointerEvents } from "../../../hooks";
 import { pageCtx } from "../../../store";
-import { useCanvasScale } from "../hooks/useCanvasScale";
+import { CanvasLayer } from "../CanvasLayer";
 import styles from "./index.module.css";
 
 /** editor overlay content for "select" mode */
 export const SelectMode = React.memo(() => {
   const items = pageCtx.useEditorItems();
-  const canvasOffset = pageCtx.useCanvasOffset();
 
   const children = items.map((item): React.ReactNode => {
     switch (item.kind) {
@@ -23,31 +22,21 @@ export const SelectMode = React.memo(() => {
     }
   });
 
-  return (
-    <div
-      className={styles.container}
-      style={{
-        transform: `translate(${canvasOffset.x.toFixed(1)}px, ${canvasOffset.y.toFixed(1)}px)`,
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <CanvasLayer>{children}</CanvasLayer>;
 });
 
 const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
-  const scale = useCanvasScale();
   const style = React.useMemo(
     (): React.CSSProperties => ({
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      width: `${item.data.width}px`,
-      height: `${item.data.height}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
+      // NOTE: an ancestor component applies the offset and the scale.
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
     }),
-    [item, scale],
+    [item],
   );
   const { selected, singleSelect } = useItemSelected(item.id);
 
@@ -66,15 +55,13 @@ const ImageItem = React.memo<{
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
-  const scale = useCanvasScale();
   const style = React.useMemo(
     (): React.CSSProperties => ({
       ...textStyleOf(item),
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
     }),
-    [item, scale],
+    [item],
   );
   const { selected, singleSelect } = useItemSelected(item.id);
 
@@ -97,23 +84,24 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
 
   return usePointerEvents({
     onPointerDown: (e) => {
-      e.preventDefault();
       e.stopPropagation();
+      // capture the pointer only when main (left) button.
+      if (e.buttons === 1) {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
     },
     onPointerMove: (e) => {
-      e.preventDefault();
       e.stopPropagation();
+      // main (left) button
       if (e.buttons === 1) {
-        // main (left) button
-        e.currentTarget.setPointerCapture(e.pointerId);
         actions.editorItem.move(item.id, [e.movementX, e.movementY]);
         return;
       }
     },
     onClick: (e) => {
-      e.preventDefault();
       e.stopPropagation();
-      if (singleSelect && item.kind === "text" && !e.ctrlKey) {
+      if (singleSelect && !e.ctrlKey) {
         actions.editorMode.enterEdit(item.id);
       } else {
         actions.editorMode.selectItem(item.id, e.ctrlKey);

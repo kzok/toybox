@@ -22,6 +22,8 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
       offset: Vec2.new(-data.width / 2, -data.height / 2)
         .add(store.get(atoms.editorView).offset)
         .tuple(),
+      width: data.width,
+      height: data.height,
     };
     updateAtom(atoms.state, (draft) => {
       draft.editorItems.push(castDraft(newItem));
@@ -50,6 +52,30 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
           if (item == null) continue;
           item.offset = scaledDelta.add(item.offset).tuple();
         }
+      });
+    },
+    /**
+     * resize an image item, keeping its aspect ratio and its top-left offset fixed.
+     * @param itemId item.id to resize
+     * @param cursor [width, height] distance from the item's top-left offset to the pointer
+     */
+    resizeImage: (itemId: string, cursor: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "image") return;
+
+        const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
+        const imageSizeVec = Vec2.new(item.width, item.height);
+        const diagonal = Math.hypot(item.width, item.height);
+        // project the pointer position onto the box's diagonal to get the target diagonal length.
+        const targetDiagonal = scaledCursor.dot(imageSizeVec) / diagonal;
+        const factor = Math.max(
+          targetDiagonal / diagonal,
+          MIN_IMAGE_SIZE / Math.min(item.width, item.height),
+        );
+
+        item.width *= factor;
+        item.height *= factor;
       });
     },
     /**
@@ -103,3 +129,6 @@ export const createEditorItemActions = (params: ActionCreatorParam) => {
     }),
   } as const;
 };
+
+/** minimum width/height an image item can be resized down to (canvas units) */
+const MIN_IMAGE_SIZE = 36;

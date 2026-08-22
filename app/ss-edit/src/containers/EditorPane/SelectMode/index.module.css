@@ -1,15 +1,7 @@
-.container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform-origin: 0 0;
-}
-
 .imageItem,
 .textItem {
   display: inline-block;
   position: absolute;
-  transform-origin: 0 0;
   cursor: move;
 
   background: transparent;
@@ -17,8 +9,6 @@
   padding: 0;
   border: 0;
   outline: none;
-
-  transform: scale(var(--scale, 1));
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);

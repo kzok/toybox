@@ -6,6 +6,7 @@ import {
   centerOf,
   commitText,
   dragBy,
+  dragFromTo,
   eraseText,
   expectMode,
   expectMovedBy,
@@ -65,6 +66,29 @@ test("does not enter edit mode on ctrl+click", async ({ page }) => {
   await expectMode(page, "select");
   await expect(textEditor(page)).toHaveCount(0);
   await expect(item).toHaveAttribute("data-selected", "false");
+});
+
+test("selects the text by dragging inside the editor", async ({ page }) => {
+  await openApp(page);
+  await addText(page, TEXT_RANGE, "Hello world");
+
+  const item = textItems(page).first();
+  await item.click();
+  await item.click();
+  await expectMode(page, "edit");
+
+  const editor = textEditor(page);
+  const box = await boundingBoxOf(editor);
+  const y = box.y + box.height / 2;
+  await dragFromTo(page, { x: box.x + 2, y }, { x: box.x + box.width - 2, y });
+
+  // NOTE: the `<textarea/>` is the one place the browser's own pointer behaviour is wanted, and
+  // its handlers stop propagation and capture the pointer, either of which could break it.
+  const selection = await editor.evaluate((element: HTMLTextAreaElement) => ({
+    start: element.selectionStart,
+    end: element.selectionEnd,
+  }));
+  expect(selection.end).toBeGreaterThan(selection.start);
 });
 
 test("moves the text item by dragging instead of editing it", async ({ page }) => {

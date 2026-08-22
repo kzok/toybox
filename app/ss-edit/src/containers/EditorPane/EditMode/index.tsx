@@ -2,23 +2,86 @@ import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
-import { useCanvasScale } from "../hooks/useCanvasScale";
+import { CanvasLayer } from "../CanvasLayer";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
-  const canvasOffset = pageCtx.useCanvasOffset();
-  const item = useEditingTextItem();
+  const item = useEditingItem();
+  const children = React.useMemo((): React.ReactNode => {
+    switch (item?.kind) {
+      case "image":
+        return <ImageItem key={item.id} item={item} />;
+      case "text":
+        return <TextItem key={item.id} item={item} />;
+      default:
+        return null; // should never happen
+    }
+  }, [item]);
+
+  return <CanvasLayer>{children}</CanvasLayer>;
+});
+
+const ImageItem = React.memo<{
+  item: EditorItem.Image;
+}>(({ item }) => {
+  const actions = pageCtx.useActions();
+  const elementRef = React.useRef<HTMLButtonElement>(null);
+  const style = React.useMemo(
+    (): React.CSSProperties => ({
+      // NOTE: an ancestor component applies the offset and the scale.
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
+    }),
+    [item],
+  );
+
+  React.useEffect(() => {
+    elementRef.current?.focus();
+  }, []);
 
   return (
-    <div
-      className={styles.container}
-      style={{
-        transform: `translate(${canvasOffset.x.toFixed(1)}px, ${canvasOffset.y.toFixed(1)}px)`,
-      }}
+    <button
+      ref={elementRef}
+      type="button"
+      className={styles.imageItem}
+      data-item-kind={item.kind}
+      style={style}
+      onPointerDown={stopPropagation}
+      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerUp={stopPropagation}
+      onClick={stopPropagation}
     >
-      {item && <TextItemEditor key={item.id} item={item} />}
-    </div>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: pointer-only drag handle; onClick here
+      only swallows the click so it doesn't reach the parent button, it triggers no action. */}
+      <span
+        className={styles.resizeHandle}
+        data-resize-handle
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          // capture the pointer only when main (left) button.
+          if (e.buttons === 1) {
+            e.preventDefault();
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }
+        }}
+        onPointerMove={(e) => {
+          e.stopPropagation();
+          if (e.buttons === 1) {
+            const anchor = elementRef.current?.getBoundingClientRect();
+            if (anchor == null) return;
+            actions.editorItem.resizeImage(item.id, [
+              e.clientX - anchor.left,
+              e.clientY - anchor.top,
+            ]);
+          }
+        }}
+        onPointerUp={stopPropagation}
+        onClick={stopPropagation}
+      />
+    </button>
   );
 });
 
@@ -26,20 +89,18 @@ export const EditMode = React.memo(() => {
  * a transparent `<textarea/>` laid over the text rendered on the `<canvas/>`,
  * so that the caret and the selection are the only visible part of it.
  */
-const TextItemEditor = React.memo<{
+const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const scale = useCanvasScale();
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const style = React.useMemo((): React.CSSProperties => {
     return {
       ...textStyleOf(item),
-      left: `${(item.offset[0] * scale).toFixed(1)}px`,
-      top: `${(item.offset[1] * scale).toFixed(1)}px`,
-      ...({ "--scale": scale } as React.CSSProperties),
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
     };
-  }, [item, scale]);
+  }, [item]);
 
   React.useEffect(() => {
     const element = elementRef.current;
@@ -54,7 +115,8 @@ const TextItemEditor = React.memo<{
   return (
     <textarea
       ref={elementRef}
-      className={styles.textarea}
+      className={styles.textItem}
+      data-item-kind={item.kind}
       rows={splitLines(item).length}
       style={style}
       // NOTE: uncontrolled so that React never rewrites the value being composed
@@ -63,9 +125,8 @@ const TextItemEditor = React.memo<{
       defaultValue={item.content}
       spellCheck={false}
       onChange={(e) => actions.editorItem.editText(item.id, e.target.value)}
-      onBlur={() => actions.editorMode.clear()}
-      onPointerDown={stopPropagation}
-      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerDown={stopPropagationAndCapturePointer}
+      onPointerMove={stopPropagation}
       onPointerUp={stopPropagation}
       onClick={stopPropagation}
       onKeyDown={stopPropagation}
@@ -78,9 +139,8 @@ const TextItemEditor = React.memo<{
  */
 const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();
+  // capture the pointer only when main (left) button.
   if (e.buttons === 1) {
-    // primary button (left click / touch) only
-    e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 };
@@ -88,23 +148,20 @@ const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
 /**
  * @param e event
  */
-const stopPropagation = (e: React.SyntheticEvent): void => {
-  e.stopPropagation();
-};
+const stopPropagation = (e: React.SyntheticEvent): void => e.stopPropagation();
 
 /**
  * @returns the text item being edited, or null if there is none.
  */
-const useEditingTextItem = (): EditorItem.Text | null => {
+const useEditingItem = (): EditorItem | null => {
   const atoms = pageCtx.useAtoms();
   return useAtomValue(
     React.useMemo(
       () =>
-        atom((get): EditorItem.Text | null => {
+        atom((get): EditorItem | null => {
           const editorMode = get(atoms.editorMode);
           if (editorMode.kind !== "edit") return null;
-          const item = get(atoms.editorItems).find((item) => item.id === editorMode.itemId);
-          return item?.kind === "text" ? item : null;
+          return get(atoms.editorItems).find((item) => item.id === editorMode.itemId) ?? null;
         }),
       [atoms],
     ),

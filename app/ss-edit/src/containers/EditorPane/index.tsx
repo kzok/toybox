@@ -33,24 +33,27 @@ const usePointerActions = () => {
   const actions = pageCtx.useActions();
 
   return usePointerEvents({
+    onPointerDown: (e) => {
+      e.stopPropagation();
+      // capture the pointer only when main (left) button.
+      if (e.buttons === 1) {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+    },
     onPointerMove: (e) => {
+      e.stopPropagation();
       if (e.buttons === 1) {
         // main (left) button
-        e.preventDefault();
-        e.stopPropagation();
-        e.currentTarget.setPointerCapture(e.pointerId);
         e.currentTarget.setAttribute("data-scrolling", "");
         actions.editorView.scroll(e.movementX, e.movementY);
         return;
       }
     },
     onPointerUp: (e) => {
-      e.preventDefault();
       e.stopPropagation();
       e.currentTarget.removeAttribute("data-scrolling");
     },
     onClick: (e) => {
-      e.preventDefault();
       e.stopPropagation();
       // `user-select: none` on this pane (see index.module.css) keeps the browser from
       // clearing an outside selection on its own, so do it explicitly.

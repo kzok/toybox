@@ -75,4 +75,11 @@ describe("Vec2", () => {
       expect(Vec2.new(10, 10).distance([40, 50])).toBe(50);
     });
   });
+
+  describe("dot()", () => {
+    it("calculates the dot product with the given vector.", () => {
+      expect(Vec2.new(2, 3).dot([4, 5])).toBe(23);
+      expect(Vec2.new(1, 0).dot(Vec2.new(0, 1))).toBe(0);
+    });
+  });
 });

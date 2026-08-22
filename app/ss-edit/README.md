@@ -39,9 +39,13 @@ transparent DOM overlays stacked on top of the canvas, not independent visual la
 - `SelectMode` renders a `<button>` per item as a selection/drag hit-target, also
   `color: transparent`, showing only hover/selected chrome.
 
-Both overlays and `Painter` independently apply the same offset/scale math to line up
-with the canvas. If that math or the style values below drift between them, the
-overlays' hit-boxes and cursor position visually desync from what's drawn.
+Every overlay lines up with the canvas through `CanvasLayer`
+(`src/containers/EditorPane/CanvasLayer`), which owns the offset/scale transform and
+exposes the scale as a `--scale` CSS variable; its children are laid out in canvas
+coordinates. `Painter` applies the equivalent math to the 2D context on its own, so
+`CanvasLayer` and `Painter` are the two places that must be kept in sync — if they, or
+the style values below, drift apart, the overlays' hit-boxes and cursor position
+visually desync from what's drawn.
 
 ### Text layout invariants
 
