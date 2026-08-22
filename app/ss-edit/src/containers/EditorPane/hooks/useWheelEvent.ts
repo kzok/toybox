@@ -13,9 +13,9 @@ export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): 
     if (element == null) {
       return;
     }
-    const handler = new PointerEventHandler(element, actions);
+    const handler = new WheelHandler(element, actions);
     return () => handler.cleanup();
-  }, []);
+  }, [elementRef, actions]);
 };
 
 /**
@@ -23,7 +23,7 @@ export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): 
  * @note React onWheel callback didn't work: it registers `wheel` as a passive listener, so the
  *   `preventDefault()` below is ignored there and the browser scrolls or zooms the page as well.
  */
-class PointerEventHandler {
+class WheelHandler {
   /**
    * @param element
    * @param actions

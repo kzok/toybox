@@ -26,5 +26,5 @@ export const useResizeObserver = <T extends Element>(
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [elementRef, actions]);
 };
