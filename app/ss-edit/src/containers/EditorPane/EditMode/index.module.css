@@ -23,9 +23,15 @@
   cursor: nwse-resize;
 }
 
-.textItem {
+/* carries the item offset and lets the resize handle sit at the <textarea/>'s corner. */
+/* left to shrink to fit, hence exactly the box of the <textarea/> it wraps. */
+.textItemBox {
   display: block;
   position: absolute;
+}
+
+.textItem {
+  display: block;
 
   background: transparent;
   box-sizing: content-box;

@@ -1,15 +1,11 @@
 import { castDraft } from "immer";
-import type { EditorItem } from "../../features/editorItem";
+import { clampFontSize, type EditorItem } from "../../features/editorItem";
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { canvasOffset } from "../selectors";
 import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 import { dropBlankEditTarget } from "./utils";
 
-/** font size below which the dragged height is not worth respecting */
-const MIN_FONT_SIZE_PX = 12;
-/** font size above which the dragged height is not worth respecting */
-const MAX_FONT_SIZE_PX = 72;
 /** font color of a newly added text item */
 const NEW_TEXT_COLOR = "#EF3171";
 
@@ -64,10 +60,7 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
 
         const { head, size } = new Rect(...range);
         // NOTE: the dragged height is a single line box, hence the inverse of `lineHeightOf()`.
-        const fontSize = Math.min(
-          Math.max(Math.round(size.y / 1.5), MIN_FONT_SIZE_PX),
-          MAX_FONT_SIZE_PX,
-        );
+        const fontSize = clampFontSize(size.y / 1.5);
         const width = Math.max(Math.round(size.x), fontSize * 10);
 
         const newItem: EditorItem.Text = {

@@ -1,5 +1,5 @@
 import { castDraft, produce } from "immer";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { EditorItem } from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
@@ -10,6 +10,14 @@ import {
   createTestTargetWithItems,
   createTextItem,
 } from "./fixtures";
+
+// NOTE: this environment's jsdom does not implement Range.prototype.getClientRects(), which
+// splitLines() depends on to lay text out, so it is stubbed here to give resizeText() a text
+// item of a known line count to measure.
+vi.mock("../../../features/editorItem/textLayout", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../../features/editorItem/textLayout")>()),
+  splitLines: vi.fn((): readonly string[] => ["first line", "second line"]),
+}));
 
 describe(createEditActions, () => {
   describe("enter()", () => {
@@ -157,6 +165,112 @@ describe(createEditActions, () => {
       const before = store.get(atoms.editorItems);
 
       expect(() => actions.edit.resizeImage("missing-id", [10, 5])).not.toThrow();
+
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
+  describe("resizeText()", () => {
+    // width: 100, fontSize: 32, laid out as 2 lines by the stub above, hence
+    // padding: 4, lineHeight: 48 and a drawn box of 108 x 104.
+    const setUp = () => {
+      const item = createTextItem("item-1", "first line\nsecond line");
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    const textItemOf = (
+      items: readonly EditorItem[],
+      id: string,
+    ): Pick<EditorItem.Text, "width" | "fontSize" | "offset"> => {
+      const item = items.find((item) => item.id === id);
+      if (item?.kind !== "text") throw new Error("not a text item");
+      return { width: item.width, fontSize: item.fontSize, offset: item.offset };
+    };
+
+    it("scales the font size and the width together, keeping the offset.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // an aspect-correct target (1.5x the 108 x 104 box), so the factor is reached exactly.
+      actions.edit.resizeText(item.id, [162, 156]);
+
+      expect(textItemOf(store.get(atoms.editorItems), item.id)).toStrictEqual({
+        width: 150,
+        fontSize: 48,
+        offset: [0, 0],
+      });
+    });
+
+    it("projects an off-ratio target onto the diagonal and rounds the font size.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // not on the box's diagonal; the projection asks for 40.3px, which is rounded down.
+      actions.edit.resizeText(item.id, [162, 104]);
+
+      expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
+        width: 125,
+        fontSize: 40,
+      });
+    });
+
+    it("stops shrinking at the minimum font size, and the width with it.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      actions.edit.resizeText(item.id, [-1000, -1000]);
+
+      // 12 / 32 of the original width, rather than collapsing along with the pointer.
+      expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
+        width: 38,
+        fontSize: 12,
+      });
+    });
+
+    it("stops growing at the maximum font size, and the width with it.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      actions.edit.resizeText(item.id, [1080, 1040]);
+
+      // 72 / 32 of the original width, rather than growing along with the pointer.
+      expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
+        width: 225,
+        fontSize: 72,
+      });
+    });
+
+    it("scales the pointer position by the inverse of the view scale.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.view.zoom(2, new Vec2(0, 0));
+
+      // at 2x zoom, a 324,312 screen-px target is 162,156 canvas units — same as the first test.
+      actions.edit.resizeText(item.id, [324, 312]);
+
+      expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
+        width: 150,
+        fontSize: 48,
+      });
+    });
+
+    it("keeps items unchanged when the item is not a text item.", () => {
+      const { store, actions, atoms } = setUp();
+      const imageItem = createImageItem("item-2", [0, 0]);
+      store.set(
+        atoms.state,
+        produce(store.get(atoms.state), (draft) => {
+          draft.editorItems.push(castDraft(imageItem));
+        }),
+      );
+      const before = store.get(atoms.editorItems);
+
+      actions.edit.resizeText(imageItem.id, [100, 50]);
+
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+
+    it("does nothing when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+
+      expect(() => actions.edit.resizeText("missing-id", [10, 5])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });

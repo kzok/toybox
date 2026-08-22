@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { measurePicture } from "../measure";
+import { measurePicture, textItemSizeOf } from "../measure";
 import { textStyleSizeOf } from "../textStyle";
 import type { EditorItem } from "../types";
 
@@ -35,6 +35,26 @@ const createTextItem = (
   width,
   fontSize,
   color: "#000",
+});
+
+describe(textItemSizeOf, () => {
+  it("pads the laid out lines on every side to match what the renderer draws.", () => {
+    const item = createTextItem([0, 0], 100, 20);
+    const { padding, lineHeight } = textStyleSizeOf(item);
+    // the mocked `splitLines` lays the content out as two lines.
+    expect(textItemSizeOf(item).tuple()).toStrictEqual([
+      100 + 2 * padding,
+      2 * lineHeight + 2 * padding,
+    ]);
+  });
+
+  it("grows both dimensions with the font size.", () => {
+    const small = textItemSizeOf(createTextItem([0, 0], 100, 20));
+    const large = textItemSizeOf(createTextItem([0, 0], 100, 40));
+    expect(large.y).toBeGreaterThan(small.y);
+    // the width is given rather than measured, so only the padding grows with the font size.
+    expect(large.x).toBeGreaterThan(small.x);
+  });
 });
 
 describe(measurePicture, () => {

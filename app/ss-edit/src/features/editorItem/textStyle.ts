@@ -1,5 +1,19 @@
 import type { TextItemLayout } from "./types";
 
+/** font size a text item is never laid out below */
+const MIN_FONT_SIZE_PX = 12;
+/** font size a text item is never laid out above */
+const MAX_FONT_SIZE_PX = 72;
+
+/**
+ * @param fontSize desired font size (px), fractional or out of range
+ * @returns the font size a text item can actually take
+ * @note rounded as well as clamped: the cache key of `splitLines` is derived from the font size,
+ *   hence a fractional one would miss the cache on every frame of a resize drag.
+ */
+export const clampFontSize = (fontSize: number): number =>
+  Math.min(Math.max(Math.round(fontSize), MIN_FONT_SIZE_PX), MAX_FONT_SIZE_PX);
+
 /**
  * @param layout text layout
  * @returns shared style/layout size (px) for text item rendering

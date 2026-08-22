@@ -2,6 +2,7 @@ import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
+import type { Vec2 } from "../../../utils/geometry";
 import { CanvasLayer } from "../CanvasLayer";
 import styles from "./index.module.css";
 
@@ -22,6 +23,41 @@ export const EditMode = React.memo(() => {
   return <CanvasLayer>{children}</CanvasLayer>;
 });
 
+/**
+ * the round grip at the bottom right corner of the item being edited.
+ * @note the pointer is reported relative to the top-left corner of `anchorRef`, which must
+ *   therefore be the element laid out at the item's offset.
+ */
+const ResizeHandle = React.memo<{
+  anchorRef: React.RefObject<HTMLElement | null>;
+  onResize: (cursor: Vec2.Tuple) => void;
+}>(({ anchorRef, onResize }) => (
+  <span
+    className={styles.resizeHandle}
+    data-resize-handle
+    onPointerDown={(e) => {
+      e.stopPropagation();
+      // capture the pointer only when main (left) button.
+      if (e.buttons === 1) {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+    }}
+    onPointerMove={(e) => {
+      e.stopPropagation();
+      if (e.buttons === 1) {
+        const anchor = anchorRef.current?.getBoundingClientRect();
+        if (anchor == null) return;
+        onResize([e.clientX - anchor.left, e.clientY - anchor.top]);
+      }
+    }}
+    onPointerUp={stopPropagation}
+    // NOTE: the "click" the drag ends with is a separate event from the pointer ones above.
+    // letting it reach the pane would clear the selection and leave edit mode on every resize.
+    onClick={stopPropagation}
+  />
+));
+
 const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
@@ -38,6 +74,10 @@ const ImageItem = React.memo<{
     }),
     [item],
   );
+  const onResize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeImage(item.id, cursor),
+    [actions, item.id],
+  );
 
   return (
     <span
@@ -51,27 +91,7 @@ const ImageItem = React.memo<{
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      <span
-        className={styles.resizeHandle}
-        data-resize-handle
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          // capture the pointer only when main (left) button.
-          if (e.buttons === 1) {
-            e.preventDefault();
-            e.currentTarget.setPointerCapture(e.pointerId);
-          }
-        }}
-        onPointerMove={(e) => {
-          e.stopPropagation();
-          if (e.buttons === 1) {
-            const anchor = elementRef.current?.getBoundingClientRect();
-            if (anchor == null) return;
-            actions.edit.resizeImage(item.id, [e.clientX - anchor.left, e.clientY - anchor.top]);
-          }
-        }}
-        onPointerUp={stopPropagation}
-      />
+      <ResizeHandle anchorRef={elementRef} onResize={onResize} />
     </span>
   );
 });
@@ -79,19 +99,30 @@ const ImageItem = React.memo<{
 /**
  * a transparent `<textarea/>` laid over the text rendered on the `<canvas/>`,
  * so that the caret and the selection are the only visible part of it.
+ * @note a `<textarea/>` takes no children, hence the resize handle is a sibling of it and the
+ *   offset is carried by the box wrapping the two. the wrapper is left to shrink to fit, so it
+ *   stays exactly the `<textarea/>`'s box and the handle lands on its bottom right corner.
  */
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
+  /** the anchor the resize handle measures the new size against. */
+  const boxRef = React.useRef<HTMLSpanElement>(null);
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
-  const style = React.useMemo((): React.CSSProperties => {
-    return {
-      ...textStyleOf(item),
+  const boxStyle = React.useMemo(
+    (): React.CSSProperties => ({
+      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
-    };
-  }, [item]);
+    }),
+    [item.offset],
+  );
+  const style = React.useMemo((): React.CSSProperties => textStyleOf(item), [item]);
+  const onResize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeText(item.id, cursor),
+    [actions, item.id],
+  );
 
   React.useEffect(() => {
     const element = elementRef.current;
@@ -104,24 +135,27 @@ const TextItem = React.memo<{
   }, []);
 
   return (
-    <textarea
-      ref={elementRef}
-      className={styles.textItem}
-      data-item-kind={item.kind}
-      rows={splitLines(item).length}
-      style={style}
-      // NOTE: uncontrolled so that React never rewrites the value being composed
-      // by an IME. "input" events fire during a composition as well, hence the
-      // canvas previews the text before it is confirmed.
-      defaultValue={item.content}
-      spellCheck={false}
-      onChange={(e) => actions.edit.setText(item.id, e.target.value)}
-      onPointerDown={stopPropagationAndCapturePointer}
-      onPointerMove={stopPropagation}
-      onPointerUp={stopPropagation}
-      onClick={stopPropagation}
-      onKeyDown={stopPropagation}
-    />
+    <span ref={boxRef} className={styles.textItemBox} style={boxStyle}>
+      <textarea
+        ref={elementRef}
+        className={styles.textItem}
+        data-item-kind={item.kind}
+        rows={splitLines(item).length}
+        style={style}
+        // NOTE: uncontrolled so that React never rewrites the value being composed
+        // by an IME. "input" events fire during a composition as well, hence the
+        // canvas previews the text before it is confirmed.
+        defaultValue={item.content}
+        spellCheck={false}
+        onChange={(e) => actions.edit.setText(item.id, e.target.value)}
+        onPointerDown={stopPropagationAndCapturePointer}
+        onPointerMove={stopPropagation}
+        onPointerUp={stopPropagation}
+        onClick={stopPropagation}
+        onKeyDown={stopPropagation}
+      />
+      <ResizeHandle anchorRef={boxRef} onResize={onResize} />
+    </span>
   );
 });
 
