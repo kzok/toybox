@@ -16,7 +16,7 @@ Reach for a more expensive tool only when a cheaper one can't catch the class of
 
 - **Scope**: pure functions and hooks — logic that doesn't depend on rendering or
   visual output. Example: `editorItem`'s `paddingOf` / `lineHeightOf` /
-  `letterSpacingOf` layout calculations (see `app/ss-edit/README.md`).
+  `letterSpacingOf` layout calculations (see `app/ss-edit/docs/SYSTEM_DESIGN.md`).
 - **How far**: cover the logic's edge cases. Don't use it to assert on rendering or
   appearance — jsdom doesn't lay out real pixels.
 - **Where**: `__tests__/<name>.test.ts{,x}`.
