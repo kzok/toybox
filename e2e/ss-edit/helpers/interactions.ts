@@ -65,6 +65,15 @@ export const saveAsPng = async (page: Page): Promise<Buffer> => {
   return readFile(await download.path());
 };
 
+/** exports the picture with the save hotkey, the counterpart of `saveAsPng`'s menu route. */
+export const saveByHotkey = async (page: Page): Promise<Buffer> => {
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.keyboard.press("ControlOrMeta+s"),
+  ]);
+  return readFile(await download.path());
+};
+
 /** discards the picture through "File" -> "New instance", answering the confirmation if shown. */
 export const newInstance = async (
   page: Page,
