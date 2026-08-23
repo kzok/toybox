@@ -33,12 +33,20 @@ There's no standalone `postcss.config.*` in this repo.
 ### Variants
 
 When classes share their chrome and differ only in placement or state, keep one base class and
-nest each variant under it as an `.isSomething` modifier, applied together through `clsx`. A
-standalone `.rightResizeHandle` reads as complete on its own when it only places an element some
-other class already styled; nesting also keeps the modifier from applying without its base.
+nest each variant under it, never as a standalone class of its own. A standalone
+`.rightResizeHandle` reads as complete when it only places an element some other class already
+styled; nesting also keeps a variant from applying without its base.
 
-- **Example**: `.resizeHandle` with `&.isRight` / `&.isBottomRight` in `app/ss-edit`'s
-  `EditMode`.
+What the nested selector matches on depends on what the element already carries.
+
+- **An attribute the element has anyway** — a `data-*` the application exposes on purpose — is
+  what to select on: `&[data-resize-handle="right"]`. The variant then cannot drift from the
+  attribute, because there is only the attribute.
+- **Otherwise** add an `.isSomething` modifier class and apply it together with the base through
+  `clsx`. Do not invent a `data-*` just to style it; an attribute earns its place by being read
+  from outside the stylesheet.
+- **Example**: `.resizeHandle` with `&[data-resize-handle="right"]` /
+  `&[data-resize-handle="bottom-right"]` in `app/ss-edit`'s `EditorPane/ResizeHandle`.
 - **Note**: `composes:` says the same thing, but biome rejects it as non-standard CSS unless
   `css.parser.cssModules` is enabled in `biome.jsonc` — which it is not.
 
