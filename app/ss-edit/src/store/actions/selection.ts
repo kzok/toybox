@@ -72,5 +72,20 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
         }
       });
     },
+    /**
+     * drop the selected items, getting back to select mode with nothing selected.
+     * @note only select mode has a selection to act on, hence a no-op in the others.
+     * @note returns before touching `editorItems` when nothing is selected: rewriting it with an
+     *   identical list would count as an unsaved change (see `savedItems`).
+     */
+    deleteSelected: (): void => {
+      updateAtom(atoms.state, (draft) => {
+        if (draft.editorMode.kind !== "select") return;
+        const { selectedIds } = draft.editorMode;
+        if (selectedIds.length === 0) return;
+        draft.editorItems = draft.editorItems.filter((item) => !selectedIds.includes(item.id));
+        draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);
+      });
+    },
   } as const;
 };

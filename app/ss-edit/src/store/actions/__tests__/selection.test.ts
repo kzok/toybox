@@ -139,4 +139,54 @@ describe(createSelectionActions, () => {
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
     });
   });
+
+  describe("deleteSelected()", () => {
+    const setUp = () => {
+      const item1 = createImageItem("item-1", [0, 0]);
+      const item2 = createImageItem("item-2", [100, 100]);
+      const item3 = createImageItem("item-3", [200, 200]);
+      const target = createTestTargetWithItems(item1, item2, item3);
+      return { ...target, item1, item2, item3 } as const;
+    };
+
+    it("drops every selected item, keeping the rest.", () => {
+      const { store, actions, atoms, item1, item2, item3 } = setUp();
+      actions.selection.select(item1.id);
+      actions.selection.select(item3.id, true);
+
+      actions.selection.deleteSelected();
+
+      expect(store.get(atoms.editorItems).map((item) => item.id)).toStrictEqual([item2.id]);
+    });
+
+    it("leaves nothing selected.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      actions.selection.select(item1.id);
+
+      actions.selection.deleteSelected();
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "select", selectedIds: [] });
+    });
+
+    it("does nothing outside select mode.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      actions.edit.enter(item1.id);
+      const before = store.get(atoms.state);
+
+      actions.selection.deleteSelected();
+
+      expect(store.get(atoms.state)).toBe(before);
+    });
+
+    it("does not count as a change when nothing is selected.", () => {
+      const { store, actions, atoms } = setUp();
+      store.set(atoms.savedItems, store.get(atoms.editorItems));
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
+
+      actions.selection.deleteSelected();
+
+      // NOTE: rewriting the list, identical or not, would have made this true.
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
+    });
+  });
 });

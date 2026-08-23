@@ -120,7 +120,6 @@ const TextItem = React.memo<{
         onPointerMove={stopPropagation}
         onPointerUp={stopPropagation}
         onClick={stopPropagation}
-        onKeyDown={stopPropagation}
       />
       <ResizeHandle direction="right" onResize={onResizeWidth} />
       <ResizeHandle direction="bottom-right" onResize={onResizeFontSize} />

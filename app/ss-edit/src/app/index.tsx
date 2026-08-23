@@ -1,4 +1,5 @@
 import { ImageAddRegular } from "@fluentui/react-icons";
+import { useHotkey } from "@tanstack/react-hotkeys";
 import React from "react";
 import { EditorPane } from "../containers/EditorPane";
 import { Footer } from "../containers/Footer";
@@ -17,11 +18,25 @@ export const App: React.FC = () => (
       <EditorPane className={styles.canvas} />
       <Footer className={styles.footer} />
     </div>
+    <AppHotkeyRegistry />
     <BeforeUnloadHandler />
     <DialogOutlet />
     <DropZone />
   </AppProvider>
 );
+
+const AppHotkeyRegistry = React.memo(() => {
+  const actions = pageCtx.useActions();
+  // NOTE: a dialog is modal, hence every hotkey stays out while one is open.
+  const enabled = !pageCtx.useIsDialogOpen();
+  // NOTE: `requireReset` because the manager ignores `event.repeat` and would save on each one.
+  useHotkey("Mod+S", () => actions.picture.saveAsPng(), { enabled, requireReset: true });
+  useHotkey("Escape", () => actions.selection.clear(), { enabled });
+  useHotkey("Delete", () => actions.selection.deleteSelected(), { enabled });
+  // NOTE: a mac keyboard without a Forward Delete key sends Backspace in its place.
+  useHotkey("Backspace", () => actions.selection.deleteSelected(), { enabled });
+  return null;
+});
 
 const DropZone = React.memo(() => {
   const actions = pageCtx.useActions();
