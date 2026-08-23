@@ -49,7 +49,7 @@ const Zoom = React.memo(() => {
       <MenuPopover>
         <MenuList>
           {ZOOM_ITEMS.map((item) => (
-            <MenuItem key={item} onClick={() => actions.editorView.zoom(item)}>
+            <MenuItem key={item} onClick={() => actions.view.zoom(item)}>
               {formatZoomLevel(item)}
             </MenuItem>
           ))}

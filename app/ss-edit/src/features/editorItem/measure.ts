@@ -1,7 +1,7 @@
 import { Rect, Vec2 } from "../../utils/geometry";
 import { splitLines } from "./textLayout";
 import { textStyleSizeOf } from "./textStyle";
-import type { EditorItem } from "./types";
+import type { EditorItem, TextItemLayout } from "./types";
 
 /** picture rect of an empty item list */
 const EMPTY_PICTURE_RECT = Rect.new([0, 0], [0, 0]);
@@ -20,6 +20,19 @@ export const measurePicture = (items: readonly EditorItem[]): Rect => {
 };
 
 /**
+ * @param layout text layout
+ * @returns the size the text occupies, laid out at that layout
+ * @note the renderer pads the text on every side (see renderText()'s translate(padding, padding)),
+ *   so this size includes that padding too, or it would clip what's actually drawn.
+ */
+export const textItemSizeOf = (layout: TextItemLayout): Vec2 => {
+  const { padding, lineHeight } = textStyleSizeOf(layout);
+  const lineCount = splitLines(layout).length;
+  const doublePadding = padding * 2;
+  return new Vec2(layout.width, lineCount * lineHeight).add([doublePadding, doublePadding]);
+};
+
+/**
  * @param item editor item
  * @returns rect of the item
  */
@@ -29,16 +42,9 @@ const measureItem = (item: EditorItem): Rect => {
     case "image":
       size = new Vec2(item.width, item.height);
       break;
-    case "text": {
-      const { padding, lineHeight } = textStyleSizeOf(item);
-      const lineCount = splitLines(item).length;
-      // NOTE: the renderer pads the text on every side (see renderText()'s
-      // translate(padding, padding)), so this bounding rect must include that
-      // padding too, or it would clip what's actually drawn.
-      const doublePadding = padding * 2;
-      size = new Vec2(item.width, lineCount * lineHeight).add([doublePadding, doublePadding]);
+    case "text":
+      size = textItemSizeOf(item);
       break;
-    }
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);

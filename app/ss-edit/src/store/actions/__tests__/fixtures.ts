@@ -1,0 +1,64 @@
+import { castDraft, produce } from "immer";
+import { createStore } from "jotai";
+import type { EditorItem } from "../../../features/editorItem";
+import { createAtoms, INITIAL_EDITOR_STATE } from "../../atoms";
+import { createActions } from "..";
+
+/**
+ * @returns a fresh store, its atoms and the whole action set bound to them.
+ * @note the whole set rather than a single group, because a transition often has to be
+ *   set up or observed through another group.
+ */
+export const createTestTarget = () => {
+  const store = createStore();
+  const atoms = createAtoms();
+  const actions = createActions(store, atoms);
+  return { store, actions, atoms } as const;
+};
+
+/**
+ * @param items items the picture starts with
+ * @returns a test target whose picture already holds the given items
+ */
+export const createTestTargetWithItems = (...items: readonly EditorItem[]) => {
+  const target = createTestTarget();
+  target.store.set(
+    target.atoms.state,
+    produce(INITIAL_EDITOR_STATE, (draft) => {
+      draft.editorItems.push(...items.map(castDraft));
+    }),
+  );
+  return target;
+};
+
+/**
+ * @param id item.id
+ * @param offset top-left offset in canvas coordinates
+ * @returns an image item of 100 x 50 (aspect ratio 2:1)
+ */
+export const createImageItem = (
+  id: string,
+  offset: EditorItem.Image["offset"],
+): EditorItem.Image => ({
+  kind: "image",
+  id,
+  data: {} as ImageBitmap,
+  offset,
+  width: 100,
+  height: 50,
+});
+
+/**
+ * @param id item.id
+ * @param content text content
+ * @returns a text item
+ */
+export const createTextItem = (id: string, content: string): EditorItem.Text => ({
+  kind: "text",
+  id,
+  content,
+  offset: [0, 0],
+  width: 100,
+  fontSize: 32,
+  color: "#fff",
+});

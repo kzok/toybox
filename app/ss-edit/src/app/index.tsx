@@ -25,7 +25,7 @@ export const App: React.FC = () => (
 
 const DropZone = React.memo(() => {
   const actions = pageCtx.useActions();
-  const dragging = useWindowFileDrop(actions.editorItem.addFromDataTransfer);
+  const dragging = useWindowFileDrop(actions.picture.addFromDataTransfer);
 
   if (!dragging) {
     return null;

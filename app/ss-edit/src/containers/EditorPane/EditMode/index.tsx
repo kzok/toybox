@@ -2,7 +2,9 @@ import { atom, useAtomValue } from "jotai";
 import React from "react";
 import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
+import type { Vec2 } from "../../../utils/geometry";
 import { CanvasLayer } from "../CanvasLayer";
+import { ResizeContainer, ResizeHandle } from "../ResizeHandle";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
@@ -26,7 +28,6 @@ const ImageItem = React.memo<{
   item: EditorItem.Image;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const elementRef = React.useRef<HTMLButtonElement>(null);
   const style = React.useMemo(
     (): React.CSSProperties => ({
       // NOTE: an ancestor component applies the offset and the scale.
@@ -37,70 +38,56 @@ const ImageItem = React.memo<{
     }),
     [item],
   );
-
-  React.useEffect(() => {
-    elementRef.current?.focus();
-  }, []);
+  const onResize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeImage(item.id, cursor),
+    [actions, item.id],
+  );
 
   return (
-    <button
-      ref={elementRef}
-      type="button"
+    <ResizeContainer
       className={styles.imageItem}
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
       onPointerMove={stopPropagationAndCapturePointer}
       onPointerUp={stopPropagation}
+      // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: pointer-only drag handle; onClick here
-      only swallows the click so it doesn't reach the parent button, it triggers no action. */}
-      <span
-        className={styles.resizeHandle}
-        data-resize-handle
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          // capture the pointer only when main (left) button.
-          if (e.buttons === 1) {
-            e.preventDefault();
-            e.currentTarget.setPointerCapture(e.pointerId);
-          }
-        }}
-        onPointerMove={(e) => {
-          e.stopPropagation();
-          if (e.buttons === 1) {
-            const anchor = elementRef.current?.getBoundingClientRect();
-            if (anchor == null) return;
-            actions.editorItem.resizeImage(item.id, [
-              e.clientX - anchor.left,
-              e.clientY - anchor.top,
-            ]);
-          }
-        }}
-        onPointerUp={stopPropagation}
-        onClick={stopPropagation}
-      />
-    </button>
+      <ResizeHandle direction="bottom-right" onResize={onResize} />
+    </ResizeContainer>
   );
 });
 
 /**
  * a transparent `<textarea/>` laid over the text rendered on the `<canvas/>`,
  * so that the caret and the selection are the only visible part of it.
+ * @note a `<textarea/>` takes no children, hence the resize handles are siblings of it and the
+ *   offset is carried by the box wrapping them. the wrapper is left to shrink to fit, so it stays
+ *   exactly the `<textarea/>`'s box and the handles land on its right edge and bottom right corner.
  */
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
-  const style = React.useMemo((): React.CSSProperties => {
-    return {
-      ...textStyleOf(item),
+  const boxStyle = React.useMemo(
+    (): React.CSSProperties => ({
+      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
-    };
-  }, [item]);
+    }),
+    [item.offset],
+  );
+  const style = React.useMemo((): React.CSSProperties => textStyleOf(item), [item]);
+  const onResizeFontSize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeTextFontSize(item.id, cursor),
+    [actions, item.id],
+  );
+  const onResizeWidth = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeTextWidth(item.id, cursor),
+    [actions, item.id],
+  );
 
   React.useEffect(() => {
     const element = elementRef.current;
@@ -113,24 +100,31 @@ const TextItem = React.memo<{
   }, []);
 
   return (
-    <textarea
-      ref={elementRef}
-      className={styles.textItem}
-      data-item-kind={item.kind}
-      rows={splitLines(item).length}
-      style={style}
-      // NOTE: uncontrolled so that React never rewrites the value being composed
-      // by an IME. "input" events fire during a composition as well, hence the
-      // canvas previews the text before it is confirmed.
-      defaultValue={item.content}
-      spellCheck={false}
-      onChange={(e) => actions.editorItem.editText(item.id, e.target.value)}
-      onPointerDown={stopPropagationAndCapturePointer}
-      onPointerMove={stopPropagation}
-      onPointerUp={stopPropagation}
-      onClick={stopPropagation}
-      onKeyDown={stopPropagation}
-    />
+    <ResizeContainer style={boxStyle}>
+      <textarea
+        ref={elementRef}
+        className={styles.textItem}
+        data-item-kind={item.kind}
+        // NOTE: a <textarea/> does not grow with its content, hence the row count comes from the
+        // laid out lines. that lands on the box the canvas paints because the lines and the line
+        // height both come from `editorItem`.
+        rows={splitLines(item).length}
+        style={style}
+        // NOTE: uncontrolled so that React never rewrites the value being composed
+        // by an IME. "input" events fire during a composition as well, hence the
+        // canvas previews the text before it is confirmed.
+        defaultValue={item.content}
+        spellCheck={false}
+        onChange={(e) => actions.edit.setText(item.id, e.target.value)}
+        onPointerDown={stopPropagationAndCapturePointer}
+        onPointerMove={stopPropagation}
+        onPointerUp={stopPropagation}
+        onClick={stopPropagation}
+        onKeyDown={stopPropagation}
+      />
+      <ResizeHandle direction="right" onResize={onResizeWidth} />
+      <ResizeHandle direction="bottom-right" onResize={onResizeFontSize} />
+    </ResizeContainer>
   );
 });
 

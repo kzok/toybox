@@ -19,12 +19,12 @@ export const useResizeObserver = <T extends Element>(
         if (entry.target !== element) {
           continue;
         }
-        actions.editorView.syncCanvasSize([entry.contentRect.width, entry.contentRect.height]);
+        actions.view.syncCanvasSize([entry.contentRect.width, entry.contentRect.height]);
       }
     });
     observer.observe(element);
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [elementRef, actions]);
 };

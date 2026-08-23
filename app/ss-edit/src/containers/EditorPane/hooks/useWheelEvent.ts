@@ -13,16 +13,17 @@ export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): 
     if (element == null) {
       return;
     }
-    const handler = new PointerEventHandler(element, actions);
+    const handler = new WheelHandler(element, actions);
     return () => handler.cleanup();
-  }, []);
+  }, [elementRef, actions]);
 };
 
 /**
  * Wheel event handlers via DOM API
- * @note React onWheel callback didn't work.
+ * @note React onWheel callback didn't work: it registers `wheel` as a passive listener, so the
+ *   `preventDefault()` below is ignored there and the browser scrolls or zooms the page as well.
  */
-class PointerEventHandler {
+class WheelHandler {
   /**
    * @param element
    * @param actions
@@ -42,7 +43,7 @@ class PointerEventHandler {
    * @param e
    */
   private handleWheelScroll(e: WheelEvent): void {
-    this.actions.editorView.scroll(-e.deltaX, -e.deltaY);
+    this.actions.view.scroll(-e.deltaX, -e.deltaY);
   }
   /**
    * handle wheel zoom event.
@@ -50,7 +51,7 @@ class PointerEventHandler {
    */
   private handleWheelZoom(e: WheelEvent): void {
     const cursor = Vec2.new(e.clientX, e.clientY).sub(this.element.getBoundingClientRect());
-    this.actions.editorView.zoom((scale) => {
+    this.actions.view.zoom((scale) => {
       scale = 1.3 ** (e.deltaY * -0.01) * scale;
       if (0.9 < scale && scale < 1.1) {
         return 1; // snap to 100%

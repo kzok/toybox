@@ -1,14 +1,19 @@
 import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
 
+/**
+ * the lowest scale the view zooms to.
+ * @note chosen so that wheeling back in from it lands neatly on 100%, and because the picture is
+ *   no longer legible further out.
+ */
 const ZOOM_MIN = 0.27;
 const ZOOM_MAX = 2.0;
 
 /**
  * @param params store, atoms and updateAtom
- * @returns actions for editor view
+ * @returns actions for the editor view
  */
-export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /**
      * update editor pane size
@@ -33,7 +38,10 @@ export const createEditorViewActions = ({ atoms, updateAtom }: ActionCreatorPara
     /**
      * zoom in canvas
      * @param next next scale
-     * @param cursor cursor offset from top-left of `<canvas/>`
+     * @param cursor cursor offset from top-left of `<canvas/>`, the centre of the pane by default
+     * @note the offset moves along with the scale so that the picture point under `cursor` stays
+     *   under it — `scaleOrigin` is that point in picture coordinates. leaving the offset alone
+     *   would slide the picture out from under the pointer on every wheel notch.
      */
     zoom: (next: number | ((_: number) => number), cursor?: Vec2): void => {
       updateAtom(atoms.state, (draft) => {

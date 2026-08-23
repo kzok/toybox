@@ -1,0 +1,58 @@
+/**
+ * the box the handles below place themselves on, applied along with the caller's own class.
+ * @note positioned, hence the containing block their `right`/`bottom` resolve against. drop it
+ *   and they land on `CanvasLayer` instead, far away from the item they belong to.
+ * @note deliberately given no size, so it shrinks to fit what it wraps — that is what keeps the
+ *   handles of a text item on the edges of the <textarea/> inside it.
+ */
+.container {
+  position: absolute;
+}
+
+/**
+ * the chrome every resize handle shares. the modifiers below say where one sits, and are
+ * nested here because neither places anything on its own: both are applied along with this one.
+ * @note `--scale` is exposed by `CanvasLayer`, hence a handle only sizes correctly inside one.
+ */
+.resizeHandle {
+  /**
+   * how far a handle sits beyond the edge it grips, so that it clears the item's outline.
+   * @note stated as a length rather than folded into the `translate()` percentages, which are
+   *   relative to each handle's own size and would hence push the two out by different amounts.
+   */
+  --outset: calc(3.5px / var(--scale, 1));
+
+  position: absolute;
+  /* cancel out `transform: scale()` to keep a constant on-screen size */
+  width: calc(14px / var(--scale, 1));
+  height: calc(14px / var(--scale, 1));
+  border-radius: 50%;
+  border: calc(2px / var(--scale, 1)) solid #fff;
+  background: #0f6cbd;
+
+  /* resizes the item as a whole, from its bottom right corner. */
+  &[data-resize-handle="bottom-right"] {
+    right: 0;
+    bottom: 0;
+    transform: translate(calc(50% + var(--outset)), calc(50% + var(--outset)));
+    cursor: nwse-resize;
+  }
+
+  /**
+   * resizes the width alone, from the right edge.
+   * @note a bar down the whole edge rather than a second dot: one axis reads as a line where two
+   *   axes read as a point, and a line and a point are free to sit on top of each other. two dots
+   *   are not — on a single line of the smallest font they are 11px apart and would overlap.
+   */
+  &[data-resize-handle="right"] {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(8px / var(--scale, 1));
+    /* let `top`/`bottom` size it instead of the square the base class asks for. */
+    height: auto;
+    border-radius: calc(4px / var(--scale, 1));
+    transform: translateX(calc(50% + var(--outset)));
+    cursor: ew-resize;
+  }
+}

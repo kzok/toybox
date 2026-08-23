@@ -34,8 +34,8 @@ const FileMenu = React.memo(() => {
 
       <MenuPopover>
         <MenuList>
-          <MenuItem onClick={() => actions.editorItem.clear()}>New instance</MenuItem>
-          <MenuItem disabled={!canSave} onClick={() => actions.editorItem.saveAsPng()}>
+          <MenuItem onClick={() => actions.picture.clearItems()}>New instance</MenuItem>
+          <MenuItem disabled={!canSave} onClick={() => actions.picture.saveAsPng()}>
             Save as PNG
           </MenuItem>
         </MenuList>
@@ -56,8 +56,8 @@ const EditMenu = React.memo(() => {
 
       <MenuPopover>
         <MenuList>
-          <MenuItem onClick={() => actions.editorItem.addFromFilePicker()}>Add image</MenuItem>
-          <MenuItem onClick={() => actions.editorMode.enterAddItem("text")}>Add text</MenuItem>
+          <MenuItem onClick={() => actions.picture.addFromFilePicker()}>Add image</MenuItem>
+          <MenuItem onClick={() => actions.addItem.enter("text")}>Add text</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

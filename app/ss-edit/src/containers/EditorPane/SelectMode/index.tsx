@@ -38,20 +38,25 @@ const ImageItem = React.memo<{
     }),
     [item],
   );
-  const { selected, singleSelect } = useItemSelected(item.id);
+  const selected = useItemSelected(item.id);
 
   return (
-    <button
-      type="button"
+    <span
       className={styles.imageItem}
       data-item-kind={item.kind}
       data-selected={selected}
       style={style}
-      {...usePointerActions(item, singleSelect)}
+      {...usePointerActions(item, selected)}
     />
   );
 });
 
+/**
+ * the hit-target of a text item in select mode.
+ * @note the content is rendered into it, transparent, only to give the span its box: the shared
+ *   text style sets the width, and without children there would be no height and hence no hit
+ *   area at all.
+ */
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
@@ -63,23 +68,22 @@ const TextItem = React.memo<{
     }),
     [item],
   );
-  const { selected, singleSelect } = useItemSelected(item.id);
+  const selected = useItemSelected(item.id);
 
   return (
-    <button
-      type="button"
+    <span
       className={styles.textItem}
       data-item-kind={item.kind}
       data-selected={selected}
       style={style}
-      {...usePointerActions(item, singleSelect)}
+      {...usePointerActions(item, selected)}
     >
       {item.content}
-    </button>
+    </span>
   );
 });
 
-const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
+const usePointerActions = (item: EditorItem, selected: boolean) => {
   const actions = pageCtx.useActions();
 
   return usePointerEvents({
@@ -95,38 +99,30 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
       e.stopPropagation();
       // main (left) button
       if (e.buttons === 1) {
-        actions.editorItem.move(item.id, [e.movementX, e.movementY]);
+        actions.selection.move(item.id, [e.movementX, e.movementY]);
         return;
       }
     },
     onClick: (e) => {
       e.stopPropagation();
-      if (singleSelect && !e.ctrlKey) {
-        actions.editorMode.enterEdit(item.id);
+      if (selected && !e.ctrlKey) {
+        actions.edit.enter(item.id);
       } else {
-        actions.editorMode.selectItem(item.id, e.ctrlKey);
+        actions.selection.select(item.id, e.ctrlKey);
       }
     },
   });
 };
 
-const useItemSelected = (itemId: string): { selected: boolean; singleSelect: boolean } => {
+const useItemSelected = (itemId: string): boolean => {
   const atoms = pageCtx.useAtoms();
   return useAtomValue(
     React.useMemo(
       () =>
         atom((get) => {
-          let selected = false;
-          let singleSelect = false;
           const editorMode = get(atoms.editorMode);
-          if (editorMode.kind !== "select") {
-            return { selected, singleSelect };
-          }
-          selected = editorMode.selectedIds.includes(itemId);
-          if (selected) {
-            singleSelect = editorMode.selectedIds.length === 1;
-          }
-          return { selected, singleSelect };
+          if (editorMode.kind !== "select") return false;
+          return editorMode.selectedIds.includes(itemId);
         }),
       [atoms, itemId],
     ),
