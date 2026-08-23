@@ -31,6 +31,7 @@ const AppHotkeyRegistry = React.memo(() => {
   const enabled = !pageCtx.useIsDialogOpen();
   // NOTE: `requireReset` because the manager ignores `event.repeat` and would save on each one.
   useHotkey("Mod+S", () => actions.picture.saveAsPng(), { enabled, requireReset: true });
+  useHotkey("Escape", () => actions.selection.clear(), { enabled });
   return null;
 });
 
