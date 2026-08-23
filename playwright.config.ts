@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.e2e.ts",
   retries: 1,
+  // the CI runner has 2 vCPUs, where the default heuristic (`ceil(cpus / 2)`)
+  // settles on a single worker and runs the whole suite serially.
+  // "50%" is what the default heuristic amounts to, kept as is off CI.
+  workers: process.env.CI ? 2 : "50%",
   reporter: process.env.CI
     ? [["github"], ["html", { open: "never" }]]
     : [["list"], ["html", { open: "never" }]],
