@@ -33,6 +33,8 @@ export const createAtoms = () => {
   const dialogStack = atom<readonly DialogEntry[]>([]);
   /** the dialog on top of the stack, or null if there is none. */
   const dialogReactNode = atom((get) => get(dialogStack).at(-1)?.node ?? null);
+  /** if a dialog is on the stack. */
+  const isDialogOpen = atom((get): boolean => get(dialogStack).length > 0);
   /** state.editorMode */
   const editorMode = atom((get) => get(state).editorMode);
   /** state.editorView */
@@ -50,6 +52,7 @@ export const createAtoms = () => {
     editorItems,
     dialogStack,
     dialogReactNode,
+    isDialogOpen,
     savedItems,
     canSave,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
