@@ -14,6 +14,7 @@ Sub-packages are located in the following folders.
 
 ## Workspace conventions
 
+- [Volta](https://docs.volta.sh/) is used to pin the Node.js version.
 - Packages are named `@~/<name>` (e.g. `@~/ui`) and are `private`.
 - Root `tsconfig.json` and `biome.jsonc` generally apply across all workspaces.
 
