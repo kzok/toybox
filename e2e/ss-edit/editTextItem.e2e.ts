@@ -52,6 +52,31 @@ test("enters edit mode on the second click with the caret at the end", async ({ 
   });
 });
 
+/**
+ * entering edit mode asks only that the item is selected, not that it is the only selection, so
+ * one of several selected items opens on the next click rather than first collapsing the
+ * selection onto itself and taking one more.
+ */
+test("enters edit mode on an item of a multi selection", async ({ page }) => {
+  await openApp(page);
+  await addImage(page, "320x240.png");
+  await addText(page, TEXT_RANGE, "Hello");
+
+  const image = imageItems(page).first();
+  const text = textItems(page).first();
+
+  await text.click();
+  await image.click({ modifiers: ["ControlOrMeta"] });
+  await expect(text).toHaveAttribute("data-selected", "true");
+  await expect(image).toHaveAttribute("data-selected", "true");
+
+  await text.click();
+
+  await expectMode(page, "edit");
+  await expect(textEditor(page)).toBeFocused();
+  await expect(textEditor(page)).toHaveValue("Hello");
+});
+
 test("does not enter edit mode on ctrl+click", async ({ page }) => {
   await openApp(page);
   await addText(page, TEXT_RANGE, "Hello");

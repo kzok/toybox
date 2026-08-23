@@ -38,7 +38,7 @@ const ImageItem = React.memo<{
     }),
     [item],
   );
-  const { selected, singleSelect } = useItemSelected(item.id);
+  const selected = useItemSelected(item.id);
 
   return (
     <span
@@ -46,7 +46,7 @@ const ImageItem = React.memo<{
       data-item-kind={item.kind}
       data-selected={selected}
       style={style}
-      {...usePointerActions(item, singleSelect)}
+      {...usePointerActions(item, selected)}
     />
   );
 });
@@ -68,7 +68,7 @@ const TextItem = React.memo<{
     }),
     [item],
   );
-  const { selected, singleSelect } = useItemSelected(item.id);
+  const selected = useItemSelected(item.id);
 
   return (
     <span
@@ -76,14 +76,14 @@ const TextItem = React.memo<{
       data-item-kind={item.kind}
       data-selected={selected}
       style={style}
-      {...usePointerActions(item, singleSelect)}
+      {...usePointerActions(item, selected)}
     >
       {item.content}
     </span>
   );
 });
 
-const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
+const usePointerActions = (item: EditorItem, selected: boolean) => {
   const actions = pageCtx.useActions();
 
   return usePointerEvents({
@@ -105,7 +105,7 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
     },
     onClick: (e) => {
       e.stopPropagation();
-      if (singleSelect && !e.ctrlKey) {
+      if (selected && !e.ctrlKey) {
         actions.edit.enter(item.id);
       } else {
         actions.selection.select(item.id, e.ctrlKey);
@@ -114,23 +114,15 @@ const usePointerActions = (item: EditorItem, singleSelect: boolean) => {
   });
 };
 
-const useItemSelected = (itemId: string): { selected: boolean; singleSelect: boolean } => {
+const useItemSelected = (itemId: string): boolean => {
   const atoms = pageCtx.useAtoms();
   return useAtomValue(
     React.useMemo(
       () =>
         atom((get) => {
-          let selected = false;
-          let singleSelect = false;
           const editorMode = get(atoms.editorMode);
-          if (editorMode.kind !== "select") {
-            return { selected, singleSelect };
-          }
-          selected = editorMode.selectedIds.includes(itemId);
-          if (selected) {
-            singleSelect = editorMode.selectedIds.length === 1;
-          }
-          return { selected, singleSelect };
+          if (editorMode.kind !== "select") return false;
+          return editorMode.selectedIds.includes(itemId);
         }),
       [atoms, itemId],
     ),
