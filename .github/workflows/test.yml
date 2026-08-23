@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+# supersede the runs of an outdated push on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   type-check:
     runs-on: ubuntu-latest
