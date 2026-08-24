@@ -9,22 +9,8 @@
     <link rel="canonical" href="https://kzok.github.io/toybox/ss-edit/" />
     <title>ss-edit</title>
     <meta name="description" content="An image editor specialized for editing screenshots."/>
-    <!-- Google tag (gtag.js) -->
-    <!-- loaded only on the published host, so the dev server and e2e (both on
-         localhost) never send hits to the property. -->
-    <script>
-      // biome-ignore lint/complexity/noArguments: gtag.js only recognizes commands pushed as an Arguments object, not as a plain array.
-      function gtag() { window.dataLayer.push(arguments); }
-      if (location.hostname === "kzok.github.io") {
-        window.dataLayer = window.dataLayer || [];
-        gtag("js", new Date());
-        gtag("config", "G-Y5YS3FH8V3");
-        const script = document.createElement("script");
-        script.async = true;
-        script.src = "https://www.googletagmanager.com/gtag/js?id=G-Y5YS3FH8V3";
-        document.head.append(script);
-      }
-    </script>
+    <!-- the markup shared among the applications is injected here at build time.
+         see the `shared-head` plugin in the root `vite.config.ts`. -->
   </head>
   <body>
     <div id="root"></div>
