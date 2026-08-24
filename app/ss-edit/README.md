@@ -1,4 +1,4 @@
-# @~/app-ss-edit
+# @~/ss-edit
 
 An image editor specialized for editing screenshots.
 
