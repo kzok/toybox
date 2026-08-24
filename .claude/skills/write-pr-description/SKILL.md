@@ -1,33 +1,38 @@
 ---
-name: update-pr-description
+name: write-pr-description
 description: Draft a pull request description — and its title when stale — from the diff and apply
-  it to GitHub after approval
+  it to GitHub directly
 argument-hint: [PR url or number — omit for the current branch's PR]
 disable-model-invocation: true
-allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*)
+allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr edit:*)
 ---
 
 Write the description for the pull request in `$ARGUMENTS` — or the current branch's pull request
-when that is empty — and apply it once approved. Stop if there is none.
+when that is empty — and apply it to GitHub without asking for approval first. Stop if there is
+none.
 
 ## Steps
 
-1. **Read it.** `gh pr view <n> --json title,body,headRefName,baseRefName,commits` and
+1. **Check it is still writable.** `gh pr view <n> --json state,isDraft`. Abort — change nothing,
+   say why — unless `state` is `OPEN`; a merged or closed pull request is left alone. A draft is
+   `OPEN` with `isDraft: true` and is fair game.
+2. **Read it.** `gh pr view <n> --json title,body,headRefName,baseRefName,commits` and
    `gh pr diff <n>`. Open the changed files wherever the diff alone doesn't say *why* something
    changed: a guard, a deleted handler, an added flag.
-2. **Ask**, in one round, for what the repository can't answer: the related issue URL, what
-   prompted the work, and whether anything that reads like a defect is deliberate. Draft with a
-   placeholder rather than block when the user would rather fill it in themselves.
-3. **Draft** the body to a scratch file in the scratchpad directory, following `## Format`. Draft a
+3. **Ask** for what the repository can't answer: the related issue URL, what prompted the work,
+   and whether anything that reads like a defect is deliberate. Ask as many rounds as the answers
+   warrant — a reply that opens a new question is worth following up on. Draft with a placeholder
+   rather than block when the user would rather fill it in themselves.
+4. **Draft** the body to a scratch file in the scratchpad directory, following `## Format`. Draft a
    title as well when the existing one no longer says what the diff does; leave it alone otherwise.
-4. **Get approval in plan mode.** `EnterPlanMode` only after the draft file is written. Put the
-   drafted body verbatim, the title, and the existing body when there is one up for approval with
-   `ExitPlanMode`. Apply nothing until that plan is approved.
-5. **Apply** with `gh pr edit <n> --body-file <draft>`, adding `--title <title>` only when step 3
+5. **Apply** with `gh pr edit <n> --body-file <draft>`, adding `--title <title>` only when step 4
    drafted one, then read it back to confirm.
+6. **Report** what landed: the pull request URL, the new title when it changed, and the body as
+   applied. The user reviews it on GitHub afterwards, so leave them enough to see what replaced
+   what.
 
-`allowed-tools` lists only the read-only `gh` calls on purpose: everything else — writing the
-draft, asking the user, editing the pull request — is meant to go through a permission prompt.
+The pull request body is overwritten in place, so anything the previous body said and the new one
+doesn't is gone. Carry over whatever of it still holds.
 
 Claim only what was checked.
 
