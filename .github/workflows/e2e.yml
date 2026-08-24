@@ -1,15 +1,11 @@
-# e2e is far slower than the checks in test.yml, hence limited to the main branch
-# and the pull requests targeting it.
-
 name: e2e
 
 on:
   push:
+    # branches only. a tag push would just redo what the tagged commit already
+    # ran on its branch.
     branches:
-    - main
-  pull_request:
-    branches:
-    - main
+    - '**'
 
 permissions:
   contents: read
