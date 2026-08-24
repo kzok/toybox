@@ -5,6 +5,10 @@ name: test
 
 on:
   push:
+    # branches only. a tag push would just redo what the tagged commit already
+    # ran on its branch.
+    branches:
+    - '**'
 
 permissions:
   contents: read
