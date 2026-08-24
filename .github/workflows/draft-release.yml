@@ -1,0 +1,74 @@
+# Releases are versioned as `YYYYMMDD.N` (JST), where N is the Nth release of
+# that day, starting at 1 -- the same shape as an Azure Pipelines run number.
+# The workflow stops at a draft: a draft release does not create the git tag, so
+# it never touches the tag ruleset. Publishing the draft is done by hand, by a
+# repository admin, who can bypass that ruleset.
+
+name: draft-release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# releases are not interchangeable; never cancel one in favor of another.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+    - name: guard the source ref
+      run: |
+        if [ "${GITHUB_REF_NAME}" != "main" ]; then
+          echo "::error::releases must be cut from main, got '${GITHUB_REF_NAME}'"
+          exit 1
+        fi
+    - name: draft a release
+      run: |
+        today="$(TZ=Asia/Tokyo date +%Y%m%d)"
+
+        # sorted by created_at desc, so the newest draft comes first.
+        releases="$(gh api "repos/${GH_REPO}/releases?per_page=100")"
+        draft_tag="$(jq -r '[.[] | select(.draft)][0].tag_name // empty' <<<"${releases}")"
+
+        # names already taken today. the draft we are about to reuse is excluded,
+        # otherwise re-running on the same day would keep bumping the suffix.
+        taken_releases="$(jq -c --arg draft "${draft_tag}" \
+          '[.[] | select(.tag_name != $draft) | .tag_name]' <<<"${releases}")"
+        # tags only ever come from published releases, but an admin can push one
+        # by hand; count those too.
+        taken_tags="$(gh api "repos/${GH_REPO}/git/matching-refs/tags/${today}." \
+          --jq '[.[].ref | ltrimstr("refs/tags/")]' || echo '[]')"
+
+        tag="$(jq -rn --arg today "${today}" \
+          --argjson a "${taken_releases}" --argjson b "${taken_tags}" '
+          ($a + $b)
+          | map(capture("^" + $today + "\\.(?<n>[0-9]+)$") | .n | tonumber)
+          | $today + "." + (((max // 0) + 1) | tostring)
+        ')"
+
+        # `gh release edit` has no --generate-notes, so build the body here and
+        # feed both paths the same way.
+        notes="$(gh api "repos/${GH_REPO}/releases/generate-notes" \
+          -f "tag_name=${tag}" -f "target_commitish=${GITHUB_SHA}" --jq '.body')"
+
+        # pin the target to this SHA so the tag lands where we meant even if
+        # main moves on before the draft is published.
+        if [ -n "${draft_tag}" ]; then
+          url="$(gh release edit "${draft_tag}" --draft \
+            --tag "${tag}" --title "${tag}" \
+            --target "${GITHUB_SHA}" --notes-file - <<<"${notes}")"
+        else
+          url="$(gh release create "${tag}" --draft \
+            --title "${tag}" \
+            --target "${GITHUB_SHA}" --notes-file - <<<"${notes}")"
+        fi
+
+        echo "draft release \`${tag}\`: ${url}" >>"${GITHUB_STEP_SUMMARY}"
