@@ -71,13 +71,16 @@ on its shorter side.
 
 ## Moving around
 
-- The wheel scrolls, ctrl+wheel zooms around the pointer, and dragging the pane with the main
-  button pans it.
+- The wheel scrolls, ctrl+wheel and a trackpad pinch zoom around the pointer, and dragging the
+  pane with the main button pans it.
 - Zoom runs from 27% to 200%. The lower bound is chosen so that wheeling back in from it lands
   neatly on 100%, and because the picture stops being legible further out.
-- A wheel zoom that ends up between 90% and 110% snaps to exactly 100%, since that is the ratio a
-  screenshot is actually read at and it is otherwise hard to hit. Picking a level from the footer
-  sets it exactly and never snaps.
+- A wheel notch and a pinch are steps of very different size, so they get their own sensitivity:
+  one notch is 30%, while a pinch follows the fingers.
+- A zoom step that crosses 100% stops there, since that is the ratio a screenshot is actually read
+  at and it is otherwise hard to hit. The next step leaves again, so 100% is somewhere to stop
+  rather than somewhere to get stuck. Picking a level from the footer sets it exactly and never
+  snaps.
 
 ## Saving, and not losing work
 

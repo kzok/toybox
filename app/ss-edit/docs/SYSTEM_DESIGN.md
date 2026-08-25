@@ -72,6 +72,26 @@ An action that rewrites `editorItems` returns before touching it when the result
 same list: `hasUnsavedChanges` compares the list *by reference* against `savedItems`, so
 rebuilding an identical one marks a saved picture as unsaved (see `selection.deleteSelected`).
 
+## Wheel input
+
+A trackpad pinch never arrives as a gesture of its own: Chrome synthesises it into a stream of
+`wheel` events carrying `ctrlKey`, which is the same shape a ctrl+wheel from a mouse has. Nothing
+on the event says which device produced it, so `useWheelEvent.ts`
+(`src/containers/EditorPane/hooks`) goes by the one thing that separates them — the magnitude of
+`deltaY`, which is 0.5-3 for a pinch against 100 or so for a wheel notch. The threshold sits in
+the empty space between the two and deliberately nearer the notch end: reading a pinch as a notch
+jumps 30% in a single event and wrecks the gesture, while reading a notch as a pinch only makes it
+weak, so anything ambiguous falls to the pinch branch.
+
+The 100% snap is keyed on a step *crossing* 100% rather than on landing near it. A window around
+100% only works while every step is larger than the window — a pinch step is two orders of
+magnitude smaller than one, so a window makes 100% a scale the trackpad can never leave again.
+`__tests__/useWheelEvent.test.ts` is what holds that down.
+
+Snapping belongs to the wheel and not to `view.zoom`, hence it lives here rather than in
+`store/actions/view.ts`: the footer's zoom levels go through the same action and must land on
+exactly what was picked.
+
 ## Hotkeys
 
 Every hotkey is registered in `AppHotkeyRegistry` (`src/app/index.tsx`), so that which keys are
