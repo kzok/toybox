@@ -45,6 +45,10 @@ const measureItem = (item: EditorItem): Rect => {
     case "text":
       size = textItemSizeOf(item);
       break;
+    case "rect":
+      // TODO: take line width and shadow into account.
+      size = new Vec2(item.width, item.height);
+      break;
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);

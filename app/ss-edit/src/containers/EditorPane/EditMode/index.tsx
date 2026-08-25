@@ -16,8 +16,11 @@ export const EditMode = React.memo(() => {
         return <ImageItem key={item.id} item={item} />;
       case "text":
         return <TextItem key={item.id} item={item} />;
+      case "rect":
+        return null; // TODO: implement it.
       default:
-        return null; // should never happen
+        item satisfies null;
+        return null;
     }
   }, [item]);
 

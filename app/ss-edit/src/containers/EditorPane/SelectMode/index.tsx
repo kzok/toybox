@@ -16,6 +16,8 @@ export const SelectMode = React.memo(() => {
         return <ImageItem key={item.id} item={item} />;
       case "text":
         return <TextItem key={item.id} item={item} />;
+      case "rect":
+        return null; // TODO: implement it.
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);
