@@ -36,6 +36,38 @@ export const Editing: StoryObj<typeof meta> = {
     ),
 };
 
+export const Rects: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(exampleState(loaded.image as ImageBitmap), (draft) => {
+        // NOTE: a thin one laid fully on the screenshot and a thick one hanging off its bottom
+        // right corner, so that the outline and the shadow can be read against the screenshot and
+        // against the transparent plane alike.
+        draft.editorItems.push(
+          castDraft({
+            kind: "rect",
+            id: "story-rect-thin",
+            offset: [-140, 10],
+            width: 120,
+            height: 70,
+            color: "#EF3171",
+            lineWidth: 2,
+          } satisfies EditorItem.Rect),
+          castDraft({
+            kind: "rect",
+            id: "story-rect-thick",
+            offset: [20, 60],
+            width: 200,
+            height: 140,
+            color: "#EF3171",
+            lineWidth: 6,
+          } satisfies EditorItem.Rect),
+        );
+      }),
+    ),
+};
+
 export const AddingItem: StoryObj<typeof meta> = {
   loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
   render: (_args, { loaded }) =>

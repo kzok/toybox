@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { measurePicture, textItemSizeOf } from "../measure";
+import { rectStyleSizeOf } from "../rectStyle";
 import { textStyleSizeOf } from "../textStyle";
 import type { EditorItem } from "../types";
 
@@ -35,6 +36,20 @@ const createTextItem = (
   width,
   fontSize,
   color: "#000",
+});
+
+const createRectItem = (
+  offset: EditorItem.Rect["offset"],
+  size: readonly [number, number],
+  lineWidth: number,
+): EditorItem.Rect => ({
+  kind: "rect",
+  id: `item-${offset.join(",")}`,
+  offset,
+  width: size[0],
+  height: size[1],
+  color: "#000",
+  lineWidth,
 });
 
 describe(textItemSizeOf, () => {
@@ -99,5 +114,23 @@ describe(measurePicture, () => {
     const height = 2 * lineHeight;
     expect(rect.head.tuple()).toStrictEqual([10, 20]);
     expect(rect.size.tuple()).toStrictEqual([width + 2 * padding, height + 2 * padding]);
+  });
+
+  it("pads a rect item's rect on every side to take up the outline the renderer draws.", () => {
+    const item = createRectItem([10, 20], [100, 50], 6);
+    const rect = measurePicture([item]);
+    const { padding } = rectStyleSizeOf(item);
+    expect(rect.head.tuple()).toStrictEqual([10, 20]);
+    expect(rect.size.tuple()).toStrictEqual([100 + 2 * padding, 50 + 2 * padding]);
+  });
+
+  it("grows a rect item's rect with the line width, keeping the head on the offset.", () => {
+    const thin = measurePicture([createRectItem([10, 20], [100, 50], 2)]);
+    const thick = measurePicture([createRectItem([10, 20], [100, 50], 12)]);
+    expect(thick.size.x).toBeGreaterThan(thin.size.x);
+    expect(thick.size.y).toBeGreaterThan(thin.size.y);
+    // the padding lies inside the item, so a thicker line never moves its visible top-left corner.
+    expect(thin.head.tuple()).toStrictEqual([10, 20]);
+    expect(thick.head.tuple()).toStrictEqual([10, 20]);
   });
 });
