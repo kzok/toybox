@@ -1,5 +1,5 @@
 import React from "react";
-import { renderEditorItems } from "../../../features/renderer";
+import { renderEditorItem } from "../../../features/renderer";
 import { pageCtx } from "../../../store";
 import styles from "./index.module.css";
 
@@ -26,7 +26,9 @@ export const Painter = React.memo(() => {
     ctx.reset();
     ctx.translate(...canvasOffset.tuple());
     ctx.scale(view.scale, view.scale);
-    renderEditorItems(ctx, items);
+    for (const item of items) {
+      renderEditorItem(ctx, item);
+    }
   }, [view, items, canvasOffset]);
 
   return (

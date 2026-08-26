@@ -9,29 +9,27 @@ import {
 import type { CanvasContext2D } from "./types";
 
 /**
- * render editor items
+ * render editor item
  * @param ctx
- * @param items editor items
+ * @param item editor item
  */
-export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorItem[]) => {
-  for (const item of items) {
-    switch (item.kind) {
-      case "image":
-        renderImage(ctx, item);
-        break;
-      case "text":
-        renderText(ctx, item);
-        break;
-      case "rect":
-        renderRect(ctx, item);
-        break;
-      case "arrow":
-        renderArrow(ctx, item);
-        break;
-      default:
-        item satisfies never;
-        throw new Error(`unknown item: ${JSON.stringify(item)}`);
-    }
+export const renderEditorItem = (ctx: CanvasContext2D, item: EditorItem) => {
+  switch (item.kind) {
+    case "image":
+      renderImage(ctx, item);
+      break;
+    case "text":
+      renderText(ctx, item);
+      break;
+    case "rect":
+      renderRect(ctx, item);
+      break;
+    case "arrow":
+      renderArrow(ctx, item);
+      break;
+    default:
+      item satisfies never;
+      throw new Error(`unknown item: ${JSON.stringify(item)}`);
   }
 };
 
