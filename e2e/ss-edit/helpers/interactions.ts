@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { expect, type JSHandle, type Locator, type Page, test } from "@playwright/test";
 import { expectMode } from "./assertions";
-import { editorPane, imageItems, textEditor } from "./locators";
+import { editorPane, imageItems, rectItems, textEditor } from "./locators";
 import { type Box, boundingBoxOf, fixture, type Point } from "./support";
 
 /**
@@ -53,6 +53,27 @@ export const enterAddText = async (page: Page): Promise<void> => {
   await page.getByRole("button", { name: "Edit" }).click();
   await page.getByRole("menuitem", { name: "Add text" }).click();
   await expectMode(page, "add-item");
+};
+
+/** gets into "add-item" mode through "Edit" -> "Add rectangle". */
+export const enterAddRect = async (page: Page): Promise<void> => {
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByRole("menuitem", { name: "Add rectangle" }).click();
+  await expectMode(page, "add-item");
+};
+
+/**
+ * adds a rect item by dragging `rect`, given in editor pane coordinates.
+ * @returns the item on the select mode overlay, which is where a finished rect leaves the editor.
+ */
+export const addRectByDrag = async (page: Page, rect: Box): Promise<Locator> => {
+  const count = await rectItems(page).count();
+  const { x, y, width, height } = await paneRectToViewport(page, rect);
+  await enterAddRect(page);
+  await dragFromTo(page, { x, y }, { x: x + width, y: y + height });
+  await expectMode(page, "select");
+  await expect(rectItems(page)).toHaveCount(count + 1);
+  return rectItems(page).last();
 };
 
 /** exports the picture through "File" -> "Save as PNG". */
