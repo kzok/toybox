@@ -15,6 +15,17 @@ const OUTLINE_RATIO = 1.6;
  */
 const SHADOW_BLUR_RATIO = 1.6;
 
+/** length a rect item's side is never laid out below */
+const MIN_SIDE_PX = 36;
+
+/**
+ * @param side desired width or height (px), below the minimum or not
+ * @returns the length a rect item's side can actually take
+ * @note bounded for the same reason an image is (see `resizeImage`): a rect small enough to
+ *   disappear under its own outline could never be grabbed again.
+ */
+export const clampRectSide = (side: number): number => Math.max(side, MIN_SIDE_PX);
+
 /**
  * @param item rect item
  * @returns shared style/layout size (px) for rect item rendering

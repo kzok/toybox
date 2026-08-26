@@ -42,8 +42,12 @@ export namespace PageState {
     /** add item mode */
     export type AddItem = Readonly<{
       kind: "add-item";
-      /** kind of the item to be added */
-      itemKind: EditorItem.Text["kind"];
+      /**
+       * kind of the item to be added
+       * @note an image is not among them: it arrives whole from a file rather than being
+       *   dragged out on the pane.
+       */
+      itemKind: EditorItem.Text["kind"] | EditorItem.Rect["kind"];
       /** dragged range in [start, end] in canvas coordinates, or null until the drag begins */
       range: readonly [Vec2, Vec2] | null;
     }>;
