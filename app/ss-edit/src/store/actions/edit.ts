@@ -1,6 +1,8 @@
 import {
   clampFontSize,
+  clampRectSide,
   clampTextWidth,
+  rectStyleSizeOf,
   textItemSizeOf,
   textStyleSizeOf,
 } from "../../features/editorItem";
@@ -114,6 +116,28 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
         const { padding } = textStyleSizeOf(item);
         const scaledCursorX = cursor[0] / draft.editorView.scale;
         item.width = clampTextWidth(scaledCursorX - padding * 2, item.fontSize);
+      });
+    },
+    /**
+     * resize a rect item, keeping its top-left offset fixed.
+     * @param itemId item.id to resize
+     * @param cursor [width, height] distance from the item's top-left offset to the pointer
+     * @note the two sides are taken independently, unlike an image's: a screenshot has proportions
+     *   worth keeping, a box drawn around part of one does not.
+     * @note the padding is subtracted because `cursor` is measured against the drawn box, which
+     *   `rectStyleSizeOf` pads on every side, while `width`/`height` name the box the line runs
+     *   along. it is a constant offset here, the padding following the line width this leaves
+     *   untouched.
+     */
+    resizeRect: (itemId: string, cursor: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "rect") return;
+
+        const { padding } = rectStyleSizeOf(item);
+        const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
+        item.width = clampRectSide(scaledCursor.x - padding * 2);
+        item.height = clampRectSide(scaledCursor.y - padding * 2);
       });
     },
   } as const;

@@ -50,6 +50,23 @@ export const createImageItem = (
 
 /**
  * @param id item.id
+ * @param offset top-left offset in canvas coordinates
+ * @returns a rect item of 100 x 50, outlined at a line width of 4
+ * @note a line width of 4 makes the drawn box 7px wider and taller than the 100 x 50 the line
+ *   runs along (see `rectStyleSizeOf`), which is what a resize is measured against.
+ */
+export const createRectItem = (id: string, offset: EditorItem.Rect["offset"]): EditorItem.Rect => ({
+  kind: "rect",
+  id,
+  offset,
+  width: 100,
+  height: 50,
+  color: "#fff",
+  lineWidth: 4,
+});
+
+/**
+ * @param id item.id
  * @param content text content
  * @returns a text item
  */

@@ -38,32 +38,38 @@ export const Editing: StoryObj<typeof meta> = {
 
 export const Rects: StoryObj<typeof meta> = {
   loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) => renderEditor(rectsState(loaded.image as ImageBitmap)),
+};
+
+/**
+ * the thick rect selected, the thin one left alone so that the two read side by side.
+ * @note the whole box is tinted, the middle of the rect included: that is the hit area as well,
+ *   so what the tint covers is exactly what a click on it would take.
+ */
+export const RectSelected: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
   render: (_args, { loaded }) =>
     renderEditor(
-      produce(exampleState(loaded.image as ImageBitmap), (draft) => {
-        // NOTE: a thin one laid fully on the screenshot and a thick one hanging off its bottom
-        // right corner, so that the outline and the shadow can be read against the screenshot and
-        // against the transparent plane alike.
-        draft.editorItems.push(
-          castDraft({
-            kind: "rect",
-            id: "story-rect-thin",
-            offset: [-140, 10],
-            width: 120,
-            height: 70,
-            color: "#EF3171",
-            lineWidth: 2,
-          } satisfies EditorItem.Rect),
-          castDraft({
-            kind: "rect",
-            id: "story-rect-thick",
-            offset: [20, 60],
-            width: 200,
-            height: 140,
-            color: "#EF3171",
-            lineWidth: 6,
-          } satisfies EditorItem.Rect),
-        );
+      produce(rectsState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = castDraft({
+          kind: "select",
+          selectedIds: ["story-rect-thick"],
+        } satisfies PageState.Mode.Select);
+      }),
+    ),
+};
+
+/**
+ * the thick rect being edited, which is the only way to resize one.
+ * @note deliberately unlike `RectSelected`: edit mode leaves the middle unpainted, so that
+ *   whatever the rect is drawn around stays visible while it is being resized.
+ */
+export const RectEditing: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(rectsState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = { kind: "edit", itemId: "story-rect-thick" };
       }),
     ),
 };
@@ -109,6 +115,37 @@ const exampleState = (image: ImageBitmap): PageState =>
         fontSize: 32,
         color: "#EF3171",
       } satisfies EditorItem.Text),
+    );
+  });
+
+/**
+ * @param image image item data
+ * @returns `exampleState` with two rect items laid over it
+ * @note a thin one laid fully on the screenshot and a thick one hanging off its bottom right
+ *   corner, so that the outline and the shadow can be read against the screenshot and against the
+ *   transparent plane alike.
+ */
+const rectsState = (image: ImageBitmap): PageState =>
+  produce(exampleState(image), (draft) => {
+    draft.editorItems.push(
+      castDraft({
+        kind: "rect",
+        id: "story-rect-thin",
+        offset: [-140, 10],
+        width: 120,
+        height: 70,
+        color: "#EF3171",
+        lineWidth: 2,
+      } satisfies EditorItem.Rect),
+      castDraft({
+        kind: "rect",
+        id: "story-rect-thick",
+        offset: [20, 60],
+        width: 200,
+        height: 140,
+        color: "#EF3171",
+        lineWidth: 6,
+      } satisfies EditorItem.Rect),
     );
   });
 
