@@ -18,6 +18,8 @@ export const SelectMode = React.memo(() => {
         return <TextItem key={item.id} item={item} />;
       case "rect":
         return <RectItem key={item.id} item={item} />;
+      case "arrow":
+        return null; // TODO: implement it.
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);

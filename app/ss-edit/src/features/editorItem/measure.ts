@@ -54,6 +54,11 @@ const measureItem = (item: EditorItem): Rect => {
       size = new Vec2(item.width, item.height).add([doublePadding, doublePadding]);
       break;
     }
+    // TODO: implement it.
+    // NOTE: collapsed onto the tail rather than onto the origin in the meantime: `measurePicture`
+    //   unions these, so an origin rect would stretch the exported picture back to (0, 0).
+    case "arrow":
+      return Rect.new(item.offset, item.offset);
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);

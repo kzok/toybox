@@ -1,7 +1,7 @@
 import type { Vec2 } from "../../utils/geometry";
 
 /** editor item */
-export type EditorItem = EditorItem.Image | EditorItem.Text | EditorItem.Rect;
+export type EditorItem = EditorItem.Image | EditorItem.Text | EditorItem.Rect | EditorItem.Arrow;
 
 export namespace EditorItem {
   /** image item */
@@ -48,6 +48,29 @@ export namespace EditorItem {
     color: string;
     /** line width */
     lineWidth: number;
+  }>;
+
+  /** arrow item */
+  export type Arrow = Readonly<{
+    kind: "arrow";
+    id: string;
+    /**
+     * the tail point of the arrow.
+     * @note not the top-left of the item's box, unlike every other kind's `offset`: the tail
+     *   lands on whichever corner `angle` points away from.
+     */
+    offset: Vec2.Tuple;
+    /** distance (px) from the tail to the tip */
+    length: number;
+    /**
+     * direction the arrow points, in radians, with 0 pointing right (+x).
+     * @note a positive angle turns clockwise *on screen*, canvas coordinates having y grow
+     *   downwards. that is what `Math.atan2(dy, dx)`, `Math.cos`/`Math.sin`, `ctx.rotate()` and
+     *   CSS `rotate()` all take, so no consumer has to convert.
+     */
+    angle: number;
+    /** arrow color */
+    color: string;
   }>;
 }
 

@@ -24,6 +24,9 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
       case "rect":
         renderRect(ctx, item);
         break;
+      case "arrow":
+        // TODO: implement it.
+        break;
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);

@@ -23,6 +23,8 @@ export const EditMode = React.memo(() => {
         return <TextItem key={item.id} item={item} />;
       case "rect":
         return <RectItem key={item.id} item={item} />;
+      case "arrow":
+        return null; // TODO: implement it.
       default:
         item satisfies null;
         return null;
