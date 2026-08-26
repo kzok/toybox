@@ -99,6 +99,30 @@ describe("Vec2", () => {
     });
   });
 
+  describe("angle()", () => {
+    it("measures the direction from the origin, with 0 pointing along +x.", () => {
+      expect(Vec2.new(10, 0).angle()).toBe(0);
+      // positive angles turn towards +y, hence clockwise on a canvas.
+      expect(Vec2.new(0, 10).angle()).toBeCloseTo(Math.PI / 2);
+      expect(Vec2.new(0, -10).angle()).toBeCloseTo(-Math.PI / 2);
+      expect(Vec2.new(-10, 0).angle()).toBeCloseTo(Math.PI);
+    });
+
+    it("ignores the length, only the direction counting.", () => {
+      expect(Vec2.new(1, 1).angle()).toBeCloseTo(Vec2.new(500, 500).angle());
+    });
+
+    it("answers 0 for the zero vector rather than NaN.", () => {
+      expect(Vec2.new(0, 0).angle()).toBe(0);
+    });
+
+    it("round-trips through polar().", () => {
+      for (const angle of [0, 1, 2, 3, -1, -2]) {
+        expect(Vec2.polar(10, angle).angle()).toBeCloseTo(angle);
+      }
+    });
+  });
+
   describe("dot()", () => {
     it("calculates the dot product with the given vector.", () => {
       expect(Vec2.new(2, 3).dot([4, 5])).toBe(23);

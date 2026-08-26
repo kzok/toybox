@@ -1,4 +1,5 @@
 import React from "react";
+import { clampArrowLength } from "../../../features/editorItem";
 import { type PageState, pageCtx } from "../../../store";
 import { Rect, Vec2 } from "../../../utils/geometry";
 import { CanvasLayer } from "../CanvasLayer";
@@ -16,31 +17,52 @@ export const AddItemMode = React.memo<{
     <div className={styles.container} {...usePointerActions()}>
       {editorMode.range && (
         <CanvasLayer>
-          <RangePreview range={editorMode.range} />
+          <RangePreview itemKind={editorMode.itemKind} range={editorMode.range} />
         </CanvasLayer>
       )}
     </div>
   );
 });
 
-/** the outline of the item about to be added. */
+/**
+ * the outline of the item about to be added.
+ * @note a box for the kinds a drag gives a box to, and a line for an arrow, which a box says
+ *   nothing about: the same box comes of dragging north east and south west, while which end the
+ *   drag started from is the whole of what an arrow is.
+ */
 const RangePreview = React.memo<{
+  itemKind: PageState.Mode.AddItem["itemKind"];
   range: Range;
-}>(({ range }) => {
+}>(({ itemKind, range }) => {
+  const isArrow = itemKind === "arrow";
   const style = React.useMemo((): React.CSSProperties => {
-    const { head, size } = new Rect(...range);
     // NOTE: an ancestor component applies the offset and the scale.
+    if (isArrow) {
+      const [tail, tip] = range;
+      return {
+        left: `${tail.x}px`,
+        top: `${tail.y}px`,
+        // NOTE: the length the item would actually be added at rather than the one dragged, so
+        //   that a drag too short to be committed as it is shows where it will end up instead of
+        //   jumping there on release.
+        width: `${clampArrowLength(tip.distance(tail))}px`,
+        // NOTE: laid out along +x from the tail and turned into place, the way `renderArrow`
+        //   does it. `angle()` is exactly what CSS `rotate()` takes.
+        transform: `rotate(${tip.sub(tail).angle()}rad)`,
+      };
+    }
+    const { head, size } = new Rect(...range);
     return {
       left: `${head.x}px`,
       top: `${head.y}px`,
       width: `${size.x}px`,
       height: `${size.y}px`,
     };
-  }, [range]);
+  }, [isArrow, range]);
 
   // NOTE: `data-range-preview` is the only stable handle on this element from outside
   // (e.g. e2e tests), since the class name comes from a CSS module.
-  return <div className={styles.range} style={style} data-range-preview />;
+  return <div className={isArrow ? styles.line : styles.range} style={style} data-range-preview />;
 });
 
 const usePointerActions = () => {

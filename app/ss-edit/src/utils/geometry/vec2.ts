@@ -88,6 +88,15 @@ export class Vec2 {
     return Math.sqrt(diff.x ** 2 + diff.y ** 2);
   }
   /**
+   * @returns the direction from the origin to this vector, in radians, with 0 pointing along +x
+   * @note the inverse of `Vec2.polar`, hence the same convention: a positive angle turns towards
+   *   +y. the zero vector has no direction of its own and answers 0 rather than NaN, `Math.atan2`
+   *   being defined that way for two zeroes.
+   */
+  angle(): number {
+    return Math.atan2(this.y, this.x);
+  }
+  /**
    * @param arg another operand
    * @returns dot product
    */

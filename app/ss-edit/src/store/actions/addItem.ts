@@ -1,5 +1,6 @@
 import { castDraft } from "immer";
 import {
+  clampArrowLength,
   clampFontSize,
   clampRectSide,
   clampTextWidth,
@@ -59,7 +60,8 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
     /**
      * add the item of "add-item" mode at the dragged range, and leave the mode with it as the
      * user's next concern: a text item is edited, since it arrives blank and has to be typed
-     * into, while a rect item is merely selected, being finished the moment it is dragged out.
+     * into, while a rect or an arrow item is merely selected, being finished the moment it is
+     * dragged out.
      */
     commit: (): void => {
       updateAtom(atoms.state, (draft) => {
@@ -96,6 +98,27 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
               height: clampRectSide(size.y),
               color: NEW_ITEM_COLOR,
               lineWidth: NEW_RECT_LINE_WIDTH,
+            };
+            draft.editorItems.push(castDraft(newItem));
+            draft.editorMode = { kind: "select", selectedIds: [newItem.id] };
+            break;
+          }
+          case "arrow": {
+            // NOTE: the drag is read end to end rather than through the normalised `head`/`size`
+            // above: those come from a `Rect`, which takes the min and the max of the two points
+            // and hence throws away which end the user started from. that direction is the whole
+            // of what an arrow is.
+            const [tail, tip] = range;
+            const newItem: EditorItem.Arrow = {
+              kind: "arrow",
+              id: crypto.randomUUID(),
+              offset: tail.tuple(),
+              length: clampArrowLength(tip.distance(tail)),
+              // NOTE: a click that never became a drag leaves the two points equal, which
+              // `Math.atan2` answers 0 for — a minimum length arrow pointing right, without a
+              // case of its own, the way a click leaves a rect at its minimum square.
+              angle: tip.sub(tail).angle(),
+              color: NEW_ITEM_COLOR,
             };
             draft.editorItems.push(castDraft(newItem));
             draft.editorMode = { kind: "select", selectedIds: [newItem.id] };

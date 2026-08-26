@@ -47,7 +47,7 @@ export namespace PageState {
        * @note an image is not among them: it arrives whole from a file rather than being
        *   dragged out on the pane.
        */
-      itemKind: EditorItem.Text["kind"] | EditorItem.Rect["kind"];
+      itemKind: EditorItem.Text["kind"] | EditorItem.Rect["kind"] | EditorItem.Arrow["kind"];
       /** dragged range in [start, end] in canvas coordinates, or null until the drag begins */
       range: readonly [Vec2, Vec2] | null;
     }>;

@@ -1,6 +1,6 @@
 import { castDraft, produce } from "immer";
 import { describe, expect, it } from "vitest";
-import type { EditorItem } from "../../../features/editorItem";
+import { clampArrowLength, type EditorItem } from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
 import type { PageState } from "../../types";
@@ -230,6 +230,49 @@ describe(createAddItemActions, () => {
       const item = store.get(atoms.editorItems)[0];
       expect(item?.kind === "rect" && [item.width, item.height]).toStrictEqual([36, 36]);
       // the head of the drag is kept, so the item grows away from where it started.
+      expect(item?.offset).toStrictEqual([20, 40]);
+    });
+
+    it("adds an arrow item running from the head of the drag to its end, and selects it.", () => {
+      // dragged right and down, three-four-five, hence a length of 500.
+      const { store, actions, atoms } = setUpAs("arrow", new Vec2(20, 40), new Vec2(320, 440));
+      actions.addItem.commit();
+
+      const items = store.get(atoms.editorItems);
+      expect(items).toHaveLength(1);
+      const item = items[0];
+      expect(item?.kind).toBe("arrow");
+      // the offset is the tail, which is where the drag started rather than a corner of its box.
+      expect(item?.offset).toStrictEqual([20, 40]);
+      expect(item?.kind === "arrow" && item.length).toBeCloseTo(500);
+      expect(item?.kind === "arrow" && item.angle).toBeCloseTo(Math.atan2(400, 300));
+      // an arrow is finished the moment it is dragged out, hence selected rather than edited.
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: [item?.id],
+      });
+    });
+
+    it("keeps an arrow item's tail where the drag began when it is dragged backwards.", () => {
+      // NOTE: the case a normalised head/size loses. the drag runs up and to the left, so the
+      //   tail is the bottom right of the box the two points span rather than its top left.
+      const { store, actions, atoms } = setUpAs("arrow", new Vec2(320, 440), new Vec2(20, 40));
+      actions.addItem.commit();
+
+      const item = store.get(atoms.editorItems)[0];
+      expect(item?.offset).toStrictEqual([320, 440]);
+      expect(item?.kind === "arrow" && item.angle).toBeCloseTo(Math.atan2(-400, -300));
+    });
+
+    it("grows an arrow dragged too small, leaving it pointing right.", () => {
+      // a click leaves a range of a single point behind.
+      const { store, actions, atoms } = setUpAs("arrow", new Vec2(20, 40), new Vec2(20, 40));
+      actions.addItem.commit();
+
+      const item = store.get(atoms.editorItems)[0];
+      expect(item?.kind === "arrow" && item.length).toBe(clampArrowLength(0));
+      // `Math.atan2(0, 0)` is +0, so a click needs no case of its own to point somewhere.
+      expect(item?.kind === "arrow" && item.angle).toBe(0);
       expect(item?.offset).toStrictEqual([20, 40]);
     });
 
