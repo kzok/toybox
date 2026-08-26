@@ -79,6 +79,26 @@ export const Arrows: StoryObj<typeof meta> = {
   render: (_args, { loaded }) => renderEditor(arrowsState(loaded.image as ImageBitmap)),
 };
 
+/**
+ * one diagonal arrow of the fan selected, the rest left alone so that the two read side by side.
+ * @note the tint is the hit area, and is a band along the arrow rather than the box it spans:
+ *   deliberately unlike `RectSelected`, where the whole box takes the pointer. the box of a
+ *   diagonal arrow is mostly empty, and taking all of it would put whatever sits in those corners
+ *   out of reach — here the arrows either side of it stay clickable.
+ */
+export const ArrowSelected: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(arrowsState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = castDraft({
+          kind: "select",
+          selectedIds: ["story-arrow-1"],
+        } satisfies PageState.Mode.Select);
+      }),
+    ),
+};
+
 export const AddingItem: StoryObj<typeof meta> = {
   loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
   render: (_args, { loaded }) =>

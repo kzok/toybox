@@ -67,6 +67,28 @@ export const createRectItem = (id: string, offset: EditorItem.Rect["offset"]): E
 
 /**
  * @param id item.id
+ * @param offset the tail of the arrow in canvas coordinates
+ * @param angle direction the arrow points, in radians, defaulting to right
+ * @returns an arrow item 200 long
+ * @note `offset` is the tail rather than a corner of the item's box, unlike every other kind's
+ *   (see `EditorItem.Arrow`), so an arrow whose angle points up or left has its box reach back
+ *   past the offset it is given here.
+ */
+export const createArrowItem = (
+  id: string,
+  offset: EditorItem.Arrow["offset"],
+  angle: number = 0,
+): EditorItem.Arrow => ({
+  kind: "arrow",
+  id,
+  offset,
+  length: 200,
+  angle,
+  color: "#fff",
+});
+
+/**
+ * @param id item.id
  * @param content text content
  * @returns a text item
  */
