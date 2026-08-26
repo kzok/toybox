@@ -27,6 +27,13 @@ export const imageItems = (page: Page): Locator => page.locator("[data-item-kind
 /** text items on the editor overlay, in the order they were added. see `items` on edit mode. */
 export const textItems = (page: Page): Locator => page.locator("[data-item-kind='text']");
 
+/**
+ * rect items on the editor overlay, in the order they were added. see `items` on edit mode.
+ * @note the element spans the box the outline is drawn in, which is wider than the item's own
+ *   `width` / `height` by the half of the outline lying outside them on every edge.
+ */
+export const rectItems = (page: Page): Locator => page.locator("[data-item-kind='rect']");
+
 /** the transparent `<textarea/>` of edit mode. there is at most one of it. */
 export const textEditor = (page: Page): Locator => page.locator("textarea");
 

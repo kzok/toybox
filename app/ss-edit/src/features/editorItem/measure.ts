@@ -1,4 +1,5 @@
 import { Rect, Vec2 } from "../../utils/geometry";
+import { rectStyleSizeOf } from "./rectStyle";
 import { splitLines } from "./textLayout";
 import { textStyleSizeOf } from "./textStyle";
 import type { EditorItem, TextItemLayout } from "./types";
@@ -45,6 +46,14 @@ const measureItem = (item: EditorItem): Rect => {
     case "text":
       size = textItemSizeOf(item);
       break;
+    case "rect": {
+      // NOTE: the renderer pads the rect on every side to take up the half of the outline that
+      //   lies outside its edge (see rectStyleSizeOf()), so this size includes that padding too.
+      //   the shadow is left out of it, as a text item's shadow is.
+      const doublePadding = rectStyleSizeOf(item).padding * 2;
+      size = new Vec2(item.width, item.height).add([doublePadding, doublePadding]);
+      break;
+    }
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);

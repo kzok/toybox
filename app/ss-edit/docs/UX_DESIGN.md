@@ -41,6 +41,23 @@ them. The outline is what makes one colour work everywhere.
 A text item is dropped when its content is left blank, on whichever way the edit ends. An item
 nobody can see is not something to leave behind for the user to hunt down later.
 
+## Adding a rectangle
+
+"Edit" → "Add rectangle" arms the editor as "Add text" does, and the box is then dragged out. The
+drag leaves the rectangle selected rather than being edited: a rectangle is finished the moment it
+is drawn, there being nothing to type into it.
+
+It is drawn as an outline and never filled. An annotation of this kind points at part of a
+screenshot, and a filled box would cover the very thing it points at. Blacking something out is a
+different job, and not one this does.
+
+The outline is drawn in the same bold pink (`#EF3171`), with the same white outline and black
+shadow, that text is, and for the same reason: one colour has to hold up against a light UI, a dark
+terminal and a photo alike.
+
+A range dragged too small is widened to the same minimum a resize is held to, so a click leaves a
+small square behind rather than a rectangle nobody could grab.
+
 ## Selecting, moving, editing
 
 - A click selects an item, ctrl+click adds to or removes from the selection.
@@ -50,8 +67,15 @@ nobody can see is not something to leave behind for the user to hunt down later.
   Dragging an unselected item selects it first, so a drag never silently moves something else.
 - Clicking the empty pane, or `Escape`, drops the selection and ends any edit.
 
+A rectangle is clicked anywhere within it rather than on its outline alone. Asking the user to aim
+at a line a few pixels wide is not worth the precision it buys, and the cost is accepted rather
+than worked around: whatever a rectangle is drawn around cannot be clicked through it, and has to
+be reached from a part of itself the rectangle leaves uncovered.
+
 Edit mode shows a real caret and text selection over the text painted on the canvas, and takes
-IME composition, so composing Japanese previews on the picture before it is confirmed.
+IME composition, so composing Japanese previews on the picture before it is confirmed. On a
+rectangle it carries nothing but the resize handle: there is no content to edit, and resizing is
+what the extra click buys.
 
 ## Resizing
 
@@ -64,10 +88,13 @@ Only the item being edited carries handles, and each handle resizes one thing:
   broken up.
 - **Right edge, on text** — changes the wrapping width alone, at the same font size. Here
   re-wrapping is the point rather than what is avoided.
+- **Bottom right, on a rectangle** — changes its width and height independently. A box drawn
+  around part of a screenshot has no proportions of its own worth keeping, unlike the screenshot
+  it is drawn on.
 
 Sizes are bounded so that an item can always be grabbed again: a font size stays within 12–72px,
-a text box stays wide enough for ten full-width graphemes, and an image never resizes below 36px
-on its shorter side.
+a text box stays wide enough for ten full-width graphemes, an image never resizes below 36px on
+its shorter side, and neither side of a rectangle goes below 36px either.
 
 ## Moving around
 

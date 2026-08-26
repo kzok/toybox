@@ -1,5 +1,6 @@
 .imageItem,
-.textItem {
+.textItem,
+.rectItem {
   /**
    * a solid outline, as opposed to the dashed one of "select" mode.
    * @note `calc()` cancels out `transform: scale()`, to keep the outline width constant.
@@ -9,6 +10,15 @@
 
 .imageItem {
   background: rgba(15, 108, 189, 0.2);
+}
+
+/**
+ * @note left unfilled, unlike an image: the tint would cover whatever the rect is drawn around,
+ *   which is exactly what the user is looking at while resizing it.
+ */
+.rectItem {
+  display: inline-block;
+  position: absolute;
 }
 
 .textItem {

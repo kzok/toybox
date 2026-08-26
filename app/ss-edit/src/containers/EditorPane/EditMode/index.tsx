@@ -1,6 +1,11 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
-import { type EditorItem, splitLines, textStyleOf } from "../../../features/editorItem";
+import {
+  type EditorItem,
+  rectStyleSizeOf,
+  splitLines,
+  textStyleOf,
+} from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
 import type { Vec2 } from "../../../utils/geometry";
 import { CanvasLayer } from "../CanvasLayer";
@@ -16,8 +21,11 @@ export const EditMode = React.memo(() => {
         return <ImageItem key={item.id} item={item} />;
       case "text":
         return <TextItem key={item.id} item={item} />;
+      case "rect":
+        return <RectItem key={item.id} item={item} />;
       default:
-        return null; // should never happen
+        item satisfies null;
+        return null;
     }
   }, [item]);
 
@@ -46,6 +54,47 @@ const ImageItem = React.memo<{
   return (
     <ResizeContainer
       className={styles.imageItem}
+      data-item-kind={item.kind}
+      style={style}
+      onPointerDown={stopPropagation}
+      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerUp={stopPropagation}
+      // NOTE: keeps the click from reaching the pane, which would clear the selection.
+      onClick={stopPropagation}
+    >
+      <ResizeHandle direction="bottom-right" onResize={onResize} />
+    </ResizeContainer>
+  );
+});
+
+/**
+ * the resize target of a rect item.
+ * @note edit mode is the only way to resize a rect, there being nothing else to edit about one.
+ * @note the box is the one the renderer paints, which `rectStyleSizeOf` pads on every side. the
+ *   handle measures the pointer against this box, hence `resizeRect` takes that padding back off.
+ */
+const RectItem = React.memo<{
+  item: EditorItem.Rect;
+}>(({ item }) => {
+  const actions = pageCtx.useActions();
+  const style = React.useMemo((): React.CSSProperties => {
+    const { padding } = rectStyleSizeOf(item);
+    return {
+      // NOTE: an ancestor component applies the offset and the scale.
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.width + padding * 2}px`,
+      height: `${item.height + padding * 2}px`,
+    };
+  }, [item]);
+  const onResize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeRect(item.id, cursor),
+    [actions, item.id],
+  );
+
+  return (
+    <ResizeContainer
+      className={styles.rectItem}
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}

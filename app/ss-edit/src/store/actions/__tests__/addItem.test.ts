@@ -133,9 +133,9 @@ describe(createAddItemActions, () => {
   });
 
   describe("commit()", () => {
-    const setUp = (...range: readonly Vec2[]) => {
+    const setUpAs = (itemKind: PageState.Mode.AddItem["itemKind"], ...range: readonly Vec2[]) => {
       const target = createTestTarget();
-      target.actions.addItem.enter("text");
+      target.actions.addItem.enter(itemKind);
       for (const cursor of range) {
         target.actions.addItem.updateRange(cursor);
       }
@@ -150,7 +150,7 @@ describe(createAddItemActions, () => {
       item?.kind === "text" ? { width: item.width, fontSize: item.fontSize } : null;
 
     it("adds a blank text item sized by the dragged range and edits it.", () => {
-      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(420, 88));
+      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(420, 88));
       actions.addItem.commit();
 
       const items = store.get(atoms.editorItems);
@@ -169,14 +169,14 @@ describe(createAddItemActions, () => {
     });
 
     it("sorts the corners of a range dragged up and left.", () => {
-      const { store, actions, atoms } = setUp(new Vec2(420, 88), new Vec2(20, 40));
+      const { store, actions, atoms } = setUpAs("text", new Vec2(420, 88), new Vec2(20, 40));
       actions.addItem.commit();
 
       expect(store.get(atoms.editorItems)[0]?.offset).toStrictEqual([20, 40]);
     });
 
     it("widens a range too narrow for ten characters of its font size.", () => {
-      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(120, 88));
+      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(120, 88));
       actions.addItem.commit();
 
       expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({
@@ -187,21 +187,54 @@ describe(createAddItemActions, () => {
 
     it("clamps the font size of a range smaller than a font can be.", () => {
       // a click leaves a range of a single point behind.
-      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(20, 40));
+      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(20, 40));
       actions.addItem.commit();
 
       expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 120, fontSize: 12 });
     });
 
     it("clamps the font size of a range larger than a font can be.", () => {
-      const { store, actions, atoms } = setUp(new Vec2(20, 40), new Vec2(120, 640));
+      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(120, 640));
       actions.addItem.commit();
 
       expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 720, fontSize: 72 });
     });
 
+    it("adds a rect item sized by the dragged range and selects it.", () => {
+      const { store, actions, atoms } = setUpAs("rect", new Vec2(20, 40), new Vec2(420, 140));
+      actions.addItem.commit();
+
+      const items = store.get(atoms.editorItems);
+      expect(items).toHaveLength(1);
+      expect(items[0]).toStrictEqual({
+        kind: "rect",
+        id: expect.any(String),
+        offset: [20, 40],
+        width: 400,
+        height: 100,
+        color: expect.any(String),
+        lineWidth: expect.any(Number),
+      });
+      // a rect is finished the moment it is dragged out, hence selected rather than edited.
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: [items[0]?.id],
+      });
+    });
+
+    it("grows a rect item dragged too small to be grabbed again.", () => {
+      // a click leaves a range of a single point behind.
+      const { store, actions, atoms } = setUpAs("rect", new Vec2(20, 40), new Vec2(20, 40));
+      actions.addItem.commit();
+
+      const item = store.get(atoms.editorItems)[0];
+      expect(item?.kind === "rect" && [item.width, item.height]).toStrictEqual([36, 36]);
+      // the head of the drag is kept, so the item grows away from where it started.
+      expect(item?.offset).toStrictEqual([20, 40]);
+    });
+
     it("keeps the state as it is when the drag never began.", () => {
-      const { store, actions, atoms } = setUp();
+      const { store, actions, atoms } = setUpAs("text");
       actions.addItem.commit();
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
       expect(store.get(atoms.editorMode)).toStrictEqual({

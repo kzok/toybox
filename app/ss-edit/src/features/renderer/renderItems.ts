@@ -1,4 +1,10 @@
-import { type EditorItem, measuredFontFamily, splitLines, textStyleSizeOf } from "../editorItem";
+import {
+  type EditorItem,
+  measuredFontFamily,
+  rectStyleSizeOf,
+  splitLines,
+  textStyleSizeOf,
+} from "../editorItem";
 import type { CanvasContext2D } from "./types";
 
 /**
@@ -15,6 +21,9 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
       case "text":
         renderText(ctx, item);
         break;
+      case "rect":
+        renderRect(ctx, item);
+        break;
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);
@@ -30,19 +39,19 @@ const renderImage = (ctx: CanvasContext2D, item: EditorItem.Image): void => {
  * @param fontSize font size (px)
  * @returns blur radius of the shadow cast by the text (px)
  */
-const shadowBlurOf = (fontSize: number): number => Math.ceil(fontSize / 3);
+const textShadowBlurOf = (fontSize: number): number => Math.ceil(fontSize / 3);
 
 /**
  * @param fontSize font size (px)
  * @returns distance the shadow is offset towards the bottom right (px)
  */
-const shadowOffsetOf = (fontSize: number): number => Math.ceil(fontSize / 12);
+const textShadowOffsetOf = (fontSize: number): number => Math.ceil(fontSize / 12);
 
 const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   const { padding, lineHeight, letterSpacing } = textStyleSizeOf(item);
   const strokeWidth = Math.ceil(item.fontSize / 6);
-  const shadowBlur = shadowBlurOf(item.fontSize);
-  const shadowOffset = shadowOffsetOf(item.fontSize);
+  const shadowBlur = textShadowBlurOf(item.fontSize);
+  const shadowOffset = textShadowOffsetOf(item.fontSize);
 
   ctx.save();
   ctx.translate(...item.offset);
@@ -86,6 +95,43 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
     // inner text
     ctx.fillText(line, 0, y);
   }
+
+  ctx.restore();
+};
+
+const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
+  const { strokeWidth, padding, shadowBlur, shadowOffset } = rectStyleSizeOf(item);
+
+  // NOTE: one path stroked three times, so that the three widths cannot drift apart.
+  const path = new Path2D();
+  path.roundRect(0, 0, item.width, item.height, item.lineWidth);
+
+  ctx.save();
+  ctx.translate(...item.offset);
+  ctx.translate(padding, padding);
+  ctx.lineJoin = "round";
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetX = shadowOffset;
+  ctx.shadowOffsetY = shadowOffset;
+
+  // NOTE: cast once, off the black outline, and switched off again right after: a shadow is
+  // cast by every draw call, hence leaving it on would have the white outline and the coloured
+  // line each lay their own copy over this one. the black is drawn at the same width as the white
+  // hiding it, so that the shadow's silhouette is the one that is actually visible.
+  ctx.lineWidth = strokeWidth;
+  ctx.shadowColor = "#000";
+  ctx.strokeStyle = "#000";
+  ctx.stroke(path);
+  ctx.shadowColor = "transparent";
+
+  // outline
+  ctx.strokeStyle = "#fff";
+  ctx.stroke(path);
+
+  // inner line
+  ctx.lineWidth = item.lineWidth;
+  ctx.strokeStyle = item.color;
+  ctx.stroke(path);
 
   ctx.restore();
 };

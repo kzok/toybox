@@ -6,6 +6,7 @@ import { INITIAL_EDITOR_STATE } from "../../atoms";
 import { createEditActions } from "../edit";
 import {
   createImageItem,
+  createRectItem,
   createTestTarget,
   createTestTargetWithItems,
   createTextItem,
@@ -364,6 +365,88 @@ describe(createEditActions, () => {
       const before = store.get(atoms.editorItems);
 
       expect(() => actions.edit.resizeTextWidth("missing-id", [408, 0])).not.toThrow();
+
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
+  describe("resizeRect()", () => {
+    // width: 100, height: 50, drawn 7px larger on both axes by its line width of 4.
+    const setUp = () => {
+      const item = createRectItem("item-1", [0, 0]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    /**
+     * @param store the test target's store
+     * @param atoms the test target's atoms
+     * @returns the rect item under test, after whatever was done to it
+     */
+    const resizedOf = (
+      store: ReturnType<typeof setUp>["store"],
+      atoms: ReturnType<typeof setUp>["atoms"],
+    ) => store.get(atoms.editorItems).find((i) => i.id === "item-1") as EditorItem.Rect;
+
+    it("takes the two sides independently, keeping the offset.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // the drawn box is padded by 7, so a 207 x 107 target leaves a 200 x 100 line box.
+      actions.edit.resizeRect(item.id, [207, 107]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(200);
+      expect(resized.height).toBeCloseTo(100);
+      expect(resized.offset).toStrictEqual([0, 0]);
+    });
+
+    it("changes one side without disturbing the other.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // the height component matches the item's current drawn height (50 + 7).
+      actions.edit.resizeRect(item.id, [207, 57]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(200);
+      expect(resized.height).toBeCloseTo(50);
+    });
+
+    it("does not shrink either side below the minimum length.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      actions.edit.resizeRect(item.id, [-1000, -1000]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(36);
+      expect(resized.height).toBeCloseTo(36);
+    });
+
+    it("scales the pointer position by the inverse of the view scale.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.view.zoom(2, new Vec2(0, 0));
+
+      // at 2x zoom, a 414,214 screen-px target is 207,107 canvas units — as in the first test.
+      actions.edit.resizeRect(item.id, [414, 214]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(200);
+      expect(resized.height).toBeCloseTo(100);
+    });
+
+    it("does nothing when the item is not a rect item.", () => {
+      const textItem = createTextItem("text-1", "hello");
+      const { store, actions, atoms } = createTestTargetWithItems(textItem);
+
+      actions.edit.resizeRect(textItem.id, [207, 107]);
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([textItem]);
+    });
+
+    it("does nothing when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+
+      expect(() => actions.edit.resizeRect("missing-id", [207, 107])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });

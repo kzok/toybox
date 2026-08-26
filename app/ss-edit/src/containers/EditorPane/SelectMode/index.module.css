@@ -1,5 +1,6 @@
 .imageItem,
-.textItem {
+.textItem,
+.rectItem {
   display: inline-block;
   position: absolute;
   cursor: move;

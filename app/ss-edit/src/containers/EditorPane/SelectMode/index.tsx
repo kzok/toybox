@@ -1,6 +1,6 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
-import { type EditorItem, textStyleOf } from "../../../features/editorItem";
+import { type EditorItem, rectStyleSizeOf, textStyleOf } from "../../../features/editorItem";
 import { usePointerEvents } from "../../../hooks";
 import { pageCtx } from "../../../store";
 import { CanvasLayer } from "../CanvasLayer";
@@ -16,6 +16,8 @@ export const SelectMode = React.memo(() => {
         return <ImageItem key={item.id} item={item} />;
       case "text":
         return <TextItem key={item.id} item={item} />;
+      case "rect":
+        return <RectItem key={item.id} item={item} />;
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);
@@ -80,6 +82,39 @@ const TextItem = React.memo<{
     >
       {item.content}
     </span>
+  );
+});
+
+/**
+ * the hit-target of a rect item in select mode.
+ * @note the whole box takes the pointer, the middle of the rect included, as an image item's does.
+ *   that costs the items a rect is drawn around: they cannot be clicked through it.
+ * @note the box is the one the renderer paints, which `rectStyleSizeOf` pads on every side to take
+ *   up the half of the outline lying outside the line's own box.
+ */
+const RectItem = React.memo<{
+  item: EditorItem.Rect;
+}>(({ item }) => {
+  const style = React.useMemo((): React.CSSProperties => {
+    const { padding } = rectStyleSizeOf(item);
+    return {
+      // NOTE: an ancestor component applies the offset and the scale.
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.width + padding * 2}px`,
+      height: `${item.height + padding * 2}px`,
+    };
+  }, [item]);
+  const selected = useItemSelected(item.id);
+
+  return (
+    <span
+      className={styles.rectItem}
+      data-item-kind={item.kind}
+      data-selected={selected}
+      style={style}
+      {...usePointerActions(item, selected)}
+    />
   );
 });
 

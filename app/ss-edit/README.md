@@ -11,8 +11,9 @@ An image editor specialized for editing screenshots.
 - `src/components/`
   - Presentational React components.
 - `src/features/editorItem/`
-  - The item data model (`EditorItem` union of `Image`/`Text`), the shared text style
-    values, and text layout/measurement. No canvas code lives here.
+  - The item data model (`EditorItem` union of `Image`/`Text`/`Rect`), the shared style
+    values each kind is drawn at, text layout, and item measurement. No canvas code lives
+    here.
 - `src/features/renderer/`
   - Canvas drawing and image export. Consumes `editorItem`'s data and style values to
     paint pixels; this is where visuals are actually produced.
