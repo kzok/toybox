@@ -10,6 +10,29 @@ describe("Vec2", () => {
     });
   });
 
+  describe("polar()", () => {
+    it("creates the vector the length and the angle describe.", () => {
+      expect(Vec2.polar(10, 0).tuple()).toStrictEqual([10, 0]);
+      const quarterTurn = Vec2.polar(10, Math.PI / 2);
+      expect(quarterTurn.x).toBeCloseTo(0);
+      // positive angles turn towards +y, hence clockwise on a canvas.
+      expect(quarterTurn.y).toBeCloseTo(10);
+      const halfTurn = Vec2.polar(10, Math.PI);
+      expect(halfTurn.x).toBeCloseTo(-10);
+      expect(halfTurn.y).toBeCloseTo(0);
+    });
+
+    it("keeps the length it is given whichever way it points.", () => {
+      for (const angle of [0, 1, 2, 3, -1, -2]) {
+        expect(Vec2.polar(10, angle).distance([0, 0])).toBeCloseTo(10);
+      }
+    });
+
+    it("collapses onto the origin at zero length.", () => {
+      expect(Vec2.polar(0, 1.234).distance([0, 0])).toBeCloseTo(0);
+    });
+  });
+
   describe("tuple()", () => {
     it("dump the point as a tuple.", () => {
       expect(Vec2.new(10, 0).tuple()).toStrictEqual([10, 0]);

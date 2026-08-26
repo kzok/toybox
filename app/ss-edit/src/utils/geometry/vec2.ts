@@ -18,6 +18,16 @@ export class Vec2 {
     return new Vec2(...toTuple(args[0]));
   }
   /**
+   * @param length distance from the origin
+   * @param angle direction in radians, with 0 pointing along +x
+   * @returns the vector that length and angle describe
+   * @note a positive angle turns towards +y, which is clockwise wherever y grows downwards, as it
+   *   does in canvas and screen coordinates.
+   */
+  static polar(length: number, angle: number): Vec2 {
+    return new Vec2(Math.cos(angle) * length, Math.sin(angle) * length);
+  }
+  /**
    * @param x x component
    * @param y y component
    */

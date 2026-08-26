@@ -1,4 +1,5 @@
 import {
+  ARROW_STYLE_SIZE,
   type EditorItem,
   measuredFontFamily,
   rectStyleSizeOf,
@@ -25,7 +26,7 @@ export const renderEditorItems = (ctx: CanvasContext2D, items: readonly EditorIt
         renderRect(ctx, item);
         break;
       case "arrow":
-        // TODO: implement it.
+        renderArrow(ctx, item);
         break;
       default:
         item satisfies never;
@@ -135,6 +136,96 @@ const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
   ctx.lineWidth = item.lineWidth;
   ctx.strokeStyle = item.color;
   ctx.stroke(path);
+
+  ctx.restore();
+};
+
+/**
+ * @note laid out along +x from the origin and rotated into place, so that the geometry stays one
+ *   dimensional. `angle` is exactly what `ctx.rotate()` takes (see `EditorItem.Arrow`).
+ */
+const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
+  const {
+    outlineWidth,
+    headLength,
+    headWidth,
+    headNotch,
+    shaftTailWidth,
+    shaftHeadWidth,
+    shadowBlur,
+    shadowOffset,
+  } = ARROW_STYLE_SIZE;
+  /** where the back two corners of the head sit on the axis */
+  const backX = item.length - headLength;
+  /**
+   * the control point of the curve that dents the head's back edge.
+   * @note twice the notch out, a quadratic curve only reaching half way to its control point —
+   *   B(0.5) is the average of the midpoint of the two ends and the control point — so the dent
+   *   bottoms out `headNotch` deep, at `backX + headNotch`.
+   */
+  const notchControlX = backX + headNotch * 2;
+
+  // NOTE: a filled wedge rather than a stroked line, so that it can taper.
+  // NOTE: it runs to the control point, past where the dent bottoms out: stopping short of the
+  //   dent would leave a gap between the two shapes, and landing exactly on it would have them
+  //   abut and show an antialiased seam.
+  // NOTE: the tail is closed with a semicircle centred on the item's `offset` rather than with
+  //   the flat edge `closePath()` would leave, which puts the back of the shaft half its own
+  //   width behind `offset`. `padding` covers that, being wider than half the head.
+  const shaft = new Path2D();
+  shaft.moveTo(0, -shaftTailWidth / 2);
+  shaft.lineTo(notchControlX, -shaftHeadWidth / 2);
+  shaft.lineTo(notchControlX, shaftHeadWidth / 2);
+  shaft.lineTo(0, shaftTailWidth / 2);
+  shaft.arc(0, 0, shaftTailWidth / 2, Math.PI / 2, -Math.PI / 2);
+  shaft.closePath();
+
+  // NOTE: a triangle whose back edge is bowed in towards the tip.
+  const head = new Path2D();
+  head.moveTo(item.length, 0);
+  head.lineTo(backX, -headWidth / 2);
+  head.quadraticCurveTo(notchControlX, 0, backX, headWidth / 2);
+  head.closePath();
+
+  ctx.save();
+  ctx.translate(...item.offset);
+  ctx.rotate(item.angle);
+  // NOTE: sharpens the corners of both shapes. the default `miterLimit` of 10 drops a join back
+  // to a bevel below a tip angle of about 11 degrees, which is where a head narrowed further
+  // would silently stop being pointed.
+  ctx.lineJoin = "miter";
+  ctx.lineWidth = outlineWidth;
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetX = shadowOffset;
+  ctx.shadowOffsetY = shadowOffset;
+
+  // NOTE: both shapes are drawn the same way and at one stroke width — the fill is the shape
+  // itself, and the stroke only lays the outline around it, half of `outlineWidth` landing
+  // outside the path. nothing here widens a shape beyond the path it is built from.
+  // NOTE: the shadow is cast once, off the black strokes, and switched off before the fills, as a
+  // rect item's is: a shadow is cast by every draw call, hence leaving it on would have each fill
+  // lay its own copy over this one.
+  ctx.shadowColor = "#000";
+  ctx.strokeStyle = "#000";
+  ctx.stroke(shaft);
+  ctx.stroke(head);
+  ctx.shadowColor = "transparent";
+  ctx.fillStyle = "#000";
+  ctx.fill(shaft);
+  ctx.fill(head);
+
+  // outline
+  ctx.strokeStyle = "#fff";
+  ctx.fillStyle = "#fff";
+  ctx.stroke(shaft);
+  ctx.stroke(head);
+  ctx.fill(shaft);
+  ctx.fill(head);
+
+  // inner
+  ctx.fillStyle = item.color;
+  ctx.fill(shaft);
+  ctx.fill(head);
 
   ctx.restore();
 };

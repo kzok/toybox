@@ -1,3 +1,4 @@
+export * from "./arrowStyle";
 export * from "./measure";
 export * from "./rectStyle";
 export * from "./textLayout";

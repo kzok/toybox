@@ -1,4 +1,5 @@
 import { Rect, Vec2 } from "../../utils/geometry";
+import { ARROW_STYLE_SIZE } from "./arrowStyle";
 import { rectStyleSizeOf } from "./rectStyle";
 import { splitLines } from "./textLayout";
 import { textStyleSizeOf } from "./textStyle";
@@ -54,11 +55,21 @@ const measureItem = (item: EditorItem): Rect => {
       size = new Vec2(item.width, item.height).add([doublePadding, doublePadding]);
       break;
     }
-    // TODO: implement it.
-    // NOTE: collapsed onto the tail rather than onto the origin in the meantime: `measurePicture`
-    //   unions these, so an origin rect would stretch the exported picture back to (0, 0).
-    case "arrow":
-      return Rect.new(item.offset, item.offset);
+    case "arrow": {
+      const tail = Vec2.new(item.offset);
+      const tip = tail.add(Vec2.polar(item.length, item.angle));
+      // NOTE: the tail-to-tip rect is built first and grown afterwards, rather than the padding
+      //   being applied to the two points as they are: `offset` is the tail and not a corner, so
+      //   an arrow pointing left or up has its tip at the head of the rect, and padding the two
+      //   points directly would shrink the box on that side instead of growing it.
+      // NOTE: `padding` is the head's half width, hence a generous over-estimate along the
+      //   arrow's own axis, where only the tip's miter and the tail's rounding reach out. it is
+      //   uniform so that this holds at any angle without the extents having to be rotated; the
+      //   cost is a little slack in the exported picture, as a rect item's padding has.
+      const bounds = new Rect(tail, tip);
+      const padding = Vec2.new(ARROW_STYLE_SIZE.padding, ARROW_STYLE_SIZE.padding);
+      return new Rect(bounds.head.sub(padding), bounds.tail.add(padding));
+    }
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);
