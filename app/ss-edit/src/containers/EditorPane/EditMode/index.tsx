@@ -160,7 +160,6 @@ const ArrowItem = React.memo<{
 
   return (
     <ResizeContainer
-      data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
       onPointerMove={stopPropagationAndCapturePointer}
@@ -168,9 +167,12 @@ const ArrowItem = React.memo<{
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      <span className={styles.arrowItem} style={bandStyle} />
-      <ResizePointHandle position={ORIGIN} onResize={onResizeTail} />
-      <ResizePointHandle position={tip} onResize={onResizeTip} />
+      {/* NOTE: `data-item-kind` sits on the band rather than on the container, unlike the kinds
+          above: the attribute marks the element that is the item on the overlay, and here that is
+          the band. the container is the box of no size the handles are measured against. */}
+      <span className={styles.arrowItem} data-item-kind={item.kind} style={bandStyle} />
+      <ResizePointHandle end="tail" position={ORIGIN} onResize={onResizeTail} />
+      <ResizePointHandle end="tip" position={tip} onResize={onResizeTip} />
     </ResizeContainer>
   );
 });

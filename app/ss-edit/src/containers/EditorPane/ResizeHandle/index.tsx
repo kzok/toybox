@@ -7,6 +7,9 @@ import styles from "./index.module.css";
 /** the edge or corner of the item's box a resize handle sits on. */
 export type ResizeHandleDirection = "bottom-right" | "right";
 
+/** the end of the item a point resize handle grips. */
+export type ResizeHandleEnd = "tail" | "tip";
+
 /**
  * the container element for `ResizeHandle` component.
  * @note every handle inside measures the pointer against this element's top-left corner, hence it
@@ -69,12 +72,17 @@ export const ResizeHandle = React.memo<{
  * @note the handle centres itself on `position`, hence the middle of its own box is the point it
  *   grips and no scale arithmetic is needed to find it. that is also why the anchor may be, and
  *   for an arrow is, a `ResizeContainer` of no size at all: only its top-left is read.
+ * @note `end` reaches the stylesheet through `data-resize-handle`, as `direction` does for the
+ *   handle above: the two ends are styled alike, and the name is there to tell them apart from
+ *   outside (e.g. e2e tests), which `position` alone leaves impossible.
  */
 export const ResizePointHandle = React.memo<{
+  /** which end of the item this handle grips */
+  end: ResizeHandleEnd;
   /** where the handle sits, in the coordinates its `ResizeContainer` is laid out in */
   position: Vec2.Tuple;
   onResize: (cursor: Vec2.Tuple) => void;
-}>(({ position, onResize }) => {
+}>(({ end, position, onResize }) => {
   const elementRef = React.useRef<HTMLSpanElement>(null);
   const handlers = useGripHandlers(
     onResize,
@@ -92,7 +100,7 @@ export const ResizePointHandle = React.memo<{
     <span
       ref={elementRef}
       className={styles.resizeHandle}
-      data-resize-handle="point"
+      data-resize-handle={end}
       style={style}
       {...handlers}
     />

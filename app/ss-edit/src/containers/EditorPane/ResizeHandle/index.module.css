@@ -31,12 +31,15 @@
   background: #0f6cbd;
 
   /**
-   * grips a point of the item rather than an edge of its box, placed by an inline `left`/`top`.
+   * grips an end of the item rather than an edge of its box, placed by an inline `left`/`top`.
    * @note centred on that point, which is what makes the middle of its own box the point it
    *   grips (see `ResizePointHandle`). no `--outset`, there being no outline to clear: the point
    *   it grips is an end of the item, not a side of it.
+   * @note the two are styled alike and named apart, the name being what tells them from each
+   *   other from outside (e.g. e2e tests), as `direction` is for the handles below.
    */
-  &[data-resize-handle="point"] {
+  &[data-resize-handle="tail"],
+  &[data-resize-handle="tip"] {
     transform: translate(-50%, -50%);
     cursor: move;
   }
