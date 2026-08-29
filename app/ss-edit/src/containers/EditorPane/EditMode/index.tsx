@@ -1,15 +1,16 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
 import {
+  ARROW_STYLE_SIZE,
   type EditorItem,
   rectStyleSizeOf,
   splitLines,
   textStyleOf,
 } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
-import type { Vec2 } from "../../../utils/geometry";
+import { Vec2 } from "../../../utils/geometry";
 import { CanvasLayer } from "../CanvasLayer";
-import { ResizeContainer, ResizeHandle } from "../ResizeHandle";
+import { ResizeContainer, ResizeHandle, ResizePointHandle } from "../ResizeHandle";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
@@ -24,7 +25,7 @@ export const EditMode = React.memo(() => {
       case "rect":
         return <RectItem key={item.id} item={item} />;
       case "arrow":
-        return null; // TODO: implement it.
+        return <ArrowItem key={item.id} item={item} />;
       default:
         item satisfies null;
         return null;
@@ -109,6 +110,78 @@ const RectItem = React.memo<{
     </ResizeContainer>
   );
 });
+
+/**
+ * the resize target of an arrow item.
+ * @note edit mode is the only way to change an arrow's length or direction, there being nothing
+ *   else to edit about one, as with a rect.
+ * @note a handle on each end rather than one on a corner: an arrow has no box of its own worth
+ *   gripping, and each end moving on its own is what lets its direction be changed at all.
+ * @note the container carries the offset and nothing else, so it is a box of no size sitting on
+ *   the tail. that is all `ResizePointHandle` asks of it — only the top-left is read — and it
+ *   keeps the container clear of the rotation the item's shape would otherwise need.
+ */
+const ArrowItem = React.memo<{
+  item: EditorItem.Arrow;
+}>(({ item }) => {
+  const actions = pageCtx.useActions();
+  const style = React.useMemo(
+    (): React.CSSProperties => ({
+      // NOTE: an ancestor component applies the offset and the scale.
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+    }),
+    [item.offset],
+  );
+  // NOTE: the tip in the container's own coordinates, which put the tail on the origin.
+  const tip = React.useMemo(
+    (): Vec2.Tuple => Vec2.polar(item.length, item.angle).tuple(),
+    [item.length, item.angle],
+  );
+  // NOTE: the same band `SelectMode` uses as the item's hit area, laid inside the container so
+  // that the container itself stays free of the rotation the handles must not be measured through.
+  const bandStyle = React.useMemo((): React.CSSProperties => {
+    const { padding } = ARROW_STYLE_SIZE;
+    return {
+      width: `${item.length}px`,
+      height: `${padding * 2}px`,
+      marginTop: `${-padding}px`,
+      transform: `rotate(${item.angle}rad)`,
+    };
+  }, [item.length, item.angle]);
+  const onResizeTail = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeArrowTail(item.id, cursor),
+    [actions, item.id],
+  );
+  const onResizeTip = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeArrowTip(item.id, cursor),
+    [actions, item.id],
+  );
+
+  return (
+    <ResizeContainer
+      data-item-kind={item.kind}
+      style={style}
+      onPointerDown={stopPropagation}
+      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerUp={stopPropagation}
+      // NOTE: keeps the click from reaching the pane, which would clear the selection.
+      onClick={stopPropagation}
+    >
+      <span className={styles.arrowItem} style={bandStyle} />
+      <ResizePointHandle position={ORIGIN} onResize={onResizeTail} />
+      <ResizePointHandle position={tip} onResize={onResizeTip} />
+    </ResizeContainer>
+  );
+});
+
+/**
+ * the tail's place in the container's own coordinates, the container sitting on it.
+ * @note held here rather than converted at the call site so that it is one array for the life of
+ *   the module: `ResizePointHandle` is memoized on `position`, which a fresh tuple every render
+ *   would defeat.
+ */
+const ORIGIN: Vec2.Tuple = Vec2.ORIGIN.tuple();
 
 /**
  * a transparent `<textarea/>` laid over the text rendered on the `<canvas/>`,

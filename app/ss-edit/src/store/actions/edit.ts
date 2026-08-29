@@ -1,4 +1,5 @@
 import {
+  clampArrowLength,
   clampFontSize,
   clampRectSide,
   clampTextWidth,
@@ -138,6 +139,50 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
         const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
         item.width = clampRectSide(scaledCursor.x - padding * 2);
         item.height = clampRectSide(scaledCursor.y - padding * 2);
+      });
+    },
+    /**
+     * move the tip of an arrow item, keeping its tail where it is.
+     * @param itemId item.id to resize
+     * @param cursor where the tip should go, measured from the item's tail
+     * @note no padding is taken off, unlike a rect's: the handle grips the tip itself rather than
+     *   a corner of a padded box, so what it reports is already the point the tip should land on.
+     */
+    resizeArrowTip: (itemId: string, cursor: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "arrow") return;
+
+        const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
+        item.length = clampArrowLength(scaledCursor.distance(Vec2.ORIGIN));
+        // NOTE: the angle follows the pointer even where the length has stopped at its minimum, so
+        // that a arrow held below that length can still be turned.
+        item.angle = scaledCursor.angle();
+      });
+    },
+    /**
+     * move the tail of an arrow item, keeping its tip where it is.
+     * @param itemId item.id to resize
+     * @param cursor where the tail should go, measured from the item's current tail
+     * @note the tail is derived back from the tip rather than set to `cursor` outright. the two
+     *   agree until the length hits its minimum, and there the derived one is what keeps the tip
+     *   still: setting the tail and clamping the length independently would drag the tip along.
+     */
+    resizeArrowTail: (itemId: string, cursor: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "arrow") return;
+
+        const tail = Vec2.new(item.offset);
+        const tip = tail.add(Vec2.polar(item.length, item.angle));
+        const newTail = tail.add(Vec2.new(cursor).div(draft.editorView.scale));
+        const toTip = tip.sub(newTail);
+
+        const length = clampArrowLength(toTip.distance(Vec2.ORIGIN));
+        const angle = toTip.angle();
+        item.offset = tip.sub(Vec2.polar(length, angle)).tuple();
+        item.length = length;
+        item.angle = angle;
       });
     },
   } as const;

@@ -99,6 +99,22 @@ export const ArrowSelected: StoryObj<typeof meta> = {
     ),
 };
 
+/**
+ * one diagonal arrow of the fan being edited, which is the only way to change its length or
+ * direction.
+ * @note deliberately unlike `ArrowSelected`: the band is outlined rather than tinted, so that the
+ *   arrow it is being dragged around stays visible, and it carries a handle on each end.
+ */
+export const ArrowEditing: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(arrowsState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = { kind: "edit", itemId: "story-arrow-1" };
+      }),
+    ),
+};
+
 export const AddingItem: StoryObj<typeof meta> = {
   loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
   render: (_args, { loaded }) =>

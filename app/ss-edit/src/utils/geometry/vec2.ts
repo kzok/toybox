@@ -11,6 +11,12 @@ const toTuple = (arg: Vec2.Param): Vec2.Tuple => {
 
 /** immutable 2D vector */
 export class Vec2 {
+  /**
+   * the zero vector.
+   * @note handy as the point a vector's own length is measured against, `Vec2` offering no
+   *   magnitude of its own: `v.distance(Vec2.ORIGIN)`.
+   */
+  static readonly ORIGIN = new Vec2(0, 0);
   static new(...args: [Vec2.Param] | [number, number]): Vec2 {
     if (args.length === 2) {
       return new Vec2(...args);

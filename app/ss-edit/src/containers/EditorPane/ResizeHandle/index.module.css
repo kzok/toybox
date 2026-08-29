@@ -30,6 +30,17 @@
   border: calc(2px / var(--scale, 1)) solid #fff;
   background: #0f6cbd;
 
+  /**
+   * grips a point of the item rather than an edge of its box, placed by an inline `left`/`top`.
+   * @note centred on that point, which is what makes the middle of its own box the point it
+   *   grips (see `ResizePointHandle`). no `--outset`, there being no outline to clear: the point
+   *   it grips is an end of the item, not a side of it.
+   */
+  &[data-resize-handle="point"] {
+    transform: translate(-50%, -50%);
+    cursor: move;
+  }
+
   /* resizes the item as a whole, from its bottom right corner. */
   &[data-resize-handle="bottom-right"] {
     right: 0;
