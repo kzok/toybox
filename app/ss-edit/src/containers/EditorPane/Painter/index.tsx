@@ -13,6 +13,7 @@ export const Painter = React.memo(() => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const view = pageCtx.useEditorView();
   const items = pageCtx.useEditorItems();
+  const preview = pageCtx.useAddItemPreview();
   const canvasOffset = pageCtx.useCanvasOffset();
   useRequestAnimationFrame(() => {
     const canvas = canvasRef.current;
@@ -29,7 +30,13 @@ export const Painter = React.memo(() => {
     for (const item of items) {
       renderEditorItem(ctx, item);
     }
-  }, [view, items, canvasOffset]);
+    // NOTE: over the list rather than among it, which is where committing the drag would put it
+    // anyway. drawn through the same function as the items so that what the pointer is dragging
+    // out looks exactly like what releasing it leaves behind.
+    if (preview != null) {
+      renderEditorItem(ctx, preview);
+    }
+  }, [view, items, preview, canvasOffset]);
 
   return (
     <canvas

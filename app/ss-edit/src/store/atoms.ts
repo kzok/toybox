@@ -1,8 +1,15 @@
 import { atom } from "jotai";
-import { type EditorItem, measurePicture } from "../features/editorItem";
+import { type EditorItem, editorItemFromRange, measurePicture } from "../features/editorItem";
 import { Vec2 } from "../utils/geometry";
 import { canvasOffset } from "./selectors";
 import type { PageState } from "./types";
+
+/**
+ * the id the preview item carries.
+ * @note constant, and never meets a real item: the preview lives outside `editorItems` and is
+ *   drawn rather than looked up, so nothing ever matches on it.
+ */
+const PREVIEW_ITEM_ID = "add-item-preview";
 
 /** a dialog on the stack. */
 export type DialogEntry = {
@@ -45,6 +52,19 @@ export const createAtoms = () => {
   /** if the picture has anything to save. */
   const canSave = atom((get): boolean => get(editorItems).length > 0);
 
+  /**
+   * the item the drag in add-item mode would add, or null while no such drag is under way.
+   * @note kept apart from `editorItems` rather than pushed into it and taken out again on release.
+   *   that list is compared by reference for `hasUnsavedChanges`, so a preview passing through it
+   *   would leave a saved picture marked unsaved, and `measurePicture` reads it for the exported
+   *   image, which would then stretch to wherever the pointer had wandered.
+   */
+  const addItemPreview = atom((get): EditorItem | null => {
+    const mode = get(editorMode);
+    if (mode.kind !== "add-item" || mode.range == null) return null;
+    return editorItemFromRange(mode.itemKind, mode.range, PREVIEW_ITEM_ID);
+  });
+
   return {
     state,
     editorMode,
@@ -55,6 +75,7 @@ export const createAtoms = () => {
     isDialogOpen,
     savedItems,
     canSave,
+    addItemPreview,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),
     editorPictureRect: atom((get) => measurePicture(get(editorItems))),
     /** if the picture holds items that were never saved as they are now. */

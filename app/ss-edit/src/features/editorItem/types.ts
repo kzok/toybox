@@ -74,5 +74,14 @@ export namespace EditorItem {
   }>;
 }
 
+/**
+ * the kinds of item a drag on the pane adds.
+ * @note an image is not among them: it arrives whole from a file rather than being dragged out.
+ */
+export type AddableItemKind =
+  | EditorItem.Text["kind"]
+  | EditorItem.Rect["kind"]
+  | EditorItem.Arrow["kind"];
+
 /** text item layout part */
 export type TextItemLayout = Pick<EditorItem.Text, "width" | "fontSize" | "content">;

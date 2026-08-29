@@ -1,22 +1,10 @@
 import { castDraft } from "immer";
-import {
-  clampArrowLength,
-  clampFontSize,
-  clampRectSide,
-  clampTextWidth,
-  type EditorItem,
-} from "../../features/editorItem";
-import { Rect, type Vec2 } from "../../utils/geometry";
+import { editorItemFromRange } from "../../features/editorItem";
+import type { Vec2 } from "../../utils/geometry";
 import { canvasOffset } from "../selectors";
 import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 import { dropBlankEditTarget } from "./utils";
-
-/** color of a newly added item, whichever kind it is */
-const NEW_ITEM_COLOR = "#EF3171";
-
-/** line width (px) of a newly added rect item */
-const NEW_RECT_LINE_WIDTH = 4;
 
 /**
  * @param params store, atoms and updateAtom
@@ -69,65 +57,13 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
         const { itemKind, range } = draft.editorMode;
         if (range == null) return; // the pointer never went down on the pane.
 
-        const { head, size } = new Rect(...range);
-
-        switch (itemKind) {
-          case "text": {
-            // NOTE: the dragged height is a single line box, hence the inverse of `lineHeightOf()`.
-            const fontSize = clampFontSize(size.y / 1.5);
-            const newItem: EditorItem.Text = {
-              kind: "text",
-              id: crypto.randomUUID(),
-              content: "",
-              offset: head.tuple(),
-              width: clampTextWidth(size.x, fontSize),
-              fontSize,
-              color: NEW_ITEM_COLOR,
-            };
-            draft.editorItems.push(castDraft(newItem));
-            // NOTE: the added item is blank, hence dropped again unless the user types anything.
-            draft.editorMode = { kind: "edit", itemId: newItem.id };
-            break;
-          }
-          case "rect": {
-            const newItem: EditorItem.Rect = {
-              kind: "rect",
-              id: crypto.randomUUID(),
-              offset: head.tuple(),
-              width: clampRectSide(size.x),
-              height: clampRectSide(size.y),
-              color: NEW_ITEM_COLOR,
-              lineWidth: NEW_RECT_LINE_WIDTH,
-            };
-            draft.editorItems.push(castDraft(newItem));
-            draft.editorMode = { kind: "select", selectedIds: [newItem.id] };
-            break;
-          }
-          case "arrow": {
-            // NOTE: the drag is read end to end rather than through the normalised `head`/`size`
-            // above: those come from a `Rect`, which takes the min and the max of the two points
-            // and hence throws away which end the user started from. that direction is the whole
-            // of what an arrow is.
-            const [tail, tip] = range;
-            const newItem: EditorItem.Arrow = {
-              kind: "arrow",
-              id: crypto.randomUUID(),
-              offset: tail.tuple(),
-              length: clampArrowLength(tip.distance(tail)),
-              // NOTE: a click that never became a drag leaves the two points equal, which
-              // `Math.atan2` answers 0 for — a minimum length arrow pointing right, without a
-              // case of its own, the way a click leaves a rect at its minimum square.
-              angle: tip.sub(tail).angle(),
-              color: NEW_ITEM_COLOR,
-            };
-            draft.editorItems.push(castDraft(newItem));
-            draft.editorMode = { kind: "select", selectedIds: [newItem.id] };
-            break;
-          }
-          default:
-            itemKind satisfies never;
-            throw new Error(`unknown item kind: ${JSON.stringify(itemKind)}`);
-        }
+        const newItem = editorItemFromRange(itemKind, range, crypto.randomUUID());
+        draft.editorItems.push(castDraft(newItem));
+        draft.editorMode =
+          newItem.kind === "text"
+            ? // NOTE: the added item is blank, hence dropped again unless the user types anything.
+              { kind: "edit", itemId: newItem.id }
+            : { kind: "select", selectedIds: [newItem.id] };
       });
     },
   } as const;

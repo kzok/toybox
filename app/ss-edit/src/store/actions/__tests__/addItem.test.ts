@@ -1,6 +1,6 @@
 import { castDraft, produce } from "immer";
 import { describe, expect, it } from "vitest";
-import { clampArrowLength, type EditorItem } from "../../../features/editorItem";
+import { editorItemFromRange, type ItemRange } from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
 import type { PageState } from "../../types";
@@ -143,78 +143,39 @@ describe(createAddItemActions, () => {
     };
 
     /**
-     * @param item editor item
-     * @returns its text layout, or null if it is not a text item.
+     * @param itemKind kind the drag was made in
+     * @param drag the drag `setUpAs` was given
+     * @returns the item that drag describes, with any id allowed
+     * @note the construction rules are `fromRange.test.ts`'s concern, and restating them here
+     *   would only pin the same arithmetic twice. what is `commit`'s own is that it hands the
+     *   drag to the factory as it stands and adds back whatever comes of it.
      */
-    const layoutOf = (item: EditorItem | undefined) =>
-      item?.kind === "text" ? { width: item.width, fontSize: item.fontSize } : null;
+    const itemOf = (itemKind: PageState.Mode.AddItem["itemKind"], drag: ItemRange) => ({
+      ...editorItemFromRange(itemKind, drag, "any-id"),
+      id: expect.any(String),
+    });
 
-    it("adds a blank text item sized by the dragged range and edits it.", () => {
-      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(420, 88));
+    it("adds the text item the drag describes, and edits it.", () => {
+      const drag: ItemRange = [new Vec2(20, 40), new Vec2(420, 88)];
+      const { store, actions, atoms } = setUpAs("text", ...drag);
       actions.addItem.commit();
 
       const items = store.get(atoms.editorItems);
       expect(items).toHaveLength(1);
-      expect(items[0]).toStrictEqual({
-        kind: "text",
-        id: expect.any(String),
-        content: "",
-        offset: [20, 40],
-        width: 400,
-        // the dragged height (48px) is a single line box of this font size.
-        fontSize: 32,
-        color: expect.any(String),
-      });
+      expect(items[0]).toStrictEqual(itemOf("text", drag));
+      // NOTE: the added item is blank, hence edited rather than selected: it has to be typed into
+      //   before it is anything, and is dropped again if it never is.
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: items[0]?.id });
     });
 
-    it("sorts the corners of a range dragged up and left.", () => {
-      const { store, actions, atoms } = setUpAs("text", new Vec2(420, 88), new Vec2(20, 40));
-      actions.addItem.commit();
-
-      expect(store.get(atoms.editorItems)[0]?.offset).toStrictEqual([20, 40]);
-    });
-
-    it("widens a range too narrow for ten characters of its font size.", () => {
-      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(120, 88));
-      actions.addItem.commit();
-
-      expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({
-        width: 320, // = fontSize * 10, instead of the dragged 100px.
-        fontSize: 32,
-      });
-    });
-
-    it("clamps the font size of a range smaller than a font can be.", () => {
-      // a click leaves a range of a single point behind.
-      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(20, 40));
-      actions.addItem.commit();
-
-      expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 120, fontSize: 12 });
-    });
-
-    it("clamps the font size of a range larger than a font can be.", () => {
-      const { store, actions, atoms } = setUpAs("text", new Vec2(20, 40), new Vec2(120, 640));
-      actions.addItem.commit();
-
-      expect(layoutOf(store.get(atoms.editorItems)[0])).toStrictEqual({ width: 720, fontSize: 72 });
-    });
-
-    it("adds a rect item sized by the dragged range and selects it.", () => {
-      const { store, actions, atoms } = setUpAs("rect", new Vec2(20, 40), new Vec2(420, 140));
+    it("adds the rect item the drag describes, and selects it.", () => {
+      const drag: ItemRange = [new Vec2(20, 40), new Vec2(420, 140)];
+      const { store, actions, atoms } = setUpAs("rect", ...drag);
       actions.addItem.commit();
 
       const items = store.get(atoms.editorItems);
       expect(items).toHaveLength(1);
-      expect(items[0]).toStrictEqual({
-        kind: "rect",
-        id: expect.any(String),
-        offset: [20, 40],
-        width: 400,
-        height: 100,
-        color: expect.any(String),
-        lineWidth: expect.any(Number),
-      });
+      expect(items[0]).toStrictEqual(itemOf("rect", drag));
       // a rect is finished the moment it is dragged out, hence selected rather than edited.
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -222,58 +183,30 @@ describe(createAddItemActions, () => {
       });
     });
 
-    it("grows a rect item dragged too small to be grabbed again.", () => {
-      // a click leaves a range of a single point behind.
-      const { store, actions, atoms } = setUpAs("rect", new Vec2(20, 40), new Vec2(20, 40));
-      actions.addItem.commit();
-
-      const item = store.get(atoms.editorItems)[0];
-      expect(item?.kind === "rect" && [item.width, item.height]).toStrictEqual([36, 36]);
-      // the head of the drag is kept, so the item grows away from where it started.
-      expect(item?.offset).toStrictEqual([20, 40]);
-    });
-
-    it("adds an arrow item running from the head of the drag to its end, and selects it.", () => {
-      // dragged right and down, three-four-five, hence a length of 500.
-      const { store, actions, atoms } = setUpAs("arrow", new Vec2(20, 40), new Vec2(320, 440));
+    it("adds the arrow item the drag describes, and selects it.", () => {
+      const drag: ItemRange = [new Vec2(20, 40), new Vec2(320, 440)];
+      const { store, actions, atoms } = setUpAs("arrow", ...drag);
       actions.addItem.commit();
 
       const items = store.get(atoms.editorItems);
       expect(items).toHaveLength(1);
-      const item = items[0];
-      expect(item?.kind).toBe("arrow");
-      // the offset is the tail, which is where the drag started rather than a corner of its box.
-      expect(item?.offset).toStrictEqual([20, 40]);
-      expect(item?.kind === "arrow" && item.length).toBeCloseTo(500);
-      expect(item?.kind === "arrow" && item.angle).toBeCloseTo(Math.atan2(400, 300));
+      expect(items[0]).toStrictEqual(itemOf("arrow", drag));
       // an arrow is finished the moment it is dragged out, hence selected rather than edited.
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
-        selectedIds: [item?.id],
+        selectedIds: [items[0]?.id],
       });
     });
 
-    it("keeps an arrow item's tail where the drag began when it is dragged backwards.", () => {
-      // NOTE: the case a normalised head/size loses. the drag runs up and to the left, so the
-      //   tail is the bottom right of the box the two points span rather than its top left.
-      const { store, actions, atoms } = setUpAs("arrow", new Vec2(320, 440), new Vec2(20, 40));
+    it("hands the drag over as it stands rather than sorting its corners first.", () => {
+      // NOTE: an arrow dragged up and to the left, which is the case that tells the two apart:
+      //   every other kind reads the same either way round, so normalising the range on the way
+      //   to the factory would go unnoticed until an arrow came out pointing back at itself.
+      const drag: ItemRange = [new Vec2(320, 440), new Vec2(20, 40)];
+      const { store, actions, atoms } = setUpAs("arrow", ...drag);
       actions.addItem.commit();
 
-      const item = store.get(atoms.editorItems)[0];
-      expect(item?.offset).toStrictEqual([320, 440]);
-      expect(item?.kind === "arrow" && item.angle).toBeCloseTo(Math.atan2(-400, -300));
-    });
-
-    it("grows an arrow dragged too small, leaving it pointing right.", () => {
-      // a click leaves a range of a single point behind.
-      const { store, actions, atoms } = setUpAs("arrow", new Vec2(20, 40), new Vec2(20, 40));
-      actions.addItem.commit();
-
-      const item = store.get(atoms.editorItems)[0];
-      expect(item?.kind === "arrow" && item.length).toBe(clampArrowLength(0));
-      // `Math.atan2(0, 0)` is +0, so a click needs no case of its own to point somewhere.
-      expect(item?.kind === "arrow" && item.angle).toBe(0);
-      expect(item?.offset).toStrictEqual([20, 40]);
+      expect(store.get(atoms.editorItems)[0]).toStrictEqual(itemOf("arrow", drag));
     });
 
     it("keeps the state as it is when the drag never began.", () => {
