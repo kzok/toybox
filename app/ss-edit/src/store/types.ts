@@ -1,4 +1,4 @@
-import type { EditorItem } from "../features/editorItem";
+import type { AddableItemKind, EditorItem, ItemRange } from "../features/editorItem";
 import type { Vec2 } from "../utils/geometry";
 
 /** entire page state */
@@ -42,14 +42,10 @@ export namespace PageState {
     /** add item mode */
     export type AddItem = Readonly<{
       kind: "add-item";
-      /**
-       * kind of the item to be added
-       * @note an image is not among them: it arrives whole from a file rather than being
-       *   dragged out on the pane.
-       */
-      itemKind: EditorItem.Text["kind"] | EditorItem.Rect["kind"];
+      /** kind of the item to be added */
+      itemKind: AddableItemKind;
       /** dragged range in [start, end] in canvas coordinates, or null until the drag begins */
-      range: readonly [Vec2, Vec2] | null;
+      range: ItemRange | null;
     }>;
   }
 }

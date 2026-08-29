@@ -1,10 +1,11 @@
 import { castDraft, produce } from "immer";
 import { describe, expect, it, vi } from "vitest";
-import type { EditorItem } from "../../../features/editorItem";
+import { clampArrowLength, type EditorItem } from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
 import { createEditActions } from "../edit";
 import {
+  createArrowItem,
   createImageItem,
   createRectItem,
   createTestTarget,
@@ -449,6 +450,151 @@ describe(createEditActions, () => {
       expect(() => actions.edit.resizeRect("missing-id", [207, 107])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
+  describe("resizeArrowTip()", () => {
+    // 200 long, pointing right, its tail on the origin.
+    const setUp = () => {
+      const item = createArrowItem("item-1", [0, 0]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    /**
+     * @param store the test target's store
+     * @param atoms the test target's atoms
+     * @returns the arrow item under test, after whatever was done to it
+     */
+    const resizedOf = (
+      store: ReturnType<typeof setUp>["store"],
+      atoms: ReturnType<typeof setUp>["atoms"],
+    ) => store.get(atoms.editorItems).find((i) => i.id === "item-1") as EditorItem.Arrow;
+
+    it("takes the length and the direction from where the tip is put, keeping the tail.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // three-four-five down and to the right of the tail, hence 500 long.
+      actions.edit.resizeArrowTip(item.id, [300, 400]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.length).toBeCloseTo(500);
+      expect(resized.angle).toBeCloseTo(Math.atan2(400, 300));
+      expect(resized.offset).toStrictEqual([0, 0]);
+    });
+
+    it("turns the arrow around when the tip is put behind the tail.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      actions.edit.resizeArrowTip(item.id, [-300, 0]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.length).toBeCloseTo(300);
+      expect(resized.angle).toBeCloseTo(Math.PI);
+    });
+
+    it("holds the length at the minimum while still following the direction.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      actions.edit.resizeArrowTip(item.id, [0, 1]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.length).toBe(clampArrowLength(0));
+      // the angle is taken from the pointer even where the length has stopped.
+      expect(resized.angle).toBeCloseTo(Math.PI / 2);
+    });
+
+    it("scales the pointer position by the inverse of the view scale.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.view.zoom(2, new Vec2(0, 0));
+
+      // at 2x zoom, a 600,800 screen-px target is 300,400 canvas units — as in the first test.
+      actions.edit.resizeArrowTip(item.id, [600, 800]);
+
+      expect(resizedOf(store, atoms).length).toBeCloseTo(500);
+    });
+
+    it("does nothing when the item is not an arrow item.", () => {
+      const rectItem = createRectItem("rect-1", [0, 0]);
+      const { store, actions, atoms } = createTestTargetWithItems(rectItem);
+
+      actions.edit.resizeArrowTip(rectItem.id, [300, 400]);
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
+    });
+  });
+
+  describe("resizeArrowTail()", () => {
+    // 200 long, pointing right from the origin, hence its tip is at (200, 0).
+    const setUp = () => {
+      const item = createArrowItem("item-1", [0, 0]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    const resizedOf = (
+      store: ReturnType<typeof setUp>["store"],
+      atoms: ReturnType<typeof setUp>["atoms"],
+    ) => store.get(atoms.editorItems).find((i) => i.id === "item-1") as EditorItem.Arrow;
+
+    it("moves the tail to where it is put, leaving the tip where it was.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // the tail goes to (-100, 0), which leaves it 300 from the tip at (200, 0).
+      actions.edit.resizeArrowTail(item.id, [-100, 0]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.offset[0]).toBeCloseTo(-100);
+      expect(resized.offset[1]).toBeCloseTo(0);
+      expect(resized.length).toBeCloseTo(300);
+      expect(resized.angle).toBeCloseTo(0);
+    });
+
+    it("turns the arrow around when the tail is put past the tip.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // the tail goes to (500, 0), which is 300 beyond the tip at (200, 0).
+      actions.edit.resizeArrowTail(item.id, [500, 0]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.offset[0]).toBeCloseTo(500);
+      expect(resized.length).toBeCloseTo(300);
+      expect(resized.angle).toBeCloseTo(Math.PI);
+    });
+
+    it("holds the tip still by placing the tail back from it at the minimum length.", () => {
+      const { store, actions, atoms, item } = setUp();
+      const minimum = clampArrowLength(0);
+
+      // the tail is dragged right up to the tip, closer than an arrow is allowed to be short.
+      actions.edit.resizeArrowTail(item.id, [199, 0]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.length).toBe(minimum);
+      expect(resized.angle).toBeCloseTo(0);
+      // NOTE: the point of the derivation — the tail lands where the minimum puts it rather than
+      //   where the pointer asked, so that the tip stays on the (200, 0) it was pointing at.
+      expect(resized.offset[0]).toBeCloseTo(200 - minimum);
+      expect(resized.offset[1]).toBeCloseTo(0);
+    });
+
+    it("scales the pointer position by the inverse of the view scale.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.view.zoom(2, new Vec2(0, 0));
+
+      // at 2x zoom, a -200 screen-px target is -100 canvas units — as in the first test.
+      actions.edit.resizeArrowTail(item.id, [-200, 0]);
+
+      expect(resizedOf(store, atoms).length).toBeCloseTo(300);
+    });
+
+    it("does nothing when the item is not an arrow item.", () => {
+      const rectItem = createRectItem("rect-1", [0, 0]);
+      const { store, actions, atoms } = createTestTargetWithItems(rectItem);
+
+      actions.edit.resizeArrowTail(rectItem.id, [-100, 0]);
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
     });
   });
 

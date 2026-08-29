@@ -9,18 +9,24 @@ The `<canvas>` painted by `Painter` (`src/containers/EditorPane/Painter`) is the
 source of truth for what the user sees — on every animation frame it draws each item
 via `renderer/`. The canvas itself has `pointer-events: none`.
 
-`EditMode` and `SelectMode` (`src/containers/EditorPane/{EditMode,SelectMode}`) are
-transparent DOM overlays stacked on top of the canvas, not independent visual layers:
+`EditMode`, `SelectMode` and `AddItemMode`
+(`src/containers/EditorPane/{EditMode,SelectMode,AddItemMode}`) are transparent DOM overlays
+stacked on top of the canvas, not independent visual layers:
 
 - `EditMode` renders a `<textarea>` per item being edited, with `color: transparent` —
   only the caret/selection are visible; the glyphs themselves are painted on the canvas
-  underneath. It also places the `ResizeHandle`s (`src/containers/EditorPane/ResizeHandle`): one
-  on the bottom right corner, resizing the item as a whole, and — on a text item — one on the
-  middle of the right edge, resizing the width alone so that the text re-wraps at the same font
-  size. A handle sizes itself against `--scale`, hence it only belongs inside a `CanvasLayer`.
+  underneath. It also places the handles from `src/containers/EditorPane/ResizeHandle`:
+  `ResizeHandle` sits on an edge or a corner of the item's box — the bottom right one resizes the
+  item as a whole, and a text item gets a second on the middle of the right edge, resizing the
+  width alone so that the text re-wraps at the same font size. `ResizePointHandle` sits on an
+  arbitrary point instead, for an arrow's two ends, which are not corners of anything. A handle
+  sizes itself against `--scale`, hence it only belongs inside a `CanvasLayer`.
 - `SelectMode` renders a `<span>` per item as a selection/drag hit-target, also
   `color: transparent`, showing only hover/selected chrome. The hit-targets are
   presentational and pointer-only on purpose.
+- `AddItemMode` captures the drag that defines a new item and outlines where it will land. The
+  item being dragged out is painted by `Painter` like any other, from `addItemPreview` — see
+  "Action grouping" for why it stays out of `editorItems`.
 
 Every overlay lines up with the canvas through `CanvasLayer`
 (`src/containers/EditorPane/CanvasLayer`), which owns the offset/scale transform and
@@ -53,6 +59,38 @@ type error to catch it.
 `clampFontSize` (`features/editorItem`), which round as well as clamp: a fractional value would
 miss the cache on every frame of a resize drag.
 
+## Arrow geometry
+
+An arrow is the one kind that carries a direction, and it is stored as one: `offset` plus `length`
+plus `angle`, where **`offset` is the tail point and not the top-left of a box**. Every other kind's
+`offset` is a corner; an arrow's lands on whichever corner its `angle` points away from. `angle` is
+in radians with 0 pointing right and a positive turn going clockwise on screen, which is what
+`Math.atan2`, `Math.cos`/`Math.sin`, `ctx.rotate()` and CSS `rotate()` all take unconverted.
+
+Two consequences pull in opposite directions, and both are load-bearing:
+
+- `measureItem` builds the tail-to-tip `Rect` **first** and grows it by the padding afterwards.
+  Padding the two points where they stand shrinks the box of an arrow pointing left or up, the tip
+  being the head of the rect there rather than its tail.
+- `editorItemFromRange` reads the drag **end to end**, never through that normalised rect. A `Rect`
+  takes the min and the max of its two points and hence throws away which end the drag started
+  from, which is the whole of what an arrow is.
+
+`ARROW_STYLE_SIZE` (`features/editorItem`) is a plain constant where text and rect have a
+`...StyleSizeOf()` function, because nothing about an arrow's drawing is derived from its own
+fields — there is no line width or font size to scale off. Every value in it is a true on-screen
+dimension rather than a ratio of another, so what is written there is what is drawn; only
+`outlineWidth` and `padding` are derived.
+
+`padding` is how far the drawing spreads either side of the tail-to-tip line, and four consumers
+must read it rather than restate it, or the hit-boxes drift from the pixels with nothing to
+type-check:
+
+1. `measureItem`, which is what the exported PNG is cropped to.
+1. `SelectMode`'s hit-target band.
+1. `EditMode`'s band, which is what keeps a click on the arrow from ending the edit.
+1. `AddItemMode`'s preview band.
+
 ## Action grouping
 
 `store/actions/` is split by the user-facing concern each action serves — `view`,
@@ -71,6 +109,14 @@ controls in `EditorPane`/`Footer`, and the menus in `Header`.
 An action that rewrites `editorItems` returns before touching it when the result would be the
 same list: `hasUnsavedChanges` compares the list *by reference* against `savedItems`, so
 rebuilding an identical one marks a saved picture as unsaved (see `selection.deleteSelected`).
+
+The same comparison is why the item being dragged out in add-item mode never joins that list. It
+is a derived atom (`addItemPreview`) built from the mode's own range and drawn after the items:
+pushing it in and taking it out again would mark a saved picture unsaved on every drag, and
+`measurePicture` would stretch the exported image to wherever the pointer had wandered.
+`editorItemFromRange` (`features/editorItem`) is the only place a dragged range becomes an item,
+so the preview and what `addItem.commit` adds cannot say different things — `commit` keeps only
+the mode transition, which is the part that is its own concern.
 
 ## Wheel input
 

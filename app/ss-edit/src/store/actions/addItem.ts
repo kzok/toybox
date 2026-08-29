@@ -1,21 +1,10 @@
 import { castDraft } from "immer";
-import {
-  clampFontSize,
-  clampRectSide,
-  clampTextWidth,
-  type EditorItem,
-} from "../../features/editorItem";
-import { Rect, type Vec2 } from "../../utils/geometry";
+import { editorItemFromRange } from "../../features/editorItem";
+import type { Vec2 } from "../../utils/geometry";
 import { canvasOffset } from "../selectors";
 import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 import { dropBlankEditTarget } from "./utils";
-
-/** color of a newly added item, whichever kind it is */
-const NEW_ITEM_COLOR = "#EF3171";
-
-/** line width (px) of a newly added rect item */
-const NEW_RECT_LINE_WIDTH = 4;
 
 /**
  * @param params store, atoms and updateAtom
@@ -59,7 +48,8 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
     /**
      * add the item of "add-item" mode at the dragged range, and leave the mode with it as the
      * user's next concern: a text item is edited, since it arrives blank and has to be typed
-     * into, while a rect item is merely selected, being finished the moment it is dragged out.
+     * into, while a rect or an arrow item is merely selected, being finished the moment it is
+     * dragged out.
      */
     commit: (): void => {
       updateAtom(atoms.state, (draft) => {
@@ -67,44 +57,13 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
         const { itemKind, range } = draft.editorMode;
         if (range == null) return; // the pointer never went down on the pane.
 
-        const { head, size } = new Rect(...range);
-
-        switch (itemKind) {
-          case "text": {
-            // NOTE: the dragged height is a single line box, hence the inverse of `lineHeightOf()`.
-            const fontSize = clampFontSize(size.y / 1.5);
-            const newItem: EditorItem.Text = {
-              kind: "text",
-              id: crypto.randomUUID(),
-              content: "",
-              offset: head.tuple(),
-              width: clampTextWidth(size.x, fontSize),
-              fontSize,
-              color: NEW_ITEM_COLOR,
-            };
-            draft.editorItems.push(castDraft(newItem));
-            // NOTE: the added item is blank, hence dropped again unless the user types anything.
-            draft.editorMode = { kind: "edit", itemId: newItem.id };
-            break;
-          }
-          case "rect": {
-            const newItem: EditorItem.Rect = {
-              kind: "rect",
-              id: crypto.randomUUID(),
-              offset: head.tuple(),
-              width: clampRectSide(size.x),
-              height: clampRectSide(size.y),
-              color: NEW_ITEM_COLOR,
-              lineWidth: NEW_RECT_LINE_WIDTH,
-            };
-            draft.editorItems.push(castDraft(newItem));
-            draft.editorMode = { kind: "select", selectedIds: [newItem.id] };
-            break;
-          }
-          default:
-            itemKind satisfies never;
-            throw new Error(`unknown item kind: ${JSON.stringify(itemKind)}`);
-        }
+        const newItem = editorItemFromRange(itemKind, range, crypto.randomUUID());
+        draft.editorItems.push(castDraft(newItem));
+        draft.editorMode =
+          newItem.kind === "text"
+            ? // NOTE: the added item is blank, hence dropped again unless the user types anything.
+              { kind: "edit", itemId: newItem.id }
+            : { kind: "select", selectedIds: [newItem.id] };
       });
     },
   } as const;

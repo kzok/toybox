@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { castDraft, produce } from "immer";
 import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
-import type { EditorItem } from "../../features/editorItem";
+import { clampArrowLength, type EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
 import { Vec2 } from "../../utils/geometry";
 import testImage350x240 from "./fixtures/350x240.png";
@@ -70,6 +70,47 @@ export const RectEditing: StoryObj<typeof meta> = {
     renderEditor(
       produce(rectsState(loaded.image as ImageBitmap), (draft) => {
         draft.editorMode = { kind: "edit", itemId: "story-rect-thick" };
+      }),
+    ),
+};
+
+export const Arrows: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) => renderEditor(arrowsState(loaded.image as ImageBitmap)),
+};
+
+/**
+ * one diagonal arrow of the fan selected, the rest left alone so that the two read side by side.
+ * @note the tint is the hit area, and is a band along the arrow rather than the box it spans:
+ *   deliberately unlike `RectSelected`, where the whole box takes the pointer. the box of a
+ *   diagonal arrow is mostly empty, and taking all of it would put whatever sits in those corners
+ *   out of reach — here the arrows either side of it stay clickable.
+ */
+export const ArrowSelected: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(arrowsState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = castDraft({
+          kind: "select",
+          selectedIds: ["story-arrow-1"],
+        } satisfies PageState.Mode.Select);
+      }),
+    ),
+};
+
+/**
+ * one diagonal arrow of the fan being edited, which is the only way to change its length or
+ * direction.
+ * @note deliberately unlike `ArrowSelected`: the band is outlined rather than tinted, so that the
+ *   arrow it is being dragged around stays visible, and it carries a handle on each end.
+ */
+export const ArrowEditing: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await loadImageBitmap(testImage350x240) })],
+  render: (_args, { loaded }) =>
+    renderEditor(
+      produce(arrowsState(loaded.image as ImageBitmap), (draft) => {
+        draft.editorMode = { kind: "edit", itemId: "story-arrow-1" };
       }),
     ),
 };
@@ -146,6 +187,45 @@ const rectsState = (image: ImageBitmap): PageState =>
         color: "#EF3171",
         lineWidth: 6,
       } satisfies EditorItem.Rect),
+    );
+  });
+
+/** how many arrows the fan below is made of */
+const ARROW_FAN_COUNT = 8;
+
+/**
+ * @param image image item data
+ * @returns `exampleState` with arrows laid over it
+ * @note a fan radiating from one point, so that every angle is read against the same origin and a
+ *   rotation that is off shows up as a fan that is not even. some of it hangs off the screenshot,
+ *   so that the outline and the shadow can be read against the transparent plane as well. the fan
+ *   is drawn at the shortest length `clampArrowLength` allows, which is where the head is closest
+ *   to swallowing the shaft.
+ * @note plus one long arrow, which is where the taper has the room to be read.
+ */
+const arrowsState = (image: ImageBitmap): PageState =>
+  produce(exampleState(image), (draft) => {
+    for (let i = 0; i < ARROW_FAN_COUNT; i++) {
+      draft.editorItems.push(
+        castDraft({
+          kind: "arrow",
+          id: `story-arrow-${i}`,
+          offset: [0, 0],
+          length: clampArrowLength(0),
+          angle: ((Math.PI * 2) / ARROW_FAN_COUNT) * i,
+          color: "#EF3171",
+        } satisfies EditorItem.Arrow),
+      );
+    }
+    draft.editorItems.push(
+      castDraft({
+        kind: "arrow",
+        id: "story-arrow-long",
+        offset: [-180, -160],
+        length: 350,
+        angle: 0,
+        color: "#EF3171",
+      } satisfies EditorItem.Arrow),
     );
   });
 

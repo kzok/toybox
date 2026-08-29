@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { expect, type JSHandle, type Locator, type Page, test } from "@playwright/test";
 import { expectMode } from "./assertions";
-import { editorPane, imageItems, rectItems, textEditor } from "./locators";
+import { arrowItems, editorPane, imageItems, rectItems, textEditor } from "./locators";
 import { type Box, boundingBoxOf, fixture, type Point } from "./support";
 
 /**
@@ -76,6 +76,43 @@ export const addRectByDrag = async (page: Page, rect: Box): Promise<Locator> => 
   return rectItems(page).last();
 };
 
+/** gets into "add-item" mode through "Edit" -> "Add arrow". */
+export const enterAddArrow = async (page: Page): Promise<void> => {
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByRole("menuitem", { name: "Add arrow" }).click();
+  await expectMode(page, "add-item");
+};
+
+/**
+ * adds an arrow item by dragging from `from` to `to`, both in editor pane coordinates.
+ * @returns the item on the select mode overlay, which is where a finished arrow leaves the editor.
+ * @note two points rather than the `Box` the other kinds are added by: the arrow runs from the one
+ *   the drag began at to the one it ended on, and a box would throw away which was which.
+ */
+export const addArrowByDrag = async (page: Page, from: Point, to: Point): Promise<Locator> => {
+  const count = await arrowItems(page).count();
+  await enterAddArrow(page);
+  await dragFromTo(
+    page,
+    await panePointToViewport(page, from),
+    await panePointToViewport(page, to),
+  );
+  await expectMode(page, "select");
+  await expect(arrowItems(page)).toHaveCount(count + 1);
+  return arrowItems(page).last();
+};
+
+/**
+ * enters edit mode on the first arrow item, and returns it as edit mode lays it out.
+ * @note an arrow arrives already selected, so a single further click is what enters edit mode —
+ *   unlike an image item, which has to be selected first.
+ */
+export const editArrow = async (page: Page): Promise<Locator> => {
+  await arrowItems(page).first().click();
+  await expectMode(page, "edit");
+  return arrowItems(page).first();
+};
+
 /** exports the picture through "File" -> "Save as PNG". */
 export const saveAsPng = async (page: Page): Promise<Buffer> => {
   await page.getByRole("button", { name: "File" }).click();
@@ -132,6 +169,12 @@ export const dragFromTo = async (page: Page, from: Point, to: Point): Promise<vo
 export const paneRectToViewport = async (page: Page, rect: Box): Promise<Box> => {
   const pane = await boundingBoxOf(editorPane(page));
   return { ...rect, x: pane.x + rect.x, y: pane.y + rect.y };
+};
+
+/** turns a point in editor pane coordinates into viewport coordinates. */
+export const panePointToViewport = async (page: Page, point: Point): Promise<Point> => {
+  const pane = await boundingBoxOf(editorPane(page));
+  return { x: pane.x + point.x, y: pane.y + point.y };
 };
 
 /**

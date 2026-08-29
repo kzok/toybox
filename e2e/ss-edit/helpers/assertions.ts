@@ -46,6 +46,27 @@ export const expectBoxOnScreen = async (
     .toEqual(roundBox(expected));
 };
 
+/**
+ * asserts that the element is centred on the given point of the viewport.
+ * @note for the handles that grip an end of the item rather than an edge of its box: where one
+ *   sits is the whole of what it says, and its own 14px of chrome says nothing.
+ */
+export const expectCenteredAt = async (
+  element: Locator,
+  expected: Point,
+  tolerance: number = 1,
+): Promise<void> => {
+  const snap = (actual: number, target: number): number =>
+    Math.abs(actual - target) <= tolerance ? target : Math.round(actual);
+  const target = { x: Math.round(expected.x), y: Math.round(expected.y) };
+  await expect
+    .poll(async () => {
+      const center = centerOf(await boundingBoxOf(element));
+      return { x: snap(center.x, target.x), y: snap(center.y, target.y) };
+    })
+    .toEqual(target);
+};
+
 export const expectCenteredInPane = async (page: Page, item: Locator): Promise<void> => {
   const paneCenter = centerOf(await boundingBoxOf(editorPane(page)));
   const itemCenter = centerOf(await boundingBoxOf(item));

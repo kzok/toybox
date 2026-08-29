@@ -1,5 +1,5 @@
 import { type EditorItem, measurePicture } from "../editorItem";
-import { renderEditorItems } from "./renderItems";
+import { renderEditorItem } from "./renderItems";
 
 /**
  * renders editor items onto an off-screen canvas and encodes it as a PNG blob.
@@ -14,6 +14,8 @@ export const exportToImageBlob = async (items: readonly EditorItem[]): Promise<B
     throw new Error("failed to get OffscreenCanvas context 2d.");
   }
   ctx.translate(-head.x, -head.y);
-  renderEditorItems(ctx, items);
+  for (const item of items) {
+    renderEditorItem(ctx, item);
+  }
   return canvas.convertToBlob({ type: "image/png" });
 };

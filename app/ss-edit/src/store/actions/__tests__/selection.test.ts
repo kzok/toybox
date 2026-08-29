@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
 import { createSelectionActions } from "../selection";
-import { createImageItem, createTestTarget, createTestTargetWithItems } from "./fixtures";
+import {
+  createArrowItem,
+  createImageItem,
+  createTestTarget,
+  createTestTargetWithItems,
+} from "./fixtures";
 
 describe(createSelectionActions, () => {
   describe("clear()", () => {
@@ -137,6 +142,21 @@ describe(createSelectionActions, () => {
       expect(() => actions.selection.move(item1.id, [10, 20])).not.toThrow();
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
+    });
+
+    it("moves an arrow item by its tail, leaving the direction and the length alone.", () => {
+      // NOTE: an arrow's `offset` is the tail rather than a corner of its box, so a move is worth
+      //   pinning down on one: it happens to need no case of its own only because the whole shape
+      //   follows from `offset`, `length` and `angle`, and a move touches the first alone.
+      const arrow = createArrowItem("arrow-1", [100, 100], Math.PI);
+      const { store, actions, atoms } = createTestTargetWithItems(arrow);
+
+      actions.selection.move(arrow.id, [10, 20]);
+
+      const moved = store.get(atoms.editorItems)[0];
+      expect(moved?.offset).toStrictEqual([110, 120]);
+      expect(moved?.kind === "arrow" && moved.length).toBe(arrow.length);
+      expect(moved?.kind === "arrow" && moved.angle).toBe(arrow.angle);
     });
   });
 

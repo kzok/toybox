@@ -1,6 +1,11 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
-import { type EditorItem, rectStyleSizeOf, textStyleOf } from "../../../features/editorItem";
+import {
+  ARROW_STYLE_SIZE,
+  type EditorItem,
+  rectStyleSizeOf,
+  textStyleOf,
+} from "../../../features/editorItem";
 import { usePointerEvents } from "../../../hooks";
 import { pageCtx } from "../../../store";
 import { CanvasLayer } from "../CanvasLayer";
@@ -18,6 +23,8 @@ export const SelectMode = React.memo(() => {
         return <TextItem key={item.id} item={item} />;
       case "rect":
         return <RectItem key={item.id} item={item} />;
+      case "arrow":
+        return <ArrowItem key={item.id} item={item} />;
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);
@@ -110,6 +117,47 @@ const RectItem = React.memo<{
   return (
     <span
       className={styles.rectItem}
+      data-item-kind={item.kind}
+      data-selected={selected}
+      style={style}
+      {...usePointerActions(item, selected)}
+    />
+  );
+});
+
+/**
+ * the hit-target of an arrow item in select mode.
+ * @note a band along the arrow rather than the box it spans, unlike every other kind: the box of a
+ *   diagonal arrow is mostly empty, and taking the pointer over all of it would put whatever lies
+ *   in those corners out of reach. a rect pays that cost because its box is what it covers; an
+ *   arrow's is not.
+ * @note as wide as `padding` makes the drawing at the head, the widest part of it, which leaves
+ *   the thin shaft a comfortable grab area as well. what falls outside is the few px the tail's
+ *   rounding reaches behind `offset` and the miter beyond the tip.
+ * @note laid out along +x from the tail and turned into place, the way `renderArrow` does it. it
+ *   is pulled up by half its height and turned about its left edge, so that the point it pivots
+ *   on is the tail itself rather than a corner of the band.
+ */
+const ArrowItem = React.memo<{
+  item: EditorItem.Arrow;
+}>(({ item }) => {
+  const style = React.useMemo((): React.CSSProperties => {
+    const { padding } = ARROW_STYLE_SIZE;
+    return {
+      // NOTE: an ancestor component applies the offset and the scale.
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.length}px`,
+      height: `${padding * 2}px`,
+      marginTop: `${-padding}px`,
+      transform: `rotate(${item.angle}rad)`,
+    };
+  }, [item]);
+  const selected = useItemSelected(item.id);
+
+  return (
+    <span
+      className={styles.arrowItem}
       data-item-kind={item.kind}
       data-selected={selected}
       style={style}

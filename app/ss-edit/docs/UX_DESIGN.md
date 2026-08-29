@@ -58,6 +58,43 @@ terminal and a photo alike.
 A range dragged too small is widened to the same minimum a resize is held to, so a click leaves a
 small square behind rather than a rectangle nobody could grab.
 
+## Adding an arrow
+
+"Edit" → "Add arrow" arms the editor as the two above do, and the arrow is then dragged from its
+tail to its tip. The drag is read end to end rather than as the box it spans: the same box comes of
+dragging north east and south west, and which end it started from is the whole of what an arrow is.
+As with a rectangle, the drag leaves the arrow selected rather than being edited.
+
+It is drawn in the same bold pink, white outline and black shadow the other two are, so that it
+holds up against a light UI, a dark terminal and a photo alike.
+
+The head is a triangle with its back hollowed towards the point, and the shaft tapers into it
+rather than running at a constant width. Neither is load-bearing — it is simply friendlier to look
+at than a plain wedge, and an annotation someone is going to paste into a chat may as well be.
+
+An arrow has no line width to set. A rectangle carries one because a thin box and a thick box say
+different things about what they surround; an arrow says the same thing at any weight, and one
+fewer thing to choose is worth more than the control.
+
+A drag too short is lengthened to a minimum of three times the head, below which the head swallows
+the shaft and there is no arrow left to see. A click that never became a drag leaves a
+minimum-length arrow pointing right, which is a starting point to turn rather than an error.
+
+## Drawing an item out
+
+The three kinds above are all placed the same way: the Edit menu arms the editor, and the item is
+then dragged out on the pane. Nothing is added until the pointer is released, and `Escape` leaves
+the mode with nothing added at all.
+
+What the drag shows is **the item itself, painted as it will be added** — its colour, its outline,
+its shadow, an arrow's head — under a blue outline saying what will take the pointer once it is
+there. Judging an annotation against the screenshot underneath it is the whole job, and holding
+that back until release would make every placement a guess followed by a correction.
+
+The blue outline follows the item rather than the pointer, so a drag held below a minimum shows
+where it will actually end up instead of jumping there on release. Text is the exception: its drag
+names a font size and a wrapping width rather than a box, so the outline stays the drag.
+
 ## Selecting, moving, editing
 
 - A click selects an item, ctrl+click adds to or removes from the selection.
@@ -72,10 +109,15 @@ at a line a few pixels wide is not worth the precision it buys, and the cost is 
 than worked around: whatever a rectangle is drawn around cannot be clicked through it, and has to
 be reached from a part of itself the rectangle leaves uncovered.
 
+An arrow deliberately does not do that. It is clicked along its own length — a band as wide as the
+drawing is — and the rest of the box it spans is left alone. A diagonal arrow's box is mostly empty
+space, and the cost a rectangle is worth paying is not: taking all of it would put whatever sits in
+those corners out of reach, for an item that covers almost none of them.
+
 Edit mode shows a real caret and text selection over the text painted on the canvas, and takes
 IME composition, so composing Japanese previews on the picture before it is confirmed. On a
-rectangle it carries nothing but the resize handle: there is no content to edit, and resizing is
-what the extra click buys.
+rectangle or an arrow it carries nothing but the resize handles: there is no content to edit, and
+resizing is what the extra click buys.
 
 ## Resizing
 
@@ -91,10 +133,16 @@ Only the item being edited carries handles, and each handle resizes one thing:
 - **Bottom right, on a rectangle** — changes its width and height independently. A box drawn
   around part of a screenshot has no proportions of its own worth keeping, unlike the screenshot
   it is drawn on.
+- **Either end, on an arrow** — moves that end and leaves the other where it is, which changes the
+  arrow's length and its direction at once. An arrow has no box worth gripping a corner of, and
+  pointing it somewhere else is the edit most often wanted: a handle on each end is what makes that
+  a drag rather than a delete and a redraw.
 
 Sizes are bounded so that an item can always be grabbed again: a font size stays within 12–72px,
 a text box stays wide enough for ten full-width graphemes, an image never resizes below 36px on
-its shorter side, and neither side of a rectangle goes below 36px either.
+its shorter side, and neither side of a rectangle goes below 36px either. An arrow held at its
+minimum length still turns to follow the pointer, and it is the end being dragged that stops short
+— the other one is the anchor and never moves to make room.
 
 ## Moving around
 
