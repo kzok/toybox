@@ -35,12 +35,7 @@ export const ResizeContainer: React.FC<React.ComponentPropsWithoutRef<"span">> =
 /**
  * the grip on an edge or a corner of the item being edited.
  * @note laid out against `--scale`, which `CanvasLayer` exposes, so it belongs inside one.
- * @note the pointer is reported relative to the top-left corner of the `ResizeContainer` it sits
- *   in, which must therefore be the element laid out at the item's offset.
- * @note what is reported is where the gripped edge should go, not where the pointer is: the
- *   distance between the two is taken at "pointerdown" and held for the drag. without it a handle
- *   that does not sit exactly on the edge it grips — every one of them, since `--outset` pushes
- *   them clear of the outline — would snap the item by that distance on the first move.
+ * @note the pointer is measured against the `ResizeContainer` it sits in.
  * @note `direction` reaches the stylesheet through `data-resize-handle` rather than through a
  *   class of its own: the attribute is there regardless, being the only stable handle on this
  *   element from outside (e.g. e2e tests), and selecting on it leaves nothing to drift from it.

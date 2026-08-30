@@ -82,9 +82,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   for (const [index, line] of lines.entries()) {
     const y = firstBaseline + index * lineHeight;
 
-    // NOTE: cast once, off the black outline, and switched off again right after: a shadow is
-    // cast by every draw call, hence leaving it on would have the white stroke and the fill each
-    // lay their own copy over this one.
+    // NOTE: every draw call casts its own shadow, hence off again immediately.
     ctx.shadowColor = "#000";
     ctx.strokeStyle = "#000";
     ctx.strokeText(line, 0, y);
@@ -116,10 +114,9 @@ const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
   ctx.shadowOffsetX = shadowOffset;
   ctx.shadowOffsetY = shadowOffset;
 
-  // NOTE: cast once, off the black outline, and switched off again right after: a shadow is
-  // cast by every draw call, hence leaving it on would have the white outline and the coloured
-  // line each lay their own copy over this one. the black is drawn at the same width as the white
-  // hiding it, so that the shadow's silhouette is the one that is actually visible.
+  // NOTE: every draw call casts its own shadow, hence off again immediately.
+  // NOTE: the black is drawn at the same width as the white hiding it, so that the shadow's
+  //   silhouette is the one that is actually visible.
   ctx.lineWidth = strokeWidth;
   ctx.shadowColor = "#000";
   ctx.strokeStyle = "#000";
@@ -200,9 +197,7 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   // NOTE: both shapes are drawn the same way and at one stroke width — the fill is the shape
   // itself, and the stroke only lays the outline around it, half of `outlineWidth` landing
   // outside the path. nothing here widens a shape beyond the path it is built from.
-  // NOTE: the shadow is cast once, off the black strokes, and switched off before the fills, as a
-  // rect item's is: a shadow is cast by every draw call, hence leaving it on would have each fill
-  // lay its own copy over this one.
+  // NOTE: every draw call casts its own shadow, hence off again immediately.
   ctx.shadowColor = "#000";
   ctx.strokeStyle = "#000";
   ctx.stroke(shaft);

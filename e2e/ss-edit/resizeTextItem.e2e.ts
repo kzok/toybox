@@ -16,7 +16,8 @@ import {
 /**
  * a range whose height drives the font size (`round(48 / 1.5)` = 32px) and whose width stays above
  * `fontSize * 10`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
- * 408 x 56 box: `paddingOf(32)` is 4px, added on every side of a single 48px line.
+ * 408 x 56 box: `textStyleSizeOf()` gives a 4px `padding` at 32px, added on every side of a
+ * single 48px line.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 48 };
 

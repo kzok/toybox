@@ -34,7 +34,8 @@ export const editorItemFromRange = (
 
   switch (itemKind) {
     case "text": {
-      // NOTE: the dragged height is a single line box, hence the inverse of `lineHeightOf()`.
+      // NOTE: the dragged height is a single line box, hence the inverse of the `lineHeight`
+      //   that `textStyleSizeOf()` derives from the font size.
       const fontSize = clampFontSize(size.y / 1.5);
       return {
         kind: "text",

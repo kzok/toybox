@@ -27,10 +27,11 @@ import {
  * a range dragged on an arbitrary spot of the pane. the height drives the font size
  * (`round(48 / 1.5)` = 32px) and the width is kept above `fontSize * 10`, so that the item's
  * layout (its wrap width and the dragged font size) keeps exactly the dragged size. the box it
- * actually occupies on screen is bigger: `paddingOf(32)` is 4px, added on every side.
+ * actually occupies on screen is bigger: `textStyleSizeOf()` gives a 4px `padding` at 32px,
+ * added on every side.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 48 };
-/** `paddingOf(32)` is 4px, added on every side, hence 8px on both width and height. */
+/** the 4px `padding` at 32px is added on every side, hence 8px on both width and height. */
 const MAIN_RANGE_PADDING = 8;
 
 test("adds a text item by dragging a range", async ({ page }) => {
@@ -153,7 +154,8 @@ test("wraps a long text into multiple lines", async ({ page }) => {
   await dragFromTo(page, range, { x: range.x + range.width, y: range.y + range.height });
   await typeText(page, "あいうえおかきくけこさしすせそたちつてと");
 
-  // `lineHeightOf(20)` is 30px, so more than one line means the editor grew past that.
+  // `textStyleSizeOf()` gives a 30px `lineHeight` at 20px, so more than one line means the
+  //   editor grew past that.
   const editorBox = await boundingBoxOf(textEditor(page));
   expect(editorBox.height).toBeGreaterThanOrEqual(60);
 
