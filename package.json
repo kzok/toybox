@@ -7,7 +7,8 @@
     "lib/*"
   ],
   "scripts": {
-    "fmt": "biome check --write .",
+    "biome": "biome check --write .",
+    "rumdl": "rumdl check --fix .",
     "type-check": "tsc",
     "test": "vitest",
     "storybook": "storybook dev -p 6006",
