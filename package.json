@@ -7,7 +7,8 @@
     "lib/*"
   ],
   "scripts": {
-    "fmt": "biome check --write .",
+    "biome": "biome check --write .",
+    "rumdl": "rumdl check --fix .",
     "type-check": "tsc",
     "test": "vitest",
     "storybook": "storybook dev -p 6006",
@@ -36,6 +37,7 @@
     "@vitejs/plugin-react": "5.1.2",
     "chromatic": "18.0.1",
     "jsdom": "29.1.1",
+    "rumdl": "0.2.62",
     "serve": "14.2.6",
     "storybook": "10.5.8",
     "typescript": "5.9.3",

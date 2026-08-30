@@ -55,7 +55,6 @@ export const textStyleSizeOf = (
 /**
  * @param layout text layout
  * @returns shared inline style for text item rendering
- * @note the cache key of `splitLines` is derived from these values.
  */
 export const textStyleOf = (layout: TextItemLayout) => {
   const { width, fontSize, padding, lineHeight, letterSpacing } = textStyleSizeOf(layout);

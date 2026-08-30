@@ -105,9 +105,9 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
      * @note only the x component is read: the height follows from how the text wraps at the new
      *   width. unlike `resizeTextFontSize`, re-wrapping is what this is for rather than what it
      *   avoids.
-     * @note the padding is subtracted because `cursor` is measured against the drawn box, which
-     *   `textStyleSizeOf` pads on every side, while `width` names the content box alone. it is a
-     *   constant offset here, the padding following the font size this leaves untouched.
+     * @note the padding is subtracted: `cursor` is measured against the drawn box, `width` the
+     *   content box alone. a constant offset here, the padding following the font size this
+     *   leaves untouched.
      */
     resizeTextWidth: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
@@ -125,10 +125,8 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      * @note the two sides are taken independently, unlike an image's: a screenshot has proportions
      *   worth keeping, a box drawn around part of one does not.
-     * @note the padding is subtracted because `cursor` is measured against the drawn box, which
-     *   `rectStyleSizeOf` pads on every side, while `width`/`height` name the box the line runs
-     *   along. it is a constant offset here, the padding following the line width this leaves
-     *   untouched.
+     * @note the padding is subtracted as `resizeTextWidth` does, the padding following the line
+     *   width this leaves untouched.
      */
     resizeRect: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {

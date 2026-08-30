@@ -14,27 +14,32 @@ Reach for a more expensive tool only when a cheaper one can't catch the class of
 
 ## vitest
 
-- **Scope**: pure functions and hooks — logic that doesn't depend on rendering or
-  visual output. Example: `editorItem`'s `paddingOf` / `lineHeightOf` /
-  `letterSpacingOf` layout calculations (see `app/ss-edit/docs/SYSTEM_DESIGN.md`).
-- **How far**: cover the logic's edge cases. Don't use it to assert on rendering or
-  appearance — jsdom doesn't lay out real pixels.
-- **Where**: `__tests__/<name>.test.ts{,x}`.
+- **Scope**
+  - Logic that doesn't depend on rendering or visual output: pure functions and hooks.
+- **How far**
+  - Cover the logic's edge cases that can actually happen.
+  - Don't use it to assert on rendering or appearance because jsdom doesn't lay out real pixels.
+- **Where**
+  - Colocate as `__tests__/<name>.test.ts{,x}` with the target production code.
 
 ## storybook + chromatic
 
-- **Scope**: how a component looks and renders in isolation, across its meaningfully
-  distinct states.
-- **How far**: one story per state worth catching a visual regression on. Don't use it to assert on
-  behavior that spans multiple components — that's playwright's job.
-- **Where**: `*.stories.tsx` colocated with the component.
+- **Scope**
+  - How a component looks and renders in isolation, across its meaningfully distinct states.
+- **How far**
+  - One story per state worth catching a visual regression on.
+  - Don't assert on behavior spanning multiple components — that's playwright's job.
+- **Where**
+  - Colocate as `*.stories.tsx` with the component.
 
 ## playwright (e2e)
 
-- **Scope**: user flows that cross multiple components or state, and invariants only
-  observable end-to-end — e.g. that a sequence of view operations leaves the exported
-  image byte-for-byte identical (`happyPath.e2e.ts`).
-- **How far**: add a test here only for the class of bug vitest/storybook can't catch:
-  pointer/drag interactions, real-browser rendering, or drift between independently
-  computed layout math across modules.
-- **Where and how**: see [`e2e/README.md`](../e2e/README.md) for the full conventions.
+- **Scope**
+  - User flows that cross component or state boundaries,
+    and invariants only observable end-to-end.
+- **How far**
+  - Add a test here only for the class of bug vitest/storybook can't catch.
+    For example, pointer/drag interactions, real-browser rendering,
+    or drift between independently computed layout math across modules.
+- **Where and how**
+  - See [`e2e/README.md`](../e2e/README.md) for the full conventions.
