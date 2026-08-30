@@ -106,8 +106,12 @@ Claim only what was checked.
 The body is the user's call, so never decide it alone.
 For each planned commit, show the subject and then either the body drafted for it,
 verbatim and already wrapped, or a statement that nothing in the diff calls for one.
-Say in one line why each point earns its place — or why the diff speaks for itself —
-and ask the user to confirm, drop or add to it.
-Handle one commit at a time, the same way as step 2's questions,
-and use `AskUserQuestion` when the choice is closed.
+Say in one line why each point earns its place — or why the diff speaks for itself.
+Then ask with a multi-select `AskUserQuestion`: one option per drafted point,
+in the order they would appear, plus a final option for no body at all.
+Draft each point so that it stands alone, since any subset may come back.
+The answer is the body: the chosen points, concatenated in that order.
+Spell the points out in the message first — `preview` does not render on a multi-select,
+so the options carry only their labels.
+Handle one commit at a time, the same way as step 2's questions.
 Commit only what came back confirmed.
