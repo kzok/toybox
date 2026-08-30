@@ -9,7 +9,8 @@
 - `npm run type-check`
   - Run TypeScript type-check.
 - `make check`
-  - Pre-commit check (format, type-check, changed tests). Run before considering work done.
+  - Pre-commit check (format, type-check, changed tests).
+    Run before considering work done.
 
 ## Project foundation docs
 

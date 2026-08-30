@@ -1,21 +1,24 @@
 # E2E tests
 
-Playwright tests driving the built applications through a real browser. For when to
-reach for e2e over vitest/storybook, see [`docs/TEST_STRATEGY.md`](../docs/TEST_STRATEGY.md).
+Playwright tests driving the built applications through a real browser.
+For when to reach for e2e over vitest/storybook,
+see [`docs/TEST_STRATEGY.md`](../docs/TEST_STRATEGY.md).
 
 ## How to run
 
 The suite is driven by `make` from the repository root.
 
 - `make e2e`
-  - Run everything in Docker. This is what CI does and the only way the pixel comparisons are
-    meaningful, since the baselines are rendered by the Linux browser of the container.
+  - Run everything in Docker.
+    This is what CI does and the only way the pixel comparisons are meaningful,
+    since the baselines are rendered by the Linux browser of the container.
 - `make e2e-update`
-  - Same, with `--update-snapshots`. Use it after adding or intentionally changing a baseline,
+  - Same, with `--update-snapshots`.
+    Use it after adding or intentionally changing a baseline,
     and look at the written PNGs before committing them.
 - `make e2e-local`
-  - Open the Playwright UI against the browser of the host. Snapshots are ignored, because the
-    host renders differently from the container.
+  - Open the Playwright UI against the browser of the host.
+    Snapshots are ignored, because the host renders differently from the container.
 
 All of them build `./dist` first: the tests run against the production build served by `serve`,
 not against the Vite dev server.
@@ -29,7 +32,7 @@ To run a subset, pass the arguments through:
 
 ## Folder structure
 
-```
+```text
 e2e/
 ├── serve.json / Dockerfile / docker-entrypoint.sh / runner.sh
 └── <app-workspace-name>/
@@ -39,8 +42,8 @@ e2e/
     └── <feature>.e2e.ts-snapshots/   baselines, written by `make e2e-update`
 ```
 
-Only `**/*.e2e.ts` is collected as a test file, so anything under `helpers/` is free to be a
-plain module.
+Only `**/*.e2e.ts` is collected as a test file,
+so anything under `helpers/` is free to be a plain module.
 
 ## Conventions
 
@@ -55,8 +58,8 @@ plain module.
   - `support.ts` — types and small pure utilities.
 - **Prefer roles and text**, and fall back to `data-*` attributes the application exposes on
   purpose: `data-editor-mode` on the editor overlay, `data-item-kind` / `data-selected` on the
-  items, `data-range-preview` on the range being drawn. CSS module class names are hashed and must
-  never be selected on.
+  items, `data-range-preview` on the range being drawn.
+  CSS module class names are hashed and must never be selected on.
 - **Drive the pointer through `page.mouse`**, not `dragTo`: the editor reads `movementX` /
   `movementY` of each `pointermove`, hence a drag needs intermediate steps (`dragBy` / `dragFromTo`
   already do this).
@@ -64,8 +67,9 @@ plain module.
   `fill` would replace its whole value and tell nothing about where the caret was.
 - **Park the cursor before a screenshot** (`parkCursor`), otherwise the `:hover` highlight of
   whatever sits under the pointer leaks into the baseline.
-- **Pixel comparisons are soft** (`expect.soft`), so that one drifted baseline does not hide the
-  assertions after it. They only read the page, hence continuing past a mismatch stays safe.
+- **Pixel comparisons are soft** (`expect.soft`),
+  so that one drifted baseline does not hide the assertions after it.
+  They only read the page, hence continuing past a mismatch stays safe.
 
 ## The network is cut off
 
