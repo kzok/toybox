@@ -1,7 +1,6 @@
 ---
 name: commit
-description: Inspect the working tree, settle open questions one at a time, then commit — splitting
-  the work into several commits when the diff spans unrelated concerns
+description: Inspect the working tree, settle open questions one at a time, then commit
 argument-hint: [how to commit — omit to leave it open]
 disable-model-invocation: true
 allowed-tools:
@@ -30,13 +29,15 @@ this started. Don't stop until every planned commit is made.
    branch, a new flag — open the surrounding code until it does.
 2. **Ask, one question at a time.** Send one question, wait for the answer, and let that answer
    decide the next one. Keep going until nothing is open. Use `AskUserQuestion` for closed
-   questions and return the turn for open ones. Ask only what the repository cannot answer: what
-   prompted the work, whether something that reads like a defect is deliberate, whether a leftover
-   meant for debugging should be left out. Never ask what reading the code would settle. Propose a
-   split here too — see `## Splitting`.
-3. **Commit** what step 2 settled, by the mechanics in `## Splitting` and the wording in
+   questions or when the answer can be predicted. Return the turn for the others. Ask only what the
+   repository cannot answer: what prompted the work, whether something that reads like a defect is
+   deliberate, whether a leftover meant for debugging should be left out. Never ask what reading the
+   code would settle. Propose a split here too — see `## Splitting`.
+3. **Confirm the body.** Before committing anything, go through the planned commits and let the
+   user decide what goes into each body — see `## Message format`.
+4. **Commit** what steps 2 and 3 settled, by the mechanics in `## Splitting` and the wording in
    `## Message format`.
-4. **Declare the workflow finished.** List each commit made, hash and subject, and say what is
+5. **Declare the workflow finished.** List each commit made, hash and subject, and say what is
    still left in the working tree.
 
 Don't run `make check`, the tests or the type checker; the user runs those separately. Never use
@@ -87,3 +88,12 @@ already says what changed, so a paragraph that paraphrases the subject is worse 
 subject and the trailer alone is a finished message.
 
 Claim only what was checked.
+
+### Confirming the body
+
+The body is the user's call, so never decide it alone. For each planned commit, show the subject
+and then either the body drafted for it, verbatim and already wrapped, or a statement that nothing
+in the diff calls for one. Say in one line why each point earns its place — or why the diff speaks
+for itself — and ask the user to confirm, drop or add to it. Handle one commit at a time, the same
+way as step 2's questions, and use `AskUserQuestion` when the choice is closed. Commit only what
+came back confirmed.
