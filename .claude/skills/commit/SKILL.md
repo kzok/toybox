@@ -25,8 +25,8 @@ Don't stop until every planned commit is made.
 
 ## Steps
 
-1. **Read every change.** `git diff HEAD` for what is tracked,
-  and open each `??` path from the status above.
+1. **Read every change.**
+  `git diff HEAD` for what is tracked, and open each `??` path from the status above.
   Where the diff alone doesn't say *why* something changed — a guard, a deleted branch, a new flag —
   open the surrounding code until it does.
 2. **Ask, one question at a time.**
@@ -42,8 +42,8 @@ Don't stop until every planned commit is made.
 3. **Confirm the body.**
   Before committing anything, go through the planned commits
   and let the user decide what goes into each body — see `## Message format`.
-4. **Commit** what steps 2 and 3 settled, by the mechanics in `## Splitting` and the wording in
-   `## Message format`.
+4. **Commit** what steps 2 and 3 settled,
+  by the mechanics in `## Splitting` and the wording in `## Message format`.
 5. **Declare the workflow finished.**
   List each commit made, hash and subject, and say what is still left in the working tree.
 

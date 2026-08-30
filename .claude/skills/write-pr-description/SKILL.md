@@ -14,15 +14,17 @@ Stop if there is none.
 
 ## Steps
 
-1. **Check it is still writable.** `gh pr view <n> --json state,isDraft`.
+1. **Check it is still writable.**
+  `gh pr view <n> --json state,isDraft`.
   Abort — change nothing, say why — unless `state` is `OPEN`;
   a merged or closed pull request is left alone.
   A draft is `OPEN` with `isDraft: true` and is fair game.
-2. **Read it.** `gh pr view <n> --json title,body,headRefName,baseRefName,commits`
-  and `gh pr diff <n>`.
+2. **Read it.**
+  `gh pr view <n> --json title,body,headRefName,baseRefName,commits` and `gh pr diff <n>`.
   Open the changed files wherever the diff alone doesn't say *why* something changed: a guard,
   a deleted handler, an added flag.
-3. **Ask** for what the repository can't answer: the related issue URL, what prompted the work,
+3. **Ask** for what the repository can't answer:
+  the related issue URL, what prompted the work,
   and whether anything that reads like a defect is deliberate.
   Ask as many rounds as the answers warrant —
   a reply that opens a new question is worth following up on.
@@ -30,10 +32,10 @@ Stop if there is none.
 4. **Draft** the body to a scratch file in the scratchpad directory, following `## Format`.
   Draft a title as well when the existing one no longer says what the diff does;
   leave it alone otherwise.
-5. **Apply** with `gh pr edit <n> --body-file <draft>`, adding `--title <title>` only when step 4
-  drafted one, then read it back to confirm.
-6. **Report** what landed: the pull request URL, the new title when it changed,
-  and the body as applied.
+5. **Apply** with `gh pr edit <n> --body-file <draft>`,
+  adding `--title <title>` only when step 4 drafted one, then read it back to confirm.
+6. **Report** what landed:
+  the pull request URL, the new title when it changed, and the body as applied.
   The user reviews it on GitHub afterwards, so leave them enough to see what replaced what.
 
 The pull request body is overwritten in place,
