@@ -155,3 +155,6 @@ playwright-report/
 # any other files for local development
 TODO.md
 /tmp/
+
+# rumdl cache directory
+.rumdl_cache/
