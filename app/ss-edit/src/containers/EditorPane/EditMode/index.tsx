@@ -253,9 +253,6 @@ const TextItem = React.memo<{
   );
 });
 
-/**
- * @param e event
- */
 const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();
   // capture the pointer only when main (left) button.
@@ -264,9 +261,6 @@ const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   }
 };
 
-/**
- * @param e event
- */
 const stopPropagation = (e: React.SyntheticEvent): void => e.stopPropagation();
 
 /**

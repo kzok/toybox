@@ -15,7 +15,6 @@ export type ItemRange = readonly [Vec2, Vec2];
 
 /**
  * builds the item a drag on the pane asks for, without adding it anywhere.
- * @param itemKind kind of item to build
  * @param range the drag, from the point it began at to the point it currently reaches
  * @param id item.id to give it
  * @returns the item that drag describes

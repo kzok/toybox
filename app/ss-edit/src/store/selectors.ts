@@ -2,7 +2,6 @@ import type { Vec2 } from "../utils/geometry";
 import type { PageState } from "./types";
 
 /**
- * @param view
  * @returns translate() offset for `<canvas/>`
  * @note `view.offset` names the picture point shown at the centre of the pane, hence the half
  *   canvas size: that point has to land there rather than at the top-left corner.

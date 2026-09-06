@@ -1,16 +1,10 @@
 import { ConfirmClearDialog, ErrorNoticeDialog } from "../../components/Dialogs";
 import type { ActionCreatorParam } from "./types";
 
-/**
- * @param store
- * @param atoms
- * @returns actions for dialogs
- */
 export const createDialogActions = ({ store, atoms }: ActionCreatorParam) => {
   /**
    * push a dialog onto the stack, then pop it once it resolves.
    * @param render dialog render function
-   * @returns result
    */
   const showDialog = async <T,>(
     render: (resolve: (_: T) => void) => React.ReactNode,

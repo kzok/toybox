@@ -21,9 +21,6 @@ type Result<E> = {
 
 /**
  * convert callbacks in order to distinguish drag (pointermove) and click.
- *
- * @param params callbacks
- * @returns component props
  */
 export const usePointerEvents = <E extends Element = HTMLElement>(params: Params<E>): Result<E> => {
   const paramsRef = React.useRef(params);

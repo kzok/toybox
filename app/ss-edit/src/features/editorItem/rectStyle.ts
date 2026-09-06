@@ -27,7 +27,6 @@ const MIN_SIDE_PX = 36;
 export const clampRectSide = (side: number): number => Math.max(side, MIN_SIDE_PX);
 
 /**
- * @param item rect item
  * @returns shared style/layout size (px) for rect item rendering
  * @note the outline straddles the path it is stroked along, hence `padding` takes up the half of
  *   it lying outside. that keeps `offset` the visible top-left corner whatever the line width,

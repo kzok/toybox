@@ -14,15 +14,10 @@ import { dropBlankEditTarget } from "./utils";
 /** minimum width/height an image item can be resized down to (canvas units) */
 const MIN_IMAGE_SIZE = 36;
 
-/**
- * @param params store, atoms and updateAtom
- * @returns actions for editing a single item
- */
 export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /**
      * get into edit mode for the specified item.
-     * @param itemId item.id
      * @note drops the previous target item of edit mode when it became blank.
      */
     enter: (itemId: string): void => {
@@ -36,7 +31,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * update the content of a text item.
-     * @param itemId item.id
      * @param content new text content
      */
     setText: (itemId: string, content: string): void => {
@@ -48,7 +42,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * resize an image item, keeping its aspect ratio and its top-left offset fixed.
-     * @param itemId item.id to resize
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      */
     resizeImage: (itemId: string, cursor: Vec2.Tuple): void => {
@@ -72,7 +65,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * resize a text item, keeping its top-left offset fixed.
-     * @param itemId item.id to resize
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      * @note the font size and the width are scaled by the same factor, which keeps the number of
      *   graphemes a line holds as it was — `textStyleSizeOf` keeps the letter spacing proportional
@@ -100,7 +92,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * resize the width of a text item, keeping its font size and its top-left offset fixed.
-     * @param itemId item.id to resize
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      * @note only the x component is read: the height follows from how the text wraps at the new
      *   width. unlike `resizeTextFontSize`, re-wrapping is what this is for rather than what it
@@ -121,7 +112,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * resize a rect item, keeping its top-left offset fixed.
-     * @param itemId item.id to resize
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      * @note the two sides are taken independently, unlike an image's: a screenshot has proportions
      *   worth keeping, a box drawn around part of one does not.
@@ -141,7 +131,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * move the tip of an arrow item, keeping its tail where it is.
-     * @param itemId item.id to resize
      * @param cursor where the tip should go, measured from the item's tail
      * @note no padding is taken off, unlike a rect's: the handle grips the tip itself rather than
      *   a corner of a padded box, so what it reports is already the point the tip should land on.
@@ -160,7 +149,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * move the tail of an arrow item, keeping its tip where it is.
-     * @param itemId item.id to resize
      * @param cursor where the tail should go, measured from the item's current tail
      * @note the tail is derived back from the tip rather than set to `cursor` outright. the two
      *   agree until the length hits its minimum, and there the derived one is what keeps the tip

@@ -4,10 +4,6 @@ import { INITIAL_EDITOR_STATE } from "../atoms";
 import type { ActionCreatorParam } from "./types";
 import { dropBlankEditTarget } from "./utils";
 
-/**
- * @param params store, atoms and updateAtom
- * @returns actions for the item selection
- */
 export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /**
@@ -22,7 +18,6 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
     },
     /**
      * get into select mode and select specified item.
-     * @param itemId item.id
      * @param multi if ctrlKey is pressed
      * @note drops the target item of edit mode when it became blank.
      */

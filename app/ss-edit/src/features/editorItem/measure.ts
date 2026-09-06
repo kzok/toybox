@@ -9,7 +9,6 @@ import type { EditorItem, TextItemLayout } from "./types";
 const EMPTY_PICTURE_RECT = Rect.new([0, 0], [0, 0]);
 
 /**
- * @param items
  * @returns entire picture rect
  */
 export const measurePicture = (items: readonly EditorItem[]): Rect => {
@@ -22,7 +21,6 @@ export const measurePicture = (items: readonly EditorItem[]): Rect => {
 };
 
 /**
- * @param layout text layout
  * @returns the size the text occupies, laid out at that layout
  * @note the renderer pads the text on every side (see renderText()'s translate(padding, padding)),
  *   so this size includes that padding too, or it would clip what's actually drawn.
@@ -34,10 +32,6 @@ export const textItemSizeOf = (layout: TextItemLayout): Vec2 => {
   return new Vec2(layout.width, lineCount * lineHeight).add([doublePadding, doublePadding]);
 };
 
-/**
- * @param item editor item
- * @returns rect of the item
- */
 const measureItem = (item: EditorItem): Rect => {
   let size: Vec2;
   switch (item.kind) {

@@ -7,7 +7,6 @@
 export class LruCache<K, V extends {} | null> {
   private readonly data = new Map<K, V>();
   /**
-   * @param capacity cache size
    * @throws `RangeError` if the capacity is not a positive number
    */
   constructor(readonly capacity: number) {
@@ -17,10 +16,6 @@ export class LruCache<K, V extends {} | null> {
       throw new RangeError(`capacity must be greater than 0 but was ${capacity}.`);
     }
   }
-  /**
-   * @param key cache key
-   * @returns cached value or undefined
-   */
   get(key: K): V | undefined {
     const value = this.data.get(key);
     if (value === undefined) return undefined;
@@ -29,10 +24,6 @@ export class LruCache<K, V extends {} | null> {
     this.data.set(key, value);
     return value;
   }
-  /**
-   * @param key cache key
-   * @param value cached value
-   */
   set(key: K, value: V): void {
     this.data.delete(key);
     // remove overflowed cache.
@@ -43,7 +34,6 @@ export class LruCache<K, V extends {} | null> {
     this.data.set(key, value);
   }
   /**
-   * @param key cache key
    * @param compute callback to create the value, left uncalled on a hit
    * @returns the cached value, or the computed one after storing it
    */

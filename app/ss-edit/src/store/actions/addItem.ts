@@ -6,10 +6,6 @@ import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 import { dropBlankEditTarget } from "./utils";
 
-/**
- * @param params store, atoms and updateAtom
- * @returns actions for adding an item by dragging
- */
 export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /** get into add-item mode */
