@@ -6,10 +6,6 @@ import { Vec2 } from "../../utils/geometry";
 import { createDialogActions } from "./dialogs";
 import type { ActionCreatorParam } from "./types";
 
-/**
- * @param params store, atoms and updateAtom
- * @returns actions for the picture as a whole
- */
 export const createPictureActions = (params: ActionCreatorParam) => {
   const { store, atoms, updateAtom } = params;
   const dialogs = createDialogActions(params);

@@ -40,7 +40,6 @@ export const nextWheelZoomScale = (scale: number, deltaY: number): number => {
 
 /**
  * register wheel event handler
- * @param elementRef ref object for an element
  */
 export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): void => {
   const actions = pageCtx.useActions();
@@ -60,10 +59,6 @@ export const useWheelEvent = (elementRef: React.RefObject<HTMLElement | null>): 
  *   `preventDefault()` below is ignored there and the browser scrolls or zooms the page as well.
  */
 class WheelHandler {
-  /**
-   * @param element
-   * @param actions
-   */
   constructor(
     readonly element: HTMLElement,
     readonly actions: PageActions,
@@ -76,22 +71,17 @@ class WheelHandler {
   }
   /**
    * handle wheel scroll event.
-   * @param e
    */
   private handleWheelScroll(e: WheelEvent): void {
     this.actions.view.scroll(-e.deltaX, -e.deltaY);
   }
   /**
    * handle wheel zoom event.
-   * @param e
    */
   private handleWheelZoom(e: WheelEvent): void {
     const cursor = Vec2.new(e.clientX, e.clientY).sub(this.element.getBoundingClientRect());
     this.actions.view.zoom((scale) => nextWheelZoomScale(scale, e.deltaY), cursor);
   }
-  /**
-   * @param e
-   */
   readonly onWheel = (e: WheelEvent): void => {
     e.preventDefault();
     e.stopPropagation();

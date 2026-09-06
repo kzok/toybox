@@ -11,8 +11,6 @@ import type { TextItemLayout } from "./types";
 const lineCache = new LruCache<string, readonly string[]>(1000);
 
 /**
- * @param layout text item
- * @returns splitted lines
  * @note laying the text out costs a `getClientRects()` per grapheme, while the renderer asks for
  *   the lines of every item on every frame. only an edit ever changes the answer, hence the cache.
  */
@@ -20,7 +18,6 @@ export const splitLines = (layout: TextItemLayout): readonly string[] =>
   lineCache.getOrCompute(cacheKeyOf(layout), () => computeLines(layout));
 
 /**
- * @param layout text layout
  * @returns the key the laid out lines are cached under
  * @note keyed by what the lines are laid out from rather than by the item identity: an item is
  *   replaced whenever it is dragged, which leaves the line breaks untouched.
@@ -99,7 +96,6 @@ const mountMeasureElement = (): HTMLDivElement => {
 };
 
 /**
- * @param layout text layout
  * @returns the measure element, styled for the given layout
  */
 const getMeasureElement = (layout: TextItemLayout): HTMLDivElement => {

@@ -49,8 +49,6 @@ export const Painter = React.memo(() => {
 });
 
 /**
- * @param callback raf callback
- * @param deps useEffect dependencies
  * @note the paint is deferred to the next frame, the conventional way to drive a canvas rather
  *   than a fix for a measured problem. it does buy coalescing though: the request/cancel pair
  *   leaves only the last of a burst of updates to paint, and a drag emits one per `pointermove`.

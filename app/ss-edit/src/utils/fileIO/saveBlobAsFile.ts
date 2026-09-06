@@ -1,6 +1,5 @@
 /**
  * triggers a browser download for the given blob.
- * @param blob file content
  * @param fileName suggested file name
  */
 export const saveBlobAsFile = (blob: Blob, fileName: string): void => {

@@ -3,7 +3,6 @@ import { renderEditorItem } from "./renderItems";
 
 /**
  * renders editor items onto an off-screen canvas and encodes it as a PNG blob.
- * @param items editor items
  * @returns PNG blob tightly cropped to the items' bounding box
  */
 export const exportToImageBlob = async (items: readonly EditorItem[]): Promise<Blob> => {

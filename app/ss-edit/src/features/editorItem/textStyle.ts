@@ -28,7 +28,6 @@ export const clampTextWidth = (width: number, fontSize: number): number =>
   Math.max(Math.round(width), fontSize * MIN_WIDTH_IN_GRAPHEMES);
 
 /**
- * @param layout text layout
  * @returns shared style/layout size (px) for text item rendering
  */
 export const textStyleSizeOf = (
@@ -53,7 +52,6 @@ export const textStyleSizeOf = (
 });
 
 /**
- * @param layout text layout
  * @returns shared inline style for text item rendering
  */
 export const textStyleOf = (layout: TextItemLayout) => {

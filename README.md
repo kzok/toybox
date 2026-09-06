@@ -14,16 +14,17 @@ Sub-packages are located in the following folders.
 
 ## Workspace conventions
 
+- Every app in this repo supports only Chromium-based browsers like Chrome and Edge on PC.
 - [Volta](https://docs.volta.sh/) is used to pin the Node.js version.
 - Packages are named `@~/<name>` (e.g. `@~/ui`) and are `private`.
 - Root `tsconfig.json` and `biome.jsonc` generally apply across all workspaces.
-
-See the following docs for more info.
-
-- [`docs/TEST_STRATEGY.md`](docs/TEST_STRATEGY.md)
-- [`docs/STYLING.md`](docs/STYLING.md)
 
 ## How to develop
 
 `Makefile` is used as a task runner on top of npm scripts.
 Please run `make` with no args to show help message.
+
+## Other docs
+
+- [`docs/TEST_STRATEGY.md`](docs/TEST_STRATEGY.md)
+- [`docs/STYLING.md`](docs/STYLING.md)

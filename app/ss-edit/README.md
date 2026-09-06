@@ -6,7 +6,6 @@ An image editor specialized for editing screenshots.
 
 - `src/app/`
   - The application root component.
-    Entry point of the application.
 - `src/containers/`
   - React components wired to application state managements.
 - `src/components/`
@@ -30,8 +29,4 @@ An image editor specialized for editing screenshots.
 ## Other docs
 
 - [`docs/UX_DESIGN.md`](docs/UX_DESIGN.md)
-  - What the editor does from the end-user's perspective.
-  - Why the choices that are not obvious are what they are.
 - [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md)
-  - How it is put together.
-  - The constraints that hold it together.

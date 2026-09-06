@@ -7,11 +7,6 @@ import { createSelectionActions } from "./selection";
 import type { ActionCreatorParam, StoreInterface, UpdateAtom } from "./types";
 import { createViewActions } from "./view";
 
-/**
- * @param store
- * @param atoms
- * @returns actions
- */
 export const createActions = (store: StoreInterface, atoms: Atoms) => {
   const updateAtom: UpdateAtom = (atom, recipe) => {
     store.set(

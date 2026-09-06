@@ -147,7 +147,4 @@ const useGripHandlers = (
   } as const;
 };
 
-/**
- * @param e event
- */
 const stopPropagation = (e: React.SyntheticEvent): void => e.stopPropagation();

@@ -9,10 +9,6 @@ import type { ActionCreatorParam } from "./types";
 const ZOOM_MIN = 0.27;
 const ZOOM_MAX = 2.0;
 
-/**
- * @param params store, atoms and updateAtom
- * @returns actions for the editor view
- */
 export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /**
@@ -37,7 +33,6 @@ export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     },
     /**
      * zoom in canvas
-     * @param next next scale
      * @param cursor cursor offset from top-left of `<canvas/>`, the centre of the pane by default
      * @note the offset moves along with the scale so that the picture point under `cursor` stays
      *   under it — `scaleOrigin` is that point in picture coordinates. leaving the offset alone

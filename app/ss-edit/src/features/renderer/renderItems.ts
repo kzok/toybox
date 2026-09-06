@@ -10,8 +10,6 @@ import type { CanvasContext2D } from "./types";
 
 /**
  * render editor item
- * @param ctx
- * @param item editor item
  */
 export const renderEditorItem = (ctx: CanvasContext2D, item: EditorItem) => {
   switch (item.kind) {

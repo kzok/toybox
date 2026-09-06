@@ -3,7 +3,6 @@ import { pageCtx } from "../../../store";
 
 /**
  * call specified action when resized.
- * @param elementRef ref object for an element
  */
 export const useResizeObserver = <T extends Element>(
   elementRef: React.RefObject<T | null>,
