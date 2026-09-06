@@ -7,8 +7,7 @@
   cursor: copy;
 }
 
-.range,
-.arrowRange {
+.range {
   position: absolute;
   box-sizing: border-box;
   pointer-events: none;
@@ -16,15 +15,4 @@
   background: rgba(15, 108, 189, 0.3);
   /* cancel out `transform: scale()` to keep the border width constant */
   border: calc(1px / var(--scale, 1)) solid #0f6cbd;
-}
-
-/**
- * the preview of an arrow: the band `SelectMode` and `EditMode` give a finished one, laid out
- * along +x from the tail and turned into place by an inline `rotate()`.
- * @note turned about its left edge so that it pivots on the tail — the point `offset` names —
- *   rather than on a corner of the band. the inline `margin-top` that puts the tail on that
- *   edge's middle comes from `ARROW_STYLE_SIZE`, as it does in the two modes above.
- */
-.arrowRange {
-  transform-origin: 0 50%;
 }
