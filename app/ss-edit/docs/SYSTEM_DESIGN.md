@@ -2,6 +2,7 @@
 
 How the editor is put together and the constraints
 that hold it together in terms of the system design.
+How the decisions got there is what `git log` is for.
 What the editor does from the end-user's perspective is in [`UX_DESIGN.md`](UX_DESIGN.md).
 
 ## Rendering pipeline
@@ -39,25 +40,23 @@ so `CanvasLayer` and `Painter` are the two places that must be kept in sync — 
 or the style values below, drift apart,
 the overlays' hit-boxes and cursor position visually desync from what's drawn.
 
+## Shared style values
+
+Every style and layout value an item is drawn at lives in `features/editorItem`,
+and every consumer reads it from there rather than recomputing or restating it.
+Rendering, editing, hit-testing and exporting all have to agree on the same numbers.
+
+Nothing type-checks this.
+A consumer that recomputes a padding or a line height inline still compiles,
+and the damage shows up as silent visual drift — clipped text,
+hit-boxes sitting off the pixels they belong to.
+
 ## Text layout invariants
 
-`features/editorItem` exports `textStyleSizeOf`
-(padding/lineHeight/letterSpacing as numbers)
-and `textStyleOf` (the same values as a CSS style object),
-both pure functions of a text item's layout (`width`, `fontSize`, `content`).
-Four independent consumers must call these same functions
-(not recompute inline) for text to render, edit, and hit-test consistently:
+A text item's style is a pure function of its layout — `width`, `fontSize` and `content` —
+and `textStyleSizeOf` / `textStyleOf` (`features/editorItem`) are where that function lives.
 
-1. the canvas draw in `renderer/`.
-1. `EditMode`'s edit-mode textarea styling.
-1. `SelectMode`'s select-mode hit-target styling for text items.
-1. `editorItem`'s own text layout/line-breaking measurement.
-
-Losing track of this (e.g. a consumer recomputing padding/lineHeight/letterSpacing inline instead of
-calling `textStyleSizeOf`/`textStyleOf`) is exactly the kind of change that causes silent visual
-drift — clipped text, misaligned hit/hover boxes — without any type error to catch it.
-
-`width` and `fontSize` are the two inputs those functions are derived from,
+Of those three inputs, `width` and `fontSize` are the ones the geometry follows,
 and hence the two `splitLines` keys its line cache on.
 Every write to either goes through `clampTextWidth` / `clampFontSize` (`features/editorItem`),
 which round as well as clamp: a fractional value would miss the cache on every frame of a resize
@@ -91,13 +90,8 @@ Every value in it is a true on-screen dimension rather than a ratio of another,
 so what is written there is what is drawn; only `outlineWidth` and `padding` are derived.
 
 `padding` is how far the drawing spreads either side of the tail-to-tip line,
-and four consumers must read it rather than restate it,
-or the hit-boxes drift from the pixels with nothing to type-check:
-
-1. `measureItem`, which is what the exported PNG is cropped to.
-1. `SelectMode`'s hit-target band.
-1. `EditMode`'s band, which is what keeps a click on the arrow from ending the edit.
-1. `AddItemMode`'s preview band.
+and every hit-box and measurement of an arrow is sized from it rather than restating it.
+In edit mode that band is also what keeps a click on the arrow from ending the edit.
 
 ## Action grouping
 
@@ -136,16 +130,17 @@ Nothing on the event says which device produced it,
 so `useWheelEvent.ts` (`src/containers/EditorPane/hooks`) goes by the one thing
 that separates them — the magnitude of `deltaY`,
 which is 0.5-3 for a pinch against 100 or so for a wheel notch.
-The threshold sits in the empty space between the two and deliberately nearer the notch end:
+The threshold sits well above the pinch range rather than midway between the two:
 reading a pinch as a notch jumps 30% in a single event and wrecks the gesture,
 while reading a notch as a pinch only makes it weak,
 so anything ambiguous falls to the pinch branch.
 
-The 100% snap is keyed on a step *crossing* 100% rather than on landing near it.
+A zoom step that crosses 100% stops there, that being the ratio a screenshot is read at.
+The snap is keyed on the crossing rather than on landing near it.
 A window around 100% only works while every step is larger than the window —
 a pinch step is two orders of magnitude smaller than one,
 so a window makes 100% a scale the trackpad can never leave again.
-`__tests__/useWheelEvent.test.ts` is what holds that down.
+`src/containers/EditorPane/hooks/__tests__/useWheelEvent.test.ts` is what holds that down.
 
 Snapping belongs to the wheel and not to `view.zoom`,
 hence it lives here rather than in `store/actions/view.ts`:
@@ -157,8 +152,8 @@ Every hotkey is registered in `AppHotkeyRegistry` (`src/app/index.tsx`),
 so that which keys are taken can be read off a single component.
 They go through `@tanstack/react-hotkeys`, whose manager listens on `document`.
 
-Three of its defaults decide how a hotkey behaves,
-and the first of them is easy to break from the outside:
+Its defaults decide how a hotkey behaves,
+and `ignoreInputs` is the one easy to break from the outside:
 
 - `ignoreInputs` is resolved per hotkey:
   a bare key or a Shift/Alt combination is suppressed while an input-like element holds the focus,
@@ -181,7 +176,6 @@ A dialog is modal, hence every hotkey carries `enabled: !isDialogOpen` and stays
 while one is open.
 A new hotkey shares that flag.
 
-`e2e/ss-edit/hotkeys.e2e.ts` is what holds all of this down:
+The repo-level `e2e/ss-edit/hotkeys.e2e.ts` is what holds all of this down:
 none of it fails to type-check when broken,
-and three of the four constraints above are invisible
-until a key is actually pressed in a real browser.
+and most of it is invisible until a key is actually pressed in a real browser.
