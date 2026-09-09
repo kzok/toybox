@@ -48,3 +48,10 @@ Rules here apply to both docs and code comments.
 - **A comment earns its place by preventing a specific mistake.**
   - Write one where changing the code without it would break something.
   - Most exports need no rationale beyond `@param` / `@returns`.
+- **A test can be a comment's home.**
+  - Delete the comment where a test already pins the behaviour,
+    and state the reason in the test's name.
+- **Keep the descriptions on a data type's fields, even pure restatement.**
+  - How the data is read is what the type cannot give.
+  - A pass cutting comments leaves them alone.
+    Whether to write one is the user's call.
