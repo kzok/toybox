@@ -1,18 +1,12 @@
 # CLAUDE.md
 
-## Commands
+## Useful commands
 
 - `npm run test -- --run path/to/file.test.ts`
-  - Run a single `vitest` file.
 - `npm run test -- --changed --run`
-  - Run affected `vitest` files by changed files.
-- `npm run type-check`
-  - Run TypeScript type-check.
+  - Run affected files by changed files.
 - `make check`
-  - Pre-commit check (format, type-check, changed tests).
-    Run before considering work done.
-- `npm run rumdl`
-  - Lint and format all the markdown docs.
+  - Run before considering work done.
 
 ## Project foundation docs
 
