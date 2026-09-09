@@ -67,11 +67,11 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   ctx.shadowOffsetX = shadowOffset;
   ctx.shadowOffsetY = shadowOffset;
 
-  // NOTE: the measured text is arbitrary since only font-wide metrics are used.
+  // the measured text is arbitrary since only font-wide metrics are used.
   const metrics = ctx.measureText("あ");
   const ascent = metrics.fontBoundingBoxAscent;
   const descent = metrics.fontBoundingBoxDescent;
-  // NOTE: CSS line boxes floor the half-leading, so rounding up shifts the
+  // CSS line boxes floor the half-leading, so rounding up shifts the
   // baseline 1px below the DOM overlay on some font sizes.
   const halfLeading = Math.floor((lineHeight - (ascent + descent)) / 2);
   const firstBaseline = halfLeading + ascent;
@@ -80,7 +80,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   for (const [index, line] of lines.entries()) {
     const y = firstBaseline + index * lineHeight;
 
-    // NOTE: every draw call casts its own shadow, hence off again immediately.
+    // shadow
     ctx.shadowColor = "#000";
     ctx.strokeStyle = "#000";
     ctx.strokeText(line, 0, y);
@@ -100,7 +100,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
 const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
   const { strokeWidth, padding, shadowBlur, shadowOffset } = rectStyleSizeOf(item);
 
-  // NOTE: one path stroked three times, so that the three widths cannot drift apart.
+  // rect path
   const path = new Path2D();
   path.roundRect(0, 0, item.width, item.height, item.lineWidth);
 
@@ -112,9 +112,7 @@ const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
   ctx.shadowOffsetX = shadowOffset;
   ctx.shadowOffsetY = shadowOffset;
 
-  // NOTE: every draw call casts its own shadow, hence off again immediately.
-  // NOTE: the black is drawn at the same width as the white hiding it, so that the shadow's
-  //   silhouette is the one that is actually visible.
+  // shadow
   ctx.lineWidth = strokeWidth;
   ctx.shadowColor = "#000";
   ctx.strokeStyle = "#000";
@@ -152,19 +150,12 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   const backX = item.length - headLength;
   /**
    * the control point of the curve that dents the head's back edge.
-   * @note twice the notch out, a quadratic curve only reaching half way to its control point —
-   *   B(0.5) is the average of the midpoint of the two ends and the control point — so the dent
-   *   bottoms out `headNotch` deep, at `backX + headNotch`.
+   * @note twice the notch out, a quadratic curve only reaching half way to its control point.
+   *   so the dent bottoms out `headNotch` deep, at `backX + headNotch`.
    */
   const notchControlX = backX + headNotch * 2;
 
-  // NOTE: a filled wedge rather than a stroked line, so that it can taper.
-  // NOTE: it runs to the control point, past where the dent bottoms out: stopping short of the
-  //   dent would leave a gap between the two shapes, and landing exactly on it would have them
-  //   abut and show an antialiased seam.
-  // NOTE: the tail is closed with a semicircle centred on the item's `offset` rather than with
-  //   the flat edge `closePath()` would leave, which puts the back of the shaft half its own
-  //   width behind `offset`. `padding` covers that, being wider than half the head.
+  /** a filled wedge rather than a stroked line. */
   const shaft = new Path2D();
   shaft.moveTo(0, -shaftTailWidth / 2);
   shaft.lineTo(notchControlX, -shaftHeadWidth / 2);
@@ -173,7 +164,7 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   shaft.arc(0, 0, shaftTailWidth / 2, Math.PI / 2, -Math.PI / 2);
   shaft.closePath();
 
-  // NOTE: a triangle whose back edge is bowed in towards the tip.
+  /** a triangle whose back edge is bowed in towards the tip. */
   const head = new Path2D();
   head.moveTo(item.length, 0);
   head.lineTo(backX, -headWidth / 2);
@@ -183,19 +174,13 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   ctx.save();
   ctx.translate(...item.offset);
   ctx.rotate(item.angle);
-  // NOTE: sharpens the corners of both shapes. the default `miterLimit` of 10 drops a join back
-  // to a bevel below a tip angle of about 11 degrees, which is where a head narrowed further
-  // would silently stop being pointed.
   ctx.lineJoin = "miter";
   ctx.lineWidth = outlineWidth;
   ctx.shadowBlur = shadowBlur;
   ctx.shadowOffsetX = shadowOffset;
   ctx.shadowOffsetY = shadowOffset;
 
-  // NOTE: both shapes are drawn the same way and at one stroke width — the fill is the shape
-  // itself, and the stroke only lays the outline around it, half of `outlineWidth` landing
-  // outside the path. nothing here widens a shape beyond the path it is built from.
-  // NOTE: every draw call casts its own shadow, hence off again immediately.
+  // shadow
   ctx.shadowColor = "#000";
   ctx.strokeStyle = "#000";
   ctx.stroke(shaft);

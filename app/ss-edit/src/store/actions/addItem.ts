@@ -17,7 +17,7 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
     },
     /**
      * update range of "add-item" mode
-     * @param cursor current cursor position, in editor pane coordinates
+     * @param cursor current cursor position in editor pane coordinates
      */
     updateRange: (cursor: Vec2): void => {
       updateAtom(atoms.state, (draft) => {
@@ -30,23 +30,14 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
         }
       });
     },
-    /**
-     * drop the range being dragged in "add-item" mode, staying in the mode.
-     * @note called when the drag is cancelled (e.g. on "pointercancel"), so that the
-     *   abandoned start point never becomes the head of the next drag.
-     */
+    /** drop the range being dragged in "add-item" mode, staying in the mode. */
     cancel: (): void => {
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind !== "add-item") return;
         draft.editorMode.range = null;
       });
     },
-    /**
-     * add the item of "add-item" mode at the dragged range, and leave the mode with it as the
-     * user's next concern: a text item is edited, since it arrives blank and has to be typed
-     * into, while a rect or an arrow item is merely selected, being finished the moment it is
-     * dragged out.
-     */
+    /** add the item of "add-item" mode at the dragged range and leave the mode. */
     commit: (): void => {
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind !== "add-item") return;
@@ -57,7 +48,7 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
         draft.editorItems.push(castDraft(newItem));
         draft.editorMode =
           newItem.kind === "text"
-            ? // NOTE: the added item is blank, hence dropped again unless the user types anything.
+            ? // a text item gets dropped unless the user types anything.
               { kind: "edit", itemId: newItem.id }
             : { kind: "select", selectedIds: [newItem.id] };
       });

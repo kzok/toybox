@@ -21,7 +21,7 @@ import {
 const MAIN_TAIL: Point = { x: 200, y: 220 };
 const MAIN_TIP: Point = { x: 600, y: 220 };
 
-/** the shortest an arrow can be made, three times the length of its own head. */
+/** the shortest an arrow can be made. */
 const MIN_LENGTH = 120;
 
 /** lays a 400px arrow out and opens its editor, answering where its two ends are on screen. */

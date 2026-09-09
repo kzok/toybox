@@ -18,11 +18,6 @@ export type ItemRange = readonly [Vec2, Vec2];
  * @param range the drag, from the point it began at to the point it currently reaches
  * @param id item.id to give it
  * @returns the item that drag describes
- * @note pure, and the only place a dragged range becomes an item. both the committed item and the
- *   preview drawn under the pointer come through here, hence the one cannot drift from the other:
- *   whatever the preview shows is by construction what releasing the pointer leaves behind.
- * @note the id is asked for rather than made here, `crypto.randomUUID()` being a side effect. it
- *   also lets the preview hold an id of its own that never reaches the item list.
  */
 export const editorItemFromRange = (
   itemKind: AddableItemKind,
@@ -33,8 +28,7 @@ export const editorItemFromRange = (
 
   switch (itemKind) {
     case "text": {
-      // NOTE: the dragged height is a single line box, hence the inverse of the `lineHeight`
-      //   that `textStyleSizeOf()` derives from the font size.
+      // the dragged height is a single line box, hence the inverse of the `lineHeight`.
       const fontSize = clampFontSize(size.y / 1.5);
       return {
         kind: "text",
@@ -58,19 +52,13 @@ export const editorItemFromRange = (
       };
     }
     case "arrow": {
-      // NOTE: the drag is read end to end rather than through the normalised `head`/`size` above:
-      // those come from a `Rect`, which takes the min and the max of the two points and hence
-      // throws away which end the user started from. that direction is the whole of what an
-      // arrow is.
+      // the drag is read end to end rather than through the normalised `head`/`size`.
       const [tail, tip] = range;
       return {
         kind: "arrow",
         id,
         offset: tail.tuple(),
         length: clampArrowLength(tip.distance(tail)),
-        // NOTE: a click that never became a drag leaves the two points equal, which `Math.atan2`
-        // answers 0 for — a minimum length arrow pointing right, without a case of its own, the
-        // way a click leaves a rect at its minimum square.
         angle: tip.sub(tail).angle(),
         color: NEW_ITEM_COLOR,
       };

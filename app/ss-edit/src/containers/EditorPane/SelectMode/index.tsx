@@ -39,7 +39,6 @@ const ImageItem = React.memo<{
 }>(({ item }) => {
   const style = React.useMemo(
     (): React.CSSProperties => ({
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.width}px`,
@@ -60,12 +59,6 @@ const ImageItem = React.memo<{
   );
 });
 
-/**
- * the hit-target of a text item in select mode.
- * @note the content is rendered into it, transparent, only to give the span its box: the shared
- *   text style sets the width, and without children there would be no height and hence no hit
- *   area at all.
- */
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
@@ -87,25 +80,20 @@ const TextItem = React.memo<{
       style={style}
       {...usePointerActions(item, selected)}
     >
-      {item.content}
+      {
+        // the content is rendered into it, transparent, only to give the span its box.
+        item.content
+      }
     </span>
   );
 });
 
-/**
- * the hit-target of a rect item in select mode.
- * @note the whole box takes the pointer, the middle of the rect included, as an image item's does.
- *   that costs the items a rect is drawn around: they cannot be clicked through it.
- * @note the box is the one the renderer paints, which `rectStyleSizeOf` pads on every side to take
- *   up the half of the outline lying outside the line's own box.
- */
 const RectItem = React.memo<{
   item: EditorItem.Rect;
 }>(({ item }) => {
   const style = React.useMemo((): React.CSSProperties => {
     const { padding } = rectStyleSizeOf(item);
     return {
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.width + padding * 2}px`,
@@ -125,26 +113,12 @@ const RectItem = React.memo<{
   );
 });
 
-/**
- * the hit-target of an arrow item in select mode.
- * @note a band along the arrow rather than the box it spans, unlike every other kind: the box of a
- *   diagonal arrow is mostly empty, and taking the pointer over all of it would put whatever lies
- *   in those corners out of reach. a rect pays that cost because its box is what it covers; an
- *   arrow's is not.
- * @note as wide as `padding` makes the drawing at the head, the widest part of it, which leaves
- *   the thin shaft a comfortable grab area as well. what falls outside is the few px the tail's
- *   rounding reaches behind `offset` and the miter beyond the tip.
- * @note laid out along +x from the tail and turned into place, the way `renderArrow` does it. it
- *   is pulled up by half its height and turned about its left edge, so that the point it pivots
- *   on is the tail itself rather than a corner of the band.
- */
 const ArrowItem = React.memo<{
   item: EditorItem.Arrow;
 }>(({ item }) => {
   const style = React.useMemo((): React.CSSProperties => {
     const { padding } = ARROW_STYLE_SIZE;
     return {
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.length}px`,

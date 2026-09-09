@@ -41,7 +41,6 @@ const ImageItem = React.memo<{
   const actions = pageCtx.useActions();
   const style = React.useMemo(
     (): React.CSSProperties => ({
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.width}px`,
@@ -70,12 +69,6 @@ const ImageItem = React.memo<{
   );
 });
 
-/**
- * the resize target of a rect item.
- * @note edit mode is the only way to resize a rect, there being nothing else to edit about one.
- * @note the box is the one the renderer paints, which `rectStyleSizeOf` pads on every side. the
- *   handle measures the pointer against this box, hence `resizeRect` takes that padding back off.
- */
 const RectItem = React.memo<{
   item: EditorItem.Rect;
 }>(({ item }) => {
@@ -83,7 +76,6 @@ const RectItem = React.memo<{
   const style = React.useMemo((): React.CSSProperties => {
     const { padding } = rectStyleSizeOf(item);
     return {
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
       width: `${item.width + padding * 2}px`,
@@ -111,29 +103,17 @@ const RectItem = React.memo<{
   );
 });
 
-/**
- * the resize target of an arrow item.
- * @note edit mode is the only way to change an arrow's length or direction, there being nothing
- *   else to edit about one, as with a rect.
- * @note a handle on each end rather than one on a corner: an arrow has no box of its own worth
- *   gripping, and each end moving on its own is what lets its direction be changed at all.
- * @note the container carries the offset and nothing else, so it is a box of no size sitting on
- *   the tail. that is all `ResizePointHandle` asks of it — only the top-left is read — and it
- *   keeps the container clear of the rotation the item's shape would otherwise need.
- */
 const ArrowItem = React.memo<{
   item: EditorItem.Arrow;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
   const style = React.useMemo(
     (): React.CSSProperties => ({
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
     }),
     [item.offset],
   );
-  // NOTE: the tip in the container's own coordinates, which put the tail on the origin.
   const tip = React.useMemo(
     (): Vec2.Tuple => Vec2.polar(item.length, item.angle).tuple(),
     [item.length, item.angle],
@@ -159,6 +139,7 @@ const ArrowItem = React.memo<{
   );
 
   return (
+    // a transparent container
     <ResizeContainer
       style={style}
       onPointerDown={stopPropagation}
@@ -167,31 +148,17 @@ const ArrowItem = React.memo<{
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
     >
-      {/* NOTE: `data-item-kind` sits on the band rather than on the container, unlike the kinds
-          above: the attribute marks the element that is the item on the overlay, and here that is
-          the band. the container is the box of no size the handles are measured against. */}
+      {/* a visible band */}
       <span className={styles.arrowItem} data-item-kind={item.kind} style={bandStyle} />
-      <ResizePointHandle end="tail" position={ORIGIN} onResize={onResizeTail} />
+      <ResizePointHandle end="tail" position={TAIL_POSITION} onResize={onResizeTail} />
       <ResizePointHandle end="tip" position={tip} onResize={onResizeTip} />
     </ResizeContainer>
   );
 });
 
-/**
- * the tail's place in the container's own coordinates, the container sitting on it.
- * @note held here rather than converted at the call site so that it is one array for the life of
- *   the module: `ResizePointHandle` is memoized on `position`, which a fresh tuple every render
- *   would defeat.
- */
-const ORIGIN: Vec2.Tuple = Vec2.ORIGIN.tuple();
+/** arrow tail's place in the container's own coordinates. */
+const TAIL_POSITION: Vec2.Tuple = Vec2.ORIGIN.tuple();
 
-/**
- * a transparent `<textarea/>` laid over the text rendered on the `<canvas/>`,
- * so that the caret and the selection are the only visible part of it.
- * @note a `<textarea/>` takes no children, hence the resize handles are siblings of it and the
- *   offset is carried by the box wrapping them. the wrapper is left to shrink to fit, so it stays
- *   exactly the `<textarea/>`'s box and the handles land on its right edge and bottom right corner.
- */
 const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
@@ -199,7 +166,6 @@ const TextItem = React.memo<{
   const elementRef = React.useRef<HTMLTextAreaElement>(null);
   const boxStyle = React.useMemo(
     (): React.CSSProperties => ({
-      // NOTE: an ancestor component applies the offset and the scale.
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,
     }),
@@ -231,9 +197,6 @@ const TextItem = React.memo<{
         ref={elementRef}
         className={styles.textItem}
         data-item-kind={item.kind}
-        // NOTE: a <textarea/> does not grow with its content, hence the row count comes from the
-        // laid out lines. that lands on the box the canvas paints because the lines and the line
-        // height both come from `editorItem`.
         rows={splitLines(item).length}
         style={style}
         // NOTE: uncontrolled so that React never rewrites the value being composed

@@ -26,15 +26,13 @@ const SNAP_SCALE = 1;
  * @param scale the current scale
  * @param deltaY `deltaY` of a `ctrl+wheel` event
  * @returns the next scale, before it is clamped to the zoom range
- * @note the snap fires on *crossing* 100% rather than on landing near it: a window around 100%
- *   would swallow every pinch step, since one is far smaller than any window worth having, and
- *   100% would become a scale the trackpad cannot leave.
  */
 export const nextWheelZoomScale = (scale: number, deltaY: number): number => {
   const next =
     Math.abs(deltaY) >= NOTCH_DELTA_MIN
       ? NOTCH_ZOOM_RATIO ** (-deltaY / 100) * scale
       : PINCH_ZOOM_RATIO ** -deltaY * scale;
+  // the snap fires on *crossing* 100% rather than on landing near it
   return (scale - SNAP_SCALE) * (next - SNAP_SCALE) < 0 ? SNAP_SCALE : next;
 };
 
@@ -69,15 +67,11 @@ class WheelHandler {
   cleanup(): void {
     this.element.removeEventListener("wheel", this.onWheel);
   }
-  /**
-   * handle wheel scroll event.
-   */
+  /** handle wheel scroll event. */
   private handleWheelScroll(e: WheelEvent): void {
     this.actions.view.scroll(-e.deltaX, -e.deltaY);
   }
-  /**
-   * handle wheel zoom event.
-   */
+  /** handle wheel zoom event. */
   private handleWheelZoom(e: WheelEvent): void {
     const cursor = Vec2.new(e.clientX, e.clientY).sub(this.element.getBoundingClientRect());
     this.actions.view.zoom((scale) => nextWheelZoomScale(scale, e.deltaY), cursor);

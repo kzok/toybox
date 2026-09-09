@@ -22,11 +22,6 @@
   color: transparent;
 }
 
-/**
- * @note turned about its left edge by an inline `rotate()`, so that it pivots on the tail — the
- *   point `offset` names — rather than on a corner of the band. the inline `margin-top` that puts
- *   the tail on that edge's middle comes from `ARROW_STYLE_SIZE`.
- */
 .arrowItem {
   transform-origin: 0 50%;
 }

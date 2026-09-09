@@ -7,6 +7,7 @@ import type { ActionCreatorParam } from "./types";
  *   no longer legible further out.
  */
 const ZOOM_MIN = 0.27;
+/** the largest scale the view zooms to. */
 const ZOOM_MAX = 2.0;
 
 export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
@@ -34,9 +35,6 @@ export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     /**
      * zoom in canvas
      * @param cursor cursor offset from top-left of `<canvas/>`, the centre of the pane by default
-     * @note the offset moves along with the scale so that the picture point under `cursor` stays
-     *   under it — `scaleOrigin` is that point in picture coordinates. leaving the offset alone
-     *   would slide the picture out from under the pointer on every wheel notch.
      */
     zoom: (next: number | ((_: number) => number), cursor?: Vec2): void => {
       updateAtom(atoms.state, (draft) => {

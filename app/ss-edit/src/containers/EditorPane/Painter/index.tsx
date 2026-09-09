@@ -3,12 +3,7 @@ import { renderEditorItem } from "../../../features/renderer";
 import { pageCtx } from "../../../store";
 import styles from "./index.module.css";
 
-/**
- * editor canvas painter that renders items onto a `<canvas/>`.
- * @note the transform applied to the 2D context below has to stay equivalent to the CSS transform
- *   of `CanvasLayer` — see the note there. the two only agree because both read `canvasOffset`
- *   and the same view scale.
- */
+/** editor canvas painter that renders items onto a `<canvas/>`. */
 export const Painter = React.memo(() => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const view = pageCtx.useEditorView();
@@ -25,14 +20,13 @@ export const Painter = React.memo(() => {
       throw new Error("failed to get <canvas/> context 2d.");
     }
     ctx.reset();
+    // keep in sync with CSS transform of the overlays.
     ctx.translate(...canvasOffset.tuple());
     ctx.scale(view.scale, view.scale);
     for (const item of items) {
       renderEditorItem(ctx, item);
     }
-    // NOTE: over the list rather than among it, which is where committing the drag would put it
-    // anyway. drawn through the same function as the items so that what the pointer is dragging
-    // out looks exactly like what releasing it leaves behind.
+    // preview added item on top of the other items.
     if (preview != null) {
       renderEditorItem(ctx, preview);
     }
@@ -50,8 +44,7 @@ export const Painter = React.memo(() => {
 
 /**
  * @note the paint is deferred to the next frame, the conventional way to drive a canvas rather
- *   than a fix for a measured problem. it does buy coalescing though: the request/cancel pair
- *   leaves only the last of a burst of updates to paint, and a drag emits one per `pointermove`.
+ *   than a fix for a measured problem.
  */
 const useRequestAnimationFrame = (
   callback: FrameRequestCallback,

@@ -6,10 +6,7 @@ import { dropBlankEditTarget } from "./utils";
 
 export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
-    /**
-     * get back into select mode with nothing selected
-     * @note drops the target item of edit mode when it became blank.
-     */
+    /** get back into select mode with nothing selected. */
     clear: (): void => {
       updateAtom(atoms.state, (draft) => {
         dropBlankEditTarget(draft);
@@ -19,7 +16,6 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
     /**
      * get into select mode and select specified item.
      * @param multi if ctrlKey is pressed
-     * @note drops the target item of edit mode when it became blank.
      */
     select: (itemId: string, multi: boolean = false): void => {
       updateAtom(atoms.state, (draft) => {
@@ -67,16 +63,12 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
         }
       });
     },
-    /**
-     * drop the selected items, getting back to select mode with nothing selected.
-     * @note only select mode has a selection to act on, hence a no-op in the others.
-     * @note returns before touching `editorItems` when nothing is selected: rewriting it with an
-     *   identical list would count as an unsaved change (see `savedItems`).
-     */
+    /** drop the selected items. */
     deleteSelected: (): void => {
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind !== "select") return;
         const { selectedIds } = draft.editorMode;
+        // rewriting it with an identical list would count as an unsaved change.
         if (selectedIds.length === 0) return;
         draft.editorItems = draft.editorItems.filter((item) => !selectedIds.includes(item.id));
         draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);

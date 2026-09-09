@@ -5,16 +5,15 @@ import { Provider, useContextValue } from "./context";
 import styles from "./index.module.css";
 
 /** the edge or corner of the item's box a resize handle sits on. */
-export type ResizeHandleDirection = "bottom-right" | "right";
+type ResizeHandleDirection = "bottom-right" | "right";
 
 /** the end of the item a point resize handle grips. */
-export type ResizeHandleEnd = "tail" | "tip";
+type ResizeHandleEnd = "tail" | "tip";
 
 /**
  * the container element for `ResizeHandle` component.
  * @note every handle inside measures the pointer against this element's top-left corner, hence it
- *   has to be the one laid out at the item's offset. it is also the box they place themselves on
- *   (see `index.module.css`), so a caller styles it into the item's shape and nothing else.
+ *   has to be the one laid out at the item's offset.
  */
 export const ResizeContainer: React.FC<React.ComponentPropsWithoutRef<"span">> = ({
   className,
@@ -34,11 +33,7 @@ export const ResizeContainer: React.FC<React.ComponentPropsWithoutRef<"span">> =
 
 /**
  * the grip on an edge or a corner of the item being edited.
- * @note laid out against `--scale`, which `CanvasLayer` exposes, so it belongs inside one.
  * @note the pointer is measured against the `ResizeContainer` it sits in.
- * @note `direction` reaches the stylesheet through `data-resize-handle` rather than through a
- *   class of its own: the attribute is there regardless, being the only stable handle on this
- *   element from outside (e.g. e2e tests), and selecting on it leaves nothing to drift from it.
  */
 export const ResizeHandle = React.memo<{
   direction: ResizeHandleDirection;
@@ -47,9 +42,9 @@ export const ResizeHandle = React.memo<{
   const anchorRef = useContextValue();
   const handlers = useGripHandlers(
     onResize,
-    // NOTE: the bottom right corner of the anchor, whichever edge the handle names — a handle
-    //   gripping a single edge leaves the other component meaningless, which is harmless: the
-    //   action behind such a handle ignores that component anyway.
+    // NOTE: the bottom right corner of the anchor whichever edge the handle names
+    //   because a handle gripping a single edge leaves the other component meaningless.
+    //   this is harmless since the action behind such a handle ignores that component anyway.
     React.useCallback(() => {
       const anchor = anchorRef.current?.getBoundingClientRect();
       return anchor == null ? null : [anchor.right, anchor.bottom];
@@ -60,16 +55,9 @@ export const ResizeHandle = React.memo<{
 });
 
 /**
- * the grip on a point of the item being edited, rather than on an edge or a corner of its box.
- * @note for an item whose parts are not corners of a box — an arrow's tail and tip, which sit
- *   wherever its angle puts them. `ResizeHandle`'s placement cannot say where those are, and its
- *   grip point, the anchor's bottom right corner, is not one of them either.
- * @note the handle centres itself on `position`, hence the middle of its own box is the point it
- *   grips and no scale arithmetic is needed to find it. that is also why the anchor may be, and
- *   for an arrow is, a `ResizeContainer` of no size at all: only its top-left is read.
- * @note `end` reaches the stylesheet through `data-resize-handle`, as `direction` does for the
- *   handle above: the two ends are styled alike, and the name is there to tell them apart from
- *   outside (e.g. e2e tests), which `position` alone leaves impossible.
+ * the grip on a point of the item being edited.
+ * @note the pointer is measured against the `ResizeContainer` it sits in.
+ * @note the handle centres itself on `position`.
  */
 export const ResizePointHandle = React.memo<{
   /** which end of the item this handle grips */
@@ -106,10 +94,7 @@ export const ResizePointHandle = React.memo<{
  * @param onResize called with where the gripped point should go, relative to the anchor's top-left
  * @param gripOf where the point this handle grips currently is, in client coordinates
  * @returns the pointer handlers the two handles above share
- * @note what is reported is where the gripped point should go, not where the pointer is: the
- *   distance between the two is taken at "pointerdown" and held for the drag. without it a handle
- *   that does not sit exactly on the point it grips — `--outset` pushes the edge ones clear of the
- *   item's outline — would snap the item by that distance on the first move.
+ * @note what is reported is where the gripped point should go, not where the pointer is.
  */
 const useGripHandlers = (
   onResize: (cursor: Vec2.Tuple) => void,

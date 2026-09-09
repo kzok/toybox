@@ -16,9 +16,7 @@ export class Rect {
     this.tail = new Vec2(Math.max(p0.x, p1.x), Math.max(p0.y, p1.y));
     this.size = this.tail.sub(this.head);
   }
-  /**
-   * Boundaries are inclusive, so a rect contains itself and any edge-touching rect.
-   */
+  /** Boundaries are inclusive, so a rect contains itself and any edge-touching rect. */
   contains(another: Rect): boolean {
     return (
       this.head.x <= another.head.x &&
