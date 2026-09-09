@@ -38,13 +38,3 @@ What the nested selector matches on depends on what the element already carries.
   A `data-*` the application exposes on purpose is what to select on.
   The variant then cannot drift from the attribute, because there is only the attribute.
 2. Use an `.isSomething` modifier class if there is no suitable attribute.
-
-### Comments
-
-Comments follow the same rules in CSS as they do in TypeScript,
-the form deciding the marker rather than the language.
-
-- **Single line**: a plain `/* */`, with `NOTE:` where it flags a constraint.
-- **Block**: `/** */` for anything spanning more than one line, just like JSDoc,
-  never a run of `/* */` lines.
-  Tag each constraint inside it with `@note`, one per constraint.
