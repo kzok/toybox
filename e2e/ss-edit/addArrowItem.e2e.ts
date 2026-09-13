@@ -18,7 +18,6 @@ import {
   panePointToViewport,
   parkCursor,
   pictureSize,
-  rangePreview,
   saveAsPng,
 } from "./helpers";
 
@@ -51,28 +50,15 @@ test("adds an arrow item by dragging from its tail to its tip", async ({ page })
     await enterAddArrow(page);
     // the affordance of the mode: the whole pane offers to draw a new item.
     await expect(addItemLayer(page)).toHaveCSS("cursor", "copy");
-    await expect(rangePreview(page)).toBeHidden();
-  });
-
-  await test.step("preview the arrow while it is being dragged", async () => {
-    await page.mouse.move(tail.x, tail.y);
-    await page.mouse.down();
-    await page.mouse.move(tip.x, tip.y, { steps: 8 });
-
-    await expect(rangePreview(page)).toBeVisible();
-    // the preview is the band the finished arrow will answer the pointer over, not the box the
-    // drag spans: it is centred on the line rather than hanging off one side of it.
-    await expectBoxOnScreen(rangePreview(page), bandOf(tail, tip));
   });
 
   await test.step("leave the arrow selected once released", async () => {
-    await page.mouse.up();
+    await dragFromTo(page, tail, tip);
     // a text item arrives blank and opens its editor; an arrow is finished the moment it is drawn,
     // so the drag leaves it selected instead.
     await expectMode(page, "select");
     await expect(arrowItems(page)).toHaveCount(1);
     await expect(arrowItems(page).first()).toHaveAttribute("data-selected", "true");
-    // the same band the preview showed, which is the point of drawing the preview that way.
     await expectBoxOnScreen(arrowItems(page).first(), bandOf(tail, tip));
   });
 

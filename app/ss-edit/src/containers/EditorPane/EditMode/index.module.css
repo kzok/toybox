@@ -2,10 +2,7 @@
 .textItem,
 .rectItem,
 .arrowItem {
-  /**
-   * a solid outline, as opposed to the dashed one of "select" mode.
-   * @note `calc()` cancels out `transform: scale()`, to keep the outline width constant.
-   */
+  /* cancel out `transform: scale()` to keep the outline width constant */
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
 
@@ -13,24 +10,11 @@
   background: rgba(15, 108, 189, 0.2);
 }
 
-/**
- * @note left unfilled, unlike an image: the tint would cover whatever the rect is drawn around,
- *   which is exactly what the user is looking at while resizing it.
- */
 .rectItem {
   display: inline-block;
   position: absolute;
 }
 
-/**
- * the band an arrow item takes the pointer over, outlined as the kinds above are.
- * @note it also keeps a click on the arrow itself from falling through to the pane and ending the
- *   edit, which a container of no size would let it do.
- * @note unpainted for the reason the rect item above is: a tint would cover the very thing being
- *   edited.
- * @note turned about its left edge so that it pivots on the tail. the inline `margin-top` that
- *   puts the tail on the middle of that edge comes from `ARROW_STYLE_SIZE`.
- */
 .arrowItem {
   display: inline-block;
   position: absolute;

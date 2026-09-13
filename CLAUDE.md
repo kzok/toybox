@@ -1,18 +1,12 @@
 # CLAUDE.md
 
-## Commands
+## Useful commands
 
 - `npm run test -- --run path/to/file.test.ts`
-  - Run a single `vitest` file.
 - `npm run test -- --changed --run`
-  - Run affected `vitest` files by changed files.
-- `npm run type-check`
-  - Run TypeScript type-check.
+  - Run affected files by changed files.
 - `make check`
-  - Pre-commit check (format, type-check, changed tests).
-    Run before considering work done.
-- `npm run rumdl`
-  - Lint and format all the markdown docs.
+  - Run before considering work done.
 
 ## Project foundation docs
 
@@ -39,8 +33,9 @@ Rules here apply to both docs and code comments.
 - **Never invent a reason.**
   - Omit it when it is unclear or trivial; a value chosen by eye has none to state.
   - A guessed reason outlives the guess and gets defended as if it were a decision.
-- **When renaming an exported symbol, sweep `*.md` and code comments too.**
+- **When changing a behaviour or an exported symbol name, sweep `*.md` and code comments too.**
   - Prose is not covered by the type checker.
+  - A rename at least leaves the old name to grep for; a changed behaviour leaves nothing at all.
 
 ### Writing docs
 
@@ -54,3 +49,10 @@ Rules here apply to both docs and code comments.
 - **A comment earns its place by preventing a specific mistake.**
   - Write one where changing the code without it would break something.
   - Most exports need no rationale beyond `@param` / `@returns`.
+- **A test can be a comment's home.**
+  - Delete the comment where a test already pins the behaviour,
+    and state the reason in the test's name.
+- **Keep the descriptions on a data type's fields, even pure restatement.**
+  - How the data is read is what the type cannot give.
+  - A pass cutting comments leaves them alone.
+    Whether to write one is the user's call.

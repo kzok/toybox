@@ -38,11 +38,7 @@
   justify-content: center;
   gap: 12px;
 
-  /**
-   * the overlay appears right under the cursor, so it would fire `dragenter` / `dragleave` on its
-   * own and break the depth counting of `useWindowFileDrop` unless it stays transparent to the
-   * pointer.
-   */
+  /** this overlay covers the entire body content and blocks pointer events without this. */
   pointer-events: none;
 
   background: color-mix(in srgb, var(--bg-color) 70%, transparent);

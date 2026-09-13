@@ -1,25 +1,10 @@
-/**
- * the box the handles below place themselves on, applied along with the caller's own class.
- * @note positioned, hence the containing block their `right`/`bottom` resolve against. drop it
- *   and they land on `CanvasLayer` instead, far away from the item they belong to.
- * @note deliberately given no size, so it shrinks to fit what it wraps — that is what keeps the
- *   handles of a text item on the edges of the <textarea/> inside it.
- */
 .container {
+  /* positioned, hence the containing block the handles' `right`/`bottom` resolve against. */
   position: absolute;
 }
 
-/**
- * the chrome every resize handle shares. the modifiers below say where one sits, and are
- * nested here because neither places anything on its own: both are applied along with this one.
- * @note `--scale` is exposed by `CanvasLayer`, hence a handle only sizes correctly inside one.
- */
 .resizeHandle {
-  /**
-   * how far a handle sits beyond the edge it grips, so that it clears the item's outline.
-   * @note stated as a length rather than folded into the `translate()` percentages, which are
-   *   relative to each handle's own size and would hence push the two out by different amounts.
-   */
+  /** how far a handle sits beyond the edge it grips. */
   --outset: calc(3.5px / var(--scale, 1));
 
   position: absolute;
@@ -30,21 +15,12 @@
   border: calc(2px / var(--scale, 1)) solid #fff;
   background: #0f6cbd;
 
-  /**
-   * grips an end of the item rather than an edge of its box, placed by an inline `left`/`top`.
-   * @note centred on that point, which is what makes the middle of its own box the point it
-   *   grips (see `ResizePointHandle`). no `--outset`, there being no outline to clear: the point
-   *   it grips is an end of the item, not a side of it.
-   * @note the two are styled alike and named apart, the name being what tells them from each
-   *   other from outside (e.g. e2e tests), as `direction` is for the handles below.
-   */
   &[data-resize-handle="tail"],
   &[data-resize-handle="tip"] {
     transform: translate(-50%, -50%);
     cursor: move;
   }
 
-  /* resizes the item as a whole, from its bottom right corner. */
   &[data-resize-handle="bottom-right"] {
     right: 0;
     bottom: 0;
@@ -52,12 +28,6 @@
     cursor: nwse-resize;
   }
 
-  /**
-   * resizes the width alone, from the right edge.
-   * @note a bar down the whole edge rather than a second dot: one axis reads as a line where two
-   *   axes read as a point, and a line and a point are free to sit on top of each other. two dots
-   *   are not — on a single line of the smallest font they are 11px apart and would overlap.
-   */
   &[data-resize-handle="right"] {
     right: 0;
     top: 0;

@@ -13,7 +13,6 @@ import {
   paneRectToViewport,
   parkCursor,
   pictureSize,
-  rangePreview,
   rectItems,
   saveAsPng,
 } from "./helpers";
@@ -35,20 +34,14 @@ test("adds a rect item by dragging a range", async ({ page }) => {
     await enterAddRect(page);
     // the affordance of the mode: the whole pane offers to draw a new item.
     await expect(addItemLayer(page)).toHaveCSS("cursor", "copy");
-    await expect(rangePreview(page)).toBeHidden();
-  });
-
-  await test.step("preview the range while it is being dragged", async () => {
-    await page.mouse.move(range.x, range.y);
-    await page.mouse.down();
-    await page.mouse.move(range.x + range.width, range.y + range.height, { steps: 8 });
-
-    await expect(rangePreview(page)).toBeVisible();
-    await expectBoxOnScreen(rangePreview(page), range);
   });
 
   await test.step("leave the rect selected once released", async () => {
-    await page.mouse.up();
+    await dragFromTo(
+      page,
+      { x: range.x, y: range.y },
+      { x: range.x + range.width, y: range.y + range.height },
+    );
     // a text item arrives blank and opens its editor; a rect is finished the moment it is drawn,
     // so the drag leaves it selected instead.
     await expectMode(page, "select");

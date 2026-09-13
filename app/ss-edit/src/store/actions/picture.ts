@@ -57,15 +57,13 @@ export const createPictureActions = (params: ActionCreatorParam) => {
     }),
     /** render editor items and save them as a PNG file */
     saveAsPng: dialogs.withErrorDialog(async () => {
-      // NOTE: an empty picture measures 0x0, which `exportToImageBlob` cannot encode.
+      // an empty picture measures 0x0, which `exportToImageBlob` cannot encode.
       if (!store.get(atoms.canSave)) {
         return;
       }
       const items = store.get(atoms.editorItems);
       const blob = await exportToImageBlob(items);
       saveBlobAsFile(blob, "screenshot.png");
-      // NOTE: the items the blob was rendered from, so that a change made while it was being
-      // encoded is not mistaken for having been saved.
       store.set(atoms.savedItems, items);
     }),
   } as const;

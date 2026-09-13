@@ -66,10 +66,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     /**
      * resize a text item, keeping its top-left offset fixed.
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
-     * @note the font size and the width are scaled by the same factor, which keeps the number of
-     *   graphemes a line holds as it was — `textStyleSizeOf` keeps the letter spacing proportional
-     *   to the font size for this. only as far as the font itself is linear, though: its hinting
-     *   is not, hence the text stays free to re-wrap on the way.
      */
     resizeTextFontSize: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
@@ -82,10 +78,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
         // project the pointer position onto the box's diagonal to get the target diagonal length.
         const targetDiagonal = scaledCursor.dot(size) / diagonal;
         const fontSize = clampFontSize(item.fontSize * (targetDiagonal / diagonal));
-
-        // NOTE: the width follows the factor the font size actually took, not the requested one,
-        // so that it stops growing along with it once the font size hits its bounds. scaling by
-        // the requested factor there would drift the two apart and re-wrap the whole text.
         item.width = Math.round(item.width * (fontSize / item.fontSize));
         item.fontSize = fontSize;
       });
@@ -93,12 +85,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     /**
      * resize the width of a text item, keeping its font size and its top-left offset fixed.
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
-     * @note only the x component is read: the height follows from how the text wraps at the new
-     *   width. unlike `resizeTextFontSize`, re-wrapping is what this is for rather than what it
-     *   avoids.
-     * @note the padding is subtracted: `cursor` is measured against the drawn box, `width` the
-     *   content box alone. a constant offset here, the padding following the font size this
-     *   leaves untouched.
      */
     resizeTextWidth: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
@@ -113,10 +99,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     /**
      * resize a rect item, keeping its top-left offset fixed.
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
-     * @note the two sides are taken independently, unlike an image's: a screenshot has proportions
-     *   worth keeping, a box drawn around part of one does not.
-     * @note the padding is subtracted as `resizeTextWidth` does, the padding following the line
-     *   width this leaves untouched.
      */
     resizeRect: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
@@ -132,8 +114,6 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
     /**
      * move the tip of an arrow item, keeping its tail where it is.
      * @param cursor where the tip should go, measured from the item's tail
-     * @note no padding is taken off, unlike a rect's: the handle grips the tip itself rather than
-     *   a corner of a padded box, so what it reports is already the point the tip should land on.
      */
     resizeArrowTip: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
@@ -142,17 +122,12 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
 
         const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
         item.length = clampArrowLength(scaledCursor.distance(Vec2.ORIGIN));
-        // NOTE: the angle follows the pointer even where the length has stopped at its minimum, so
-        // that a arrow held below that length can still be turned.
         item.angle = scaledCursor.angle();
       });
     },
     /**
      * move the tail of an arrow item, keeping its tip where it is.
      * @param cursor where the tail should go, measured from the item's current tail
-     * @note the tail is derived back from the tip rather than set to `cursor` outright. the two
-     *   agree until the length hits its minimum, and there the derived one is what keeps the tip
-     *   still: setting the tail and clamping the length independently would drag the tip along.
      */
     resizeArrowTail: (itemId: string, cursor: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {

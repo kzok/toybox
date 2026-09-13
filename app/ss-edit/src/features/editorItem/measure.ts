@@ -22,8 +22,6 @@ export const measurePicture = (items: readonly EditorItem[]): Rect => {
 
 /**
  * @returns the size the text occupies, laid out at that layout
- * @note the renderer pads the text on every side (see renderText()'s translate(padding, padding)),
- *   so this size includes that padding too, or it would clip what's actually drawn.
  */
 export const textItemSizeOf = (layout: TextItemLayout): Vec2 => {
   const { padding, lineHeight } = textStyleSizeOf(layout);
@@ -42,9 +40,6 @@ const measureItem = (item: EditorItem): Rect => {
       size = textItemSizeOf(item);
       break;
     case "rect": {
-      // NOTE: the renderer pads the rect on every side to take up the half of the outline that
-      //   lies outside its edge (see rectStyleSizeOf()), so this size includes that padding too.
-      //   the shadow is left out of it, as a text item's shadow is.
       const doublePadding = rectStyleSizeOf(item).padding * 2;
       size = new Vec2(item.width, item.height).add([doublePadding, doublePadding]);
       break;
@@ -52,14 +47,6 @@ const measureItem = (item: EditorItem): Rect => {
     case "arrow": {
       const tail = Vec2.new(item.offset);
       const tip = tail.add(Vec2.polar(item.length, item.angle));
-      // NOTE: the tail-to-tip rect is built first and grown afterwards, rather than the padding
-      //   being applied to the two points as they are: `offset` is the tail and not a corner, so
-      //   an arrow pointing left or up has its tip at the head of the rect, and padding the two
-      //   points directly would shrink the box on that side instead of growing it.
-      // NOTE: `padding` is the head's half width, hence a generous over-estimate along the
-      //   arrow's own axis, where only the tip's miter and the tail's rounding reach out. it is
-      //   uniform so that this holds at any angle without the extents having to be rotated; the
-      //   cost is a little slack in the exported picture, as a rect item's padding has.
       const bounds = new Rect(tail, tip);
       const padding = Vec2.new(ARROW_STYLE_SIZE.padding, ARROW_STYLE_SIZE.padding);
       return new Rect(bounds.head.sub(padding), bounds.tail.add(padding));

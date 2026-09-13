@@ -1,9 +1,7 @@
 import React from "react";
 import { pageCtx } from "../../../store";
 
-/**
- * call specified action when resized.
- */
+/** call specified action when resized. */
 export const useResizeObserver = <T extends Element>(
   elementRef: React.RefObject<T | null>,
 ): void => {

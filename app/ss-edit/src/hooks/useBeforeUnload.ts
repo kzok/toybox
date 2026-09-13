@@ -1,8 +1,6 @@
 import React from "react";
 
-/**
- * show the browser's leave-confirmation dialog.
- */
+/** show the browser's leave-confirmation dialog. */
 export const useBeforeUnload = (enabled: boolean): void => {
   const enabledRef = React.useRef(enabled);
   enabledRef.current = enabled;
