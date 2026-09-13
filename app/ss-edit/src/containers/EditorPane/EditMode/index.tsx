@@ -224,7 +224,8 @@ const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   }
 };
 
-const stopPropagation = (e: React.SyntheticEvent): void => e.stopPropagation();
+/** @note stopping `keydown` would kill every hotkey: the manager listens on `document`. */
+const stopPropagation = (e: React.MouseEvent): void => e.stopPropagation();
 
 /**
  * @returns the text item being edited, or null if there is none.

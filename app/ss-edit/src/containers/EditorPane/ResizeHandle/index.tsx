@@ -132,4 +132,5 @@ const useGripHandlers = (
   } as const;
 };
 
-const stopPropagation = (e: React.SyntheticEvent): void => e.stopPropagation();
+/** @note stopping `keydown` would kill every hotkey: the manager listens on `document`. */
+const stopPropagation = (e: React.MouseEvent): void => e.stopPropagation();
