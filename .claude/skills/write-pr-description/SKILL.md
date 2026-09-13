@@ -2,7 +2,7 @@
 name: write-pr-description
 description: Draft a pull request description — and its title when stale — from the diff and apply
   it to GitHub directly
-argument-hint: [PR url or number — omit for the current branch's PR]
+argument-hint: "[PR url or number — omit for the current branch's PR]"
 disable-model-invocation: true
 allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr edit:*)
 ---
@@ -24,7 +24,7 @@ Stop if there is none.
   Open the changed files wherever the diff alone doesn't say *why* something changed: a guard,
   a deleted handler, an added flag.
 3. **Ask** for what the repository can't answer:
-  the related issue URL, what prompted the work,
+  the related issue URL, what prompted the work, which suites were actually run,
   and whether anything that reads like a defect is deliberate.
   Ask as many rounds as the answers warrant —
   a reply that opens a new question is worth following up on.
@@ -32,6 +32,7 @@ Stop if there is none.
 4. **Draft** the body to a scratch file in the scratchpad directory, following `## Format`.
   Draft a title as well when the existing one no longer says what the diff does;
   leave it alone otherwise.
+  A title that names only part of what the diff does is stale too.
 5. **Apply** with `gh pr edit <n> --body-file <draft>`,
   adding `--title <title>` only when step 4 drafted one, then read it back to confirm.
 6. **Report** what landed:
@@ -50,6 +51,13 @@ Written in English, whatever language the conversation is in.
 These sections in order.
 Drop one that has nothing to say, except `Related materials`, which always stays.
 
+A section earns its length from what the diff cannot say.
+
+- **Cut what a reader gets elsewhere**: the diff, the changed-file list,
+  or a changed doc's own text.
+- **One home per fact.**
+  A table and the prose under it must not say the same thing twice.
+
 ### Related materials
 
 Bare URLs as a bullet list, starting with the issue the work came from.
@@ -57,8 +65,10 @@ A single `- N/A` bullet when there is nothing to link.
 
 ### Background
 
-Two or three sentences: the state the code was in and what that cost.
-Not a summary of the change.
+Optional.
+The reason for the change, not a summary.
+Never invent the reason.
+Two or three sentences at most.
 
 ### What's done
 
@@ -68,16 +78,13 @@ Use `###` subsections when the pull request spans concerns a reader wouldn't exp
 Lead with what someone needs in order to review it — a table of the new keys, the new function,
 the new flag — then the parts of the diff that look arbitrary without their reason.
 
-### Special notes
-
-Optional.
-Behaviour that looks like an oversight and isn't.
-Open with a line saying so — *"Both of these are known and deliberate, not oversights"* —
-or the reviewer skims the section and files the issue anyway.
-
 ### What's tested
 
-- Which tests cover it, and where they live.
+Optional.
+As short as the evidence is.
+
+- `CI is passed.` is the whole section where that is what was checked.
+- Which tests cover it, and where they live, unless the diff already shows that.
 - Whether they were checked against a deliberately broken build, when that is known.
   A test never seen to fail is not yet evidence.
 - What was **not** run, and why.
