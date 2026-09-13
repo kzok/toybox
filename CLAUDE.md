@@ -33,8 +33,9 @@ Rules here apply to both docs and code comments.
 - **Never invent a reason.**
   - Omit it when it is unclear or trivial; a value chosen by eye has none to state.
   - A guessed reason outlives the guess and gets defended as if it were a decision.
-- **When renaming an exported symbol, sweep `*.md` and code comments too.**
+- **When changing a behaviour or an exported symbol name, sweep `*.md` and code comments too.**
   - Prose is not covered by the type checker.
+  - A rename at least leaves the old name to grep for; a changed behaviour leaves nothing at all.
 
 ### Writing docs
 
