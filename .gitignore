@@ -158,3 +158,8 @@ TODO.md
 
 # rumdl cache directory
 .rumdl_cache/
+
+# Claude Code local files
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
