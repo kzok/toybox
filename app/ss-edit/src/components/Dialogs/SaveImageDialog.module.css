@@ -1,0 +1,12 @@
+.title {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 8px;
+
+  .saveIcon {
+    flex: none;
+    font-size: 24px;
+    color: var(--colorBrandForeground1);
+  }
+}
