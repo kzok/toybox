@@ -25,7 +25,7 @@ describe(exportToImageBlob, () => {
     const translate = vi.fn();
     const blob = new Blob(["dummy"], { type: "image/png" });
     const convertToBlob = vi.fn(async () => blob);
-    const getContext = vi.fn(() => ({ drawImage, translate }));
+    const getContext = vi.fn(() => ({ drawImage, translate, fillRect: vi.fn() }));
     const constructorArgs: Array<readonly [number, number]> = [];
     class FakeOffscreenCanvas {
       getContext = getContext;
@@ -49,7 +49,7 @@ describe(exportToImageBlob, () => {
     const item = createImageItem([0, 0], [10.2, 10.6]);
     const constructorArgs: Array<readonly [number, number]> = [];
     class FakeOffscreenCanvas {
-      getContext = () => ({ drawImage: vi.fn(), translate: vi.fn() });
+      getContext = () => ({ drawImage: vi.fn(), translate: vi.fn(), fillRect: vi.fn() });
       convertToBlob = async () => new Blob();
       constructor(width: number, height: number) {
         constructorArgs.push([width, height]);
@@ -60,6 +60,64 @@ describe(exportToImageBlob, () => {
     await exportToImageBlob([item]);
 
     expect(constructorArgs).toStrictEqual([[11, 11]]);
+  });
+
+  describe("option", () => {
+    /**
+     * @returns the 2d context and `convertToBlob` of a stubbed canvas, which records the fill
+     *   style each `fillRect()` call is made with.
+     */
+    const stubCanvas = () => {
+      const fills: Array<{ style: unknown; rect: readonly number[] }> = [];
+      const context = {
+        fillStyle: "" as unknown,
+        drawImage: vi.fn(),
+        translate: vi.fn(),
+        fillRect: vi.fn((...rect: number[]) => fills.push({ style: context.fillStyle, rect })),
+      };
+      const convertToBlob = vi.fn(async () => new Blob());
+      vi.stubGlobal(
+        "OffscreenCanvas",
+        class {
+          getContext = () => context;
+          convertToBlob = convertToBlob;
+          constructor(
+            public width: number,
+            public height: number,
+          ) {}
+        },
+      );
+      return { context, convertToBlob, fills } as const;
+    };
+
+    it("fills the whole canvas white before drawing the items on a white background.", async () => {
+      const { context, fills } = stubCanvas();
+
+      await exportToImageBlob([createImageItem([10, 20], [100, 50])], { background: "white" });
+
+      expect(fills).toStrictEqual([{ style: "#fff", rect: [0, 0, 100, 50] }]);
+      expect(context.fillRect.mock.invocationCallOrder[0]!).toBeLessThan(
+        context.drawImage.mock.invocationCallOrder[0]!,
+      );
+    });
+
+    it("fills nothing on a transparent background.", async () => {
+      const { context } = stubCanvas();
+
+      await exportToImageBlob([createImageItem([10, 20], [100, 50])], {
+        background: "transparent",
+      });
+
+      expect(context.fillRect).not.toHaveBeenCalled();
+    });
+
+    it("encodes the canvas in the requested format.", async () => {
+      const { convertToBlob } = stubCanvas();
+
+      await exportToImageBlob([createImageItem([10, 20], [100, 50])], { format: "image/webp" });
+
+      expect(convertToBlob).toHaveBeenCalledWith({ type: "image/webp" });
+    });
   });
 
   it("throws when the canvas fails to provide a 2d context.", async () => {

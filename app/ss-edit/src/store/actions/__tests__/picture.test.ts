@@ -1,11 +1,12 @@
 import { castDraft, produce } from "immer";
-import type { ReactElement } from "react";
+import type { ComponentProps, ReactElement } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   ConfirmClearDialog,
   ErrorNoticeDialog,
   SaveImageDialog,
 } from "../../../components/Dialogs";
+import { DEFAULT_OPTION } from "../../../features/renderer";
 import { Vec2 } from "../../../utils/geometry";
 import { createPictureActions } from "../picture";
 import {
@@ -86,6 +87,7 @@ describe(createPictureActions, () => {
         save: vi.fn(),
         restore: vi.fn(),
         translate: vi.fn(),
+        fillRect: vi.fn(),
         drawImage: vi.fn(),
         measureText: () => ({ fontBoundingBoxAscent: 10, fontBoundingBoxDescent: 3 }),
         strokeText: vi.fn(),
@@ -109,11 +111,11 @@ describe(createPictureActions, () => {
       atoms,
     }: Pick<ReturnType<typeof setUpSavable>, "store" | "actions" | "atoms">) => {
       actions.picture.saveAsImage();
-      const dialog = store.get(atoms.dialogReactNode) as ReactElement<{
-        save: () => Promise<void>;
-      }>;
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<
+        ComponentProps<typeof SaveImageDialog>
+      >;
       expect(dialog.type).toBe(SaveImageDialog);
-      await dialog.props.save();
+      await dialog.props.save(DEFAULT_OPTION);
     };
 
     afterEach(() => {
@@ -128,6 +130,21 @@ describe(createPictureActions, () => {
 
       expect(convertToBlob).toHaveBeenCalledWith({ type: "image/png" });
       expect(click).toHaveBeenCalledOnce();
+      click.mockRestore();
+    });
+
+    it("names the file without an extension, which Chromium appends from the blob's type.", async () => {
+      const { store, actions, atoms } = setUpSavable();
+      const fileNames: string[] = [];
+      const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+        this: HTMLAnchorElement,
+      ) {
+        fileNames.push(this.download);
+      });
+
+      await saveThroughDialog({ store, actions, atoms });
+
+      expect(fileNames).toStrictEqual(["screenshot"]);
       click.mockRestore();
     });
 

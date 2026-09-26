@@ -1,6 +1,6 @@
 import { castDraft } from "immer";
 import type { EditorItem } from "../../features/editorItem";
-import { exportToImageBlob } from "../../features/renderer";
+import { type ExportOption, exportToImageBlob } from "../../features/renderer";
 import { pickImageFile, readImageFromDataTransfer, saveBlobAsFile } from "../../utils/fileIO";
 import { Vec2 } from "../../utils/geometry";
 import { createDialogActions } from "./dialogs";
@@ -62,10 +62,10 @@ export const createPictureActions = (params: ActionCreatorParam) => {
         return;
       }
       dialogs.showSaveDialog(
-        dialogs.withErrorDialog(async () => {
+        dialogs.withErrorDialog(async (option: ExportOption) => {
           const items = store.get(atoms.editorItems);
-          const blob = await exportToImageBlob(items);
-          saveBlobAsFile(blob, "screenshot.png");
+          const blob = await exportToImageBlob(items, option);
+          saveBlobAsFile(blob, "screenshot");
           store.set(atoms.savedItems, items);
         }),
       );
