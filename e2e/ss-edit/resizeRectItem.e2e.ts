@@ -12,7 +12,7 @@ import {
   type Point,
   parkCursor,
   rectItems,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 /**
@@ -89,5 +89,5 @@ test("keeps the resized rect in the exported picture", async ({ page }) => {
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-rect.png");
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-resized-rect.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-resized-rect.png");
 });

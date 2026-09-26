@@ -1,4 +1,4 @@
-import { type Download, expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
   addText,
   addTextByDrag,
@@ -8,8 +8,7 @@ import {
   items,
   newInstance,
   openApp,
-  saveAsPng,
-  saveByHotkey,
+  saveImageDialog,
   textItems,
 } from "./helpers";
 
@@ -18,29 +17,21 @@ const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 48 };
 /** a second range, clear of `TEXT_RANGE`, for the tests that need two items. */
 const SECOND_RANGE = { x: 200, y: 300, width: 400, height: 48 };
 
-test("saves while the text editor holds the focus", async ({ page }) => {
+test("opens the save dialog while the text editor holds the focus", async ({ page }) => {
   await openApp(page);
   await addTextByDrag(page, TEXT_RANGE, "Hello");
   await expectMode(page, "edit");
 
   // NOTE: the hotkey listens on `document`, so the `<textarea/>` has to let the key bubble past
   // it. stopping `keydown` there swallows the save and hands Ctrl+S back to the browser.
-  expect(await saveByHotkey(page)).not.toHaveLength(0);
+  await page.keyboard.press("ControlOrMeta+s");
+
+  await expect(saveImageDialog(page)).toBeVisible();
 });
 
-test("exports the same picture the File menu does", async ({ page }) => {
+test("opens a single dialog while the keys are held down", async ({ page }) => {
   await openApp(page);
   await addText(page, TEXT_RANGE, "Hello");
-
-  expect(await saveByHotkey(page)).toEqual(await saveAsPng(page));
-});
-
-test("saves once while the keys are held down", async ({ page }) => {
-  await openApp(page);
-  await addText(page, TEXT_RANGE, "Hello");
-
-  const downloads: Download[] = [];
-  page.on("download", (download) => downloads.push(download));
 
   // NOTE: records `event.repeat` of every "s" keydown. without it a run where the browser sent
   // no auto-repeat at all would pass this test without having exercised anything.
@@ -63,27 +54,19 @@ test("saves once while the keys are held down", async ({ page }) => {
   await page.keyboard.down("s");
 
   await expect.poll(() => repeats).toEqual([false, true, true]);
-  // NOTE: the repeats are in by now, hence the pause is only for the downloads they would have
-  // started to arrive. polling for 1 would pass on the first one and miss the rest.
-  await page.waitForTimeout(500);
-  expect(downloads).toHaveLength(1);
-
-  await test.step("releasing the key alone arms it again", async () => {
-    await page.keyboard.up("s");
-    await page.keyboard.down("s");
-    await expect.poll(() => downloads.length).toBe(2);
-  });
-
   await page.keyboard.up("s");
   await page.keyboard.up("Control");
+  await expect(saveImageDialog(page)).toBeVisible();
+
+  // NOTE: only the top of the dialog stack is rendered, hence a second dialog stacked by a repeat
+  // shows up only once the first one is closed.
+  await saveImageDialog(page).getByRole("button", { name: "Cancel" }).click();
+  await expect(saveImageDialog(page)).toBeHidden();
 });
 
 test("stays out while a dialog is open", async ({ page }) => {
   await openApp(page);
   await addText(page, TEXT_RANGE, "Hello");
-
-  const downloads: Download[] = [];
-  page.on("download", (download) => downloads.push(download));
 
   await newInstance(page);
   await expect(confirmClearDialog(page)).toBeVisible();
@@ -91,14 +74,15 @@ test("stays out while a dialog is open", async ({ page }) => {
   // NOTE: there is nothing to wait for when the hotkey is meant not to fire, hence the pause
   // before concluding that it never did.
   await page.waitForTimeout(500);
-  expect(downloads).toHaveLength(0);
+  await expect(saveImageDialog(page)).toBeHidden();
+  await expect(confirmClearDialog(page)).toBeVisible();
 
   await test.step("and works again once the dialog is gone", async () => {
     await page.getByRole("button", { name: "Cancel" }).click();
     await expect(confirmClearDialog(page)).toBeHidden();
 
     await page.keyboard.press("ControlOrMeta+s");
-    await expect.poll(() => downloads.length).toBe(1);
+    await expect(saveImageDialog(page)).toBeVisible();
   });
 });
 

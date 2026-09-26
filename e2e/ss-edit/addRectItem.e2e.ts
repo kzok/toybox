@@ -14,7 +14,7 @@ import {
   parkCursor,
   pictureSize,
   rectItems,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 /** a range dragged on an arbitrary spot of the pane. */
@@ -58,7 +58,7 @@ test("adds a rect item by dragging a range", async ({ page }) => {
     await expect.soft(page).toHaveScreenshot("screenshot-rect-added.png");
     // the picture spans the dragged range grown by the outline on every side.
     await expect(pictureSize(page)).toHaveText("407 x 107");
-    expect.soft(await saveAsPng(page)).toMatchSnapshot("export-rect.png");
+    expect.soft(await saveAsImage(page)).toMatchSnapshot("export-rect.png");
   });
 });
 

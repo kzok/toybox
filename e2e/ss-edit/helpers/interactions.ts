@@ -1,7 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { expect, type JSHandle, type Locator, type Page, test } from "@playwright/test";
 import { expectMode } from "./assertions";
-import { arrowItems, editorPane, imageItems, rectItems, textEditor } from "./locators";
+import {
+  arrowItems,
+  editorPane,
+  imageItems,
+  rectItems,
+  saveImageDialog,
+  textEditor,
+} from "./locators";
 import { type Box, boundingBoxOf, fixture, type Point } from "./support";
 
 /**
@@ -113,23 +120,23 @@ export const editArrow = async (page: Page): Promise<Locator> => {
   return arrowItems(page).first();
 };
 
-/** exports the picture through "File" -> "Save as PNG". */
-export const saveAsPng = async (page: Page): Promise<Buffer> => {
+/**
+ * exports the picture through "File" -> "Save as image" with the dialog's default options.
+ * @note the dialog stays open after a save, hence it is closed here so that it does not hold the
+ *   page modal for whatever the test does next.
+ */
+export const saveAsImage = async (page: Page): Promise<Buffer> => {
   await page.getByRole("button", { name: "File" }).click();
+  await page.getByRole("menuitem", { name: "Save as image" }).click();
+  const dialog = saveImageDialog(page);
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("menuitem", { name: "Save as PNG" }).click(),
+    dialog.getByRole("button", { name: "Save" }).click(),
   ]);
-  return readFile(await download.path());
-};
-
-/** exports the picture with the save hotkey, the counterpart of `saveAsPng`'s menu route. */
-export const saveByHotkey = async (page: Page): Promise<Buffer> => {
-  const [download] = await Promise.all([
-    page.waitForEvent("download"),
-    page.keyboard.press("ControlOrMeta+s"),
-  ]);
-  return readFile(await download.path());
+  const png = await readFile(await download.path());
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(dialog).toBeHidden();
+  return png;
 };
 
 /** discards the picture through "File" -> "New instance", answering the confirmation if shown. */

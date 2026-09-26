@@ -14,7 +14,7 @@ import {
   openApp,
   parkCursor,
   pictureSize,
-  saveAsPng,
+  saveAsImage,
   textEditor,
   textItems,
   typeText,
@@ -179,5 +179,5 @@ test("keeps the text in the exported picture", async ({ page }) => {
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-text-and-image.png");
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-text-and-image.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-text-and-image.png");
 });

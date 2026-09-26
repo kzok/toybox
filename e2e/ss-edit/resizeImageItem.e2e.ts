@@ -11,7 +11,7 @@ import {
   imageItems,
   openApp,
   parkCursor,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 test("resizes the image by dragging the handle, keeping the aspect ratio and the top-left corner fixed", async ({
@@ -88,5 +88,5 @@ test("keeps the resized image in the exported picture", async ({ page }) => {
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized.png");
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-resized.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-resized.png");
 });

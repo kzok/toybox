@@ -10,7 +10,7 @@ import {
   type Point,
   parkCursor,
   rightResizeHandle,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 /**
@@ -156,7 +156,7 @@ test("keeps the resized text in the exported picture", async ({ page }) => {
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-text.png");
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-resized-text.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-resized-text.png");
 });
 
 test("narrows the width alone, re-wrapping the text at the same font size", async ({ page }) => {
@@ -212,5 +212,5 @@ test("keeps the narrowed text in the exported picture", async ({ page }) => {
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-narrowed-text.png");
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-narrowed-text.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-narrowed-text.png");
 });
