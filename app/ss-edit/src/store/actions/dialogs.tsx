@@ -1,4 +1,5 @@
-import { ConfirmClearDialog, ErrorNoticeDialog } from "../../components/Dialogs";
+import { ConfirmClearDialog, ErrorNoticeDialog, SaveImageDialog } from "../../components/Dialogs";
+import type { ExportOption } from "../../features/renderer";
 import type { ActionCreatorParam } from "./types";
 
 export const createDialogActions = ({ store, atoms }: ActionCreatorParam) => {
@@ -36,5 +37,11 @@ export const createDialogActions = ({ store, atoms }: ActionCreatorParam) => {
           await showDialog<void>((resolve) => <ErrorNoticeDialog error={e} resolve={resolve} />);
         }
       },
+    /**
+     * show save image dialog
+     * @param save callback to save image
+     */
+    showSaveDialog: (save: (option: ExportOption) => Promise<void>): Promise<void> =>
+      showDialog((resolve) => <SaveImageDialog save={save} close={resolve} />),
   } as const;
 };

@@ -78,3 +78,7 @@ export const dropOverlay = (page: Page): Locator => page.getByText("Drop an imag
 
 /** the dialog asking whether the unsaved picture may be discarded. */
 export const confirmClearDialog = (page: Page): Locator => page.getByText("Unsaved Changes");
+
+/** the dialog choosing how the picture is saved. */
+export const saveImageDialog = (page: Page): Locator =>
+  page.getByRole("dialog", { name: "Save as image" });

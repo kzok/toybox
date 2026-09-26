@@ -16,7 +16,7 @@ import {
   parkCursor,
   pictureSize,
   rangePreview,
-  saveAsPng,
+  saveAsImage,
   textEditor,
   textItems,
   typeText,
@@ -81,7 +81,7 @@ test("adds a text item by dragging a range", async ({ page }) => {
     // the picture spans the width of the item and a single line of its line height, padded on
     // every side.
     await expect(pictureSize(page)).toHaveText("408 x 56");
-    expect.soft(await saveAsPng(page)).toMatchSnapshot("export-text.png");
+    expect.soft(await saveAsImage(page)).toMatchSnapshot("export-text.png");
   });
 });
 
@@ -163,7 +163,7 @@ test("wraps a long text into multiple lines", async ({ page }) => {
   await expect.soft(page).toHaveScreenshot("screenshot-text-wrapped.png");
 
   await commitText(page);
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-text-wrapped.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-text-wrapped.png");
 });
 
 test("adds the text where it was dragged after zooming and panning", async ({ page }) => {

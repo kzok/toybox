@@ -29,8 +29,7 @@ const AppHotkeyRegistry = React.memo(() => {
   const actions = pageCtx.useActions();
   // NOTE: a dialog is modal, hence every hotkey stays out while one is open.
   const enabled = !pageCtx.useIsDialogOpen();
-  // NOTE: `requireReset` because the manager ignores `event.repeat` and would save on each one.
-  useHotkey("Mod+S", () => actions.picture.saveAsPng(), { enabled, requireReset: true });
+  useHotkey("Mod+S", () => actions.picture.saveAsImage(), { enabled });
   useHotkey("Escape", () => actions.selection.clear(), { enabled });
   useHotkey("Delete", () => actions.selection.deleteSelected(), { enabled });
   // NOTE: a mac keyboard without a Forward Delete key sends Backspace in its place.

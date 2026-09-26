@@ -9,7 +9,7 @@ An image editor specialized for editing screenshots.
 - `src/containers/`
   - React components wired to application state managements.
 - `src/components/`
-  - Presentational React components.
+  - Pure presentational React components.
 - `src/features/editorItem/`
   - The item data model (`EditorItem` union of `Image`/`Text`/`Rect`/`Arrow`),
     the shared style values each kind is drawn at, text layout, item measurement,

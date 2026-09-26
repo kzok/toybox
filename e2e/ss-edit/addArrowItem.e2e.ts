@@ -18,7 +18,7 @@ import {
   panePointToViewport,
   parkCursor,
   pictureSize,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 /** an arrow dragged left to right on an arbitrary spot of the pane, 400px long. */
@@ -70,7 +70,7 @@ test("adds an arrow item by dragging from its tail to its tip", async ({ page })
     await expect.soft(page).toHaveScreenshot("screenshot-arrow-added.png");
     // the picture spans the tail-to-tip line grown by the spread on every side.
     await expect(pictureSize(page)).toHaveText("439 x 39");
-    expect.soft(await saveAsPng(page)).toMatchSnapshot("export-arrow.png");
+    expect.soft(await saveAsImage(page)).toMatchSnapshot("export-arrow.png");
   });
 });
 

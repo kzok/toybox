@@ -1,0 +1,12 @@
+.container {
+  display: block;
+  width: auto;
+  height: var(--size, 0);
+  flex-shrink: 0;
+
+  &.horizontal {
+    display: inline-block;
+    width: var(--size, 0);
+    height: auto;
+  }
+}

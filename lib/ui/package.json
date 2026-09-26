@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./components/*": "./src/components/*/index.tsx",
     "./*": "./src/*"
   },
   "scripts": {}

@@ -14,7 +14,7 @@ import {
   type Point,
   panePointToViewport,
   parkCursor,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 /** an arrow dragged left to right on an arbitrary spot of the pane, 400px long. */
@@ -102,5 +102,5 @@ test("keeps the resized arrow in the exported picture", async ({ page }) => {
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-arrow.png");
-  expect.soft(await saveAsPng(page)).toMatchSnapshot("export-resized-arrow.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-resized-arrow.png");
 });

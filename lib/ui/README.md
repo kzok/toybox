@@ -7,6 +7,8 @@ A shared module providing UI components and styles.
 - `src/style/`
   - Global styles shared among this repo.
   - Including the vendored `Noto Sans JP` web font.
+- `src/components/`
+  - Shared React components across applications.
 
 ## The web font
 

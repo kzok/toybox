@@ -23,7 +23,7 @@ Unlike an image editor in general, this app focuses on screenshot decoration.
 
 Items are placed on an unbounded transparent plane.
 The picture *is* whatever area those items happen to cover,
-and saving crops the exported PNG to exactly that area.
+and saving crops the exported image to exactly that area.
 
 Hence there is nothing to set up before dropping the first screenshot in,
 and no document size to keep the items inside of.
@@ -31,10 +31,6 @@ and no document size to keep the items inside of.
 The view shows that plane.
 Dragging pans the view and the wheel zooms it, which is how the user reaches any part of it.
 Neither ever changes the picture or what gets exported.
-
-Saving always writes a PNG and never asks for a file name.
-A screenshot annotation is made to be pasted somewhere,
-so a format to choose and a name to type are both steps for nothing.
 
 Only the items decide whether there is unsaved work.
 Nothing the user does to the view counts as a change.
@@ -125,19 +121,6 @@ Each end carries a handle, and dragging one moves that end alone,
 which changes the arrow's length and its direction at once.
 
 ## Hotkeys
-
-| Key | What it does |
-| --- | --- |
-| `Mod+S` | Save as PNG |
-| `Escape` | Back to select mode with nothing selected |
-| `Delete` / `Backspace` | Delete the selected items |
-
-`Mod` is Cmd on macOS and Ctrl elsewhere,
-so the shortcut follows the convention of whatever the user is on.
-`Backspace` deletes as well as `Delete`
-because a Mac keyboard without a Forward Delete key has no other key to press.
-
-Some deliberate edges:
 
 - **They work while text is being edited, or not, depending on the key.** `Mod+S` and `Escape`
   fire from inside the text editor — saving and getting out are exactly what is wanted there.

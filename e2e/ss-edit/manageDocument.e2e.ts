@@ -6,24 +6,24 @@ import {
   newInstance,
   openApp,
   pictureSize,
-  saveAsPng,
+  saveAsImage,
 } from "./helpers";
 
 /** a range wide enough for the text below, dragged on an arbitrary spot of the pane. */
 const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 48 };
 
-test("enables Save as PNG only when the picture has an item", async ({ page }) => {
+test("enables Save as image only when the picture has an item", async ({ page }) => {
   await openApp(page);
 
   await page.getByRole("button", { name: "File" }).click();
-  await expect(page.getByRole("menuitem", { name: "Save as PNG" })).toBeDisabled();
+  await expect(page.getByRole("menuitem", { name: "Save as image" })).toBeDisabled();
   // the menu stays open around the disabled item, hence it has to be dismissed explicitly.
   await page.keyboard.press("Escape");
 
   await addText(page, TEXT_RANGE, "Hello");
 
   await page.getByRole("button", { name: "File" }).click();
-  await expect(page.getByRole("menuitem", { name: "Save as PNG" })).toBeEnabled();
+  await expect(page.getByRole("menuitem", { name: "Save as image" })).toBeEnabled();
   await page.keyboard.press("Escape");
 });
 
@@ -46,7 +46,7 @@ test("confirms before New instance discards unsaved items", async ({ page }) => 
 test("does not confirm again once the picture was saved", async ({ page }) => {
   await openApp(page);
   await addText(page, TEXT_RANGE, "Hello");
-  await saveAsPng(page);
+  await saveAsImage(page);
 
   await newInstance(page);
 

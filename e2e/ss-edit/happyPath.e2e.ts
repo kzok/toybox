@@ -11,7 +11,7 @@ import {
   openApp,
   parkCursor,
   pictureSize,
-  saveAsPng,
+  saveAsImage,
   zoomLevel,
 } from "./helpers";
 
@@ -37,7 +37,7 @@ test("edits, exports, and navigates the picture", async ({ page }) => {
     await expect(pictureSize(page)).toHaveText("728 x 240");
     await parkCursor(page);
     await expect.soft(page).toHaveScreenshot("screenshot-piled-up.png");
-    expect.soft(await saveAsPng(page)).toMatchSnapshot("export-piled-up.png");
+    expect.soft(await saveAsImage(page)).toMatchSnapshot("export-piled-up.png");
   });
 
   const paneBox = await boundingBoxOf(editorPane(page));
@@ -63,7 +63,7 @@ test("edits, exports, and navigates the picture", async ({ page }) => {
     await expect(pictureSize(page)).toHaveText("728 x 255");
     await parkCursor(page);
     await expect.soft(page).toHaveScreenshot("screenshot-moved-apart.png");
-    const png = await saveAsPng(page);
+    const png = await saveAsImage(page);
     expect.soft(png).toMatchSnapshot("export-moved-apart.png");
     return png;
   });
@@ -105,6 +105,6 @@ test("edits, exports, and navigates the picture", async ({ page }) => {
     await expect.soft(page).toHaveScreenshot("screenshot-zoomed.png");
     // zooming and scrolling belong to the view only: the exported picture must stay identical.
     await expect(pictureSize(page)).toHaveText("728 x 255");
-    expect(digest(await saveAsPng(page))).toBe(digest(movedApart));
+    expect(digest(await saveAsImage(page))).toBe(digest(movedApart));
   });
 });

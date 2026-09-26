@@ -1,7 +1,12 @@
 import { castDraft, produce } from "immer";
-import type { ReactElement } from "react";
+import type { ComponentProps, ReactElement } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { ConfirmClearDialog, ErrorNoticeDialog } from "../../../components/Dialogs";
+import {
+  ConfirmClearDialog,
+  ErrorNoticeDialog,
+  SaveImageDialog,
+} from "../../../components/Dialogs";
+import { DEFAULT_OPTION } from "../../../features/renderer";
 import { Vec2 } from "../../../utils/geometry";
 import { createPictureActions } from "../picture";
 import {
@@ -69,9 +74,9 @@ describe(createPictureActions, () => {
     });
   });
 
-  describe("saveAsPng()", () => {
+  describe("saveAsImage()", () => {
     /**
-     * @returns a target holding one item, with everything `saveAsPng()` reaches out to stubbed.
+     * @returns a target holding one item, with everything `saveAsImage()` reaches out to stubbed.
      */
     const setUpSavable = () => {
       const item = createImageItem("item-1", [0, 0]);
@@ -82,6 +87,7 @@ describe(createPictureActions, () => {
         save: vi.fn(),
         restore: vi.fn(),
         translate: vi.fn(),
+        fillRect: vi.fn(),
         drawImage: vi.fn(),
         measureText: () => ({ fontBoundingBoxAscent: 10, fontBoundingBoxDescent: 3 }),
         strokeText: vi.fn(),
@@ -98,18 +104,47 @@ describe(createPictureActions, () => {
       return { ...target, item, convertToBlob } as const;
     };
 
+    /** open the save dialog and press its save button. */
+    const saveThroughDialog = async ({
+      store,
+      actions,
+      atoms,
+    }: Pick<ReturnType<typeof setUpSavable>, "store" | "actions" | "atoms">) => {
+      actions.picture.saveAsImage();
+      const dialog = store.get(atoms.dialogReactNode) as ReactElement<
+        ComponentProps<typeof SaveImageDialog>
+      >;
+      expect(dialog.type).toBe(SaveImageDialog);
+      await dialog.props.save(DEFAULT_OPTION);
+    };
+
     afterEach(() => {
       vi.unstubAllGlobals();
     });
 
     it("encodes the picture and hands it to a download.", async () => {
-      const { actions, convertToBlob } = setUpSavable();
+      const { store, actions, atoms, convertToBlob } = setUpSavable();
       const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
-      await actions.picture.saveAsPng();
+      await saveThroughDialog({ store, actions, atoms });
 
       expect(convertToBlob).toHaveBeenCalledWith({ type: "image/png" });
       expect(click).toHaveBeenCalledOnce();
+      click.mockRestore();
+    });
+
+    it("names the file without an extension, which Chromium appends from the blob's type.", async () => {
+      const { store, actions, atoms } = setUpSavable();
+      const fileNames: string[] = [];
+      const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+        this: HTMLAnchorElement,
+      ) {
+        fileNames.push(this.download);
+      });
+
+      await saveThroughDialog({ store, actions, atoms });
+
+      expect(fileNames).toStrictEqual(["screenshot"]);
       click.mockRestore();
     });
 
@@ -118,7 +153,7 @@ describe(createPictureActions, () => {
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
       expect(store.get(atoms.hasUnsavedChanges)).toBe(true);
 
-      await actions.picture.saveAsPng();
+      await saveThroughDialog({ store, actions, atoms });
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
@@ -126,7 +161,7 @@ describe(createPictureActions, () => {
     it("counts an edit made after the save as unsaved again.", async () => {
       const { store, actions, atoms, item } = setUpSavable();
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-      await actions.picture.saveAsPng();
+      await saveThroughDialog({ store, actions, atoms });
 
       actions.selection.move(item.id, [10, 20]);
 
@@ -136,7 +171,7 @@ describe(createPictureActions, () => {
     it("keeps a view operation after the save from counting as a change.", async () => {
       const { store, actions, atoms } = setUpSavable();
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-      await actions.picture.saveAsPng();
+      await saveThroughDialog({ store, actions, atoms });
 
       actions.view.zoom(2, new Vec2(0, 0));
       actions.view.scroll(10, 20);
@@ -155,7 +190,7 @@ describe(createPictureActions, () => {
         }),
       );
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-      await actions.picture.saveAsPng();
+      await saveThroughDialog({ store, actions, atoms });
 
       actions.edit.enter(filled.id);
       actions.selection.clear();

@@ -35,8 +35,8 @@ const FileMenu = React.memo(() => {
       <MenuPopover>
         <MenuList>
           <MenuItem onClick={() => actions.picture.clearItems()}>New instance</MenuItem>
-          <MenuItem disabled={!canSave} onClick={() => actions.picture.saveAsPng()}>
-            Save as PNG
+          <MenuItem disabled={!canSave} onClick={() => actions.picture.saveAsImage()}>
+            Save as image
           </MenuItem>
         </MenuList>
       </MenuPopover>

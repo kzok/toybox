@@ -1,6 +1,6 @@
 import { castDraft } from "immer";
 import type { EditorItem } from "../../features/editorItem";
-import { exportToImageBlob } from "../../features/renderer";
+import { type ExportOption, exportToImageBlob } from "../../features/renderer";
 import { pickImageFile, readImageFromDataTransfer, saveBlobAsFile } from "../../utils/fileIO";
 import { Vec2 } from "../../utils/geometry";
 import { createDialogActions } from "./dialogs";
@@ -55,16 +55,20 @@ export const createPictureActions = (params: ActionCreatorParam) => {
       }
       addImageItem(dropped.image);
     }),
-    /** render editor items and save them as a PNG file */
-    saveAsPng: dialogs.withErrorDialog(async () => {
+    /** show save image dialog */
+    saveAsImage: () => {
       // an empty picture measures 0x0, which `exportToImageBlob` cannot encode.
       if (!store.get(atoms.canSave)) {
         return;
       }
-      const items = store.get(atoms.editorItems);
-      const blob = await exportToImageBlob(items);
-      saveBlobAsFile(blob, "screenshot.png");
-      store.set(atoms.savedItems, items);
-    }),
+      dialogs.showSaveDialog(
+        dialogs.withErrorDialog(async (option: ExportOption) => {
+          const items = store.get(atoms.editorItems);
+          const blob = await exportToImageBlob(items, option);
+          saveBlobAsFile(blob, "screenshot");
+          store.set(atoms.savedItems, items);
+        }),
+      );
+    },
   } as const;
 };
