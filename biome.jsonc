@@ -25,6 +25,9 @@
         "useNodejsImportProtocol": "error",
         // allow non-null assertion
         "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        "noImportCycles": "error"
       }
     }
   },
