@@ -143,7 +143,7 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
     outlineWidth,
     headLength,
     headWidth,
-    headNotch,
+    headNotchControl,
     shaftTailWidth,
     shaftHeadWidth,
     shadowBlur,
@@ -151,12 +151,8 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   } = ARROW_STYLE_SIZE;
   /** where the back two corners of the head sit on the axis */
   const backX = item.length - headLength;
-  /**
-   * the control point of the curve that dents the head's back edge.
-   * @note twice the notch out, a quadratic curve only reaching half way to its control point.
-   *   so the dent bottoms out `headNotch` deep, at `backX + headNotch`.
-   */
-  const notchControlX = backX + headNotch * 2;
+  /** the control point of the curve that dents the head's back edge. */
+  const notchControlX = backX + headNotchControl;
 
   /** a filled wedge rather than a stroked line. */
   const shaft = new Path2D();

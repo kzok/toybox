@@ -9,6 +9,13 @@ const HEAD_LENGTH = 40;
 /** how deep (px) the back edge of the head is bowed in towards the tip */
 const HEAD_NOTCH = 4;
 
+/**
+ * how far (px) in front of the head's back corners the control point of the curve along its back
+ * edge sits.
+ * @note twice the notch, a quadratic curve only reaching half way to its control point.
+ */
+const HEAD_NOTCH_CONTROL = HEAD_NOTCH * 2;
+
 /** width (px) across the tail, where the shaft is at its thinnest */
 const SHAFT_TAIL_WIDTH = 4;
 
@@ -31,7 +38,7 @@ export const ARROW_STYLE_SIZE = {
   shaftHeadWidth: 10,
   headWidth: HEAD_WIDTH,
   headLength: HEAD_LENGTH,
-  headNotch: HEAD_NOTCH,
+  headNotchControl: HEAD_NOTCH_CONTROL,
   shadowBlur: 9,
   shadowOffset: 4,
 
@@ -63,12 +70,11 @@ const TIP_MITER = miterOffsetOf(
 
 /**
  * of the back corner on the -y side.
- * @note the curved back edge leaves the corner towards its control point, `headNotch * 2` in
- *   front of the corner (see `renderArrow`).
+ * @note the curved back edge leaves the corner towards its control point.
  */
 const BACK_MITER = miterOffsetOf(
   new Vec2(HEAD_LENGTH, HEAD_WIDTH / 2),
-  new Vec2(HEAD_NOTCH * 2, HEAD_WIDTH / 2),
+  new Vec2(HEAD_NOTCH_CONTROL, HEAD_WIDTH / 2),
 );
 
 /**
