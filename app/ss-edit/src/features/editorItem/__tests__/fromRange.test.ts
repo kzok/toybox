@@ -77,6 +77,31 @@ describe(editorItemFromRange, () => {
     });
   });
 
+  describe('"mosaic"', () => {
+    it("builds an item covering exactly the dragged range.", () => {
+      expect(editorItemFromRange("mosaic", range([20, 40], [420, 140]), "item-1")).toStrictEqual({
+        kind: "mosaic",
+        id: "item-1",
+        offset: [20, 40],
+        width: 400,
+        height: 100,
+      });
+    });
+
+    it("sorts the corners of a range dragged up and left.", () => {
+      const item = editorItemFromRange("mosaic", range([420, 140], [20, 40]), "item-1");
+      expect(item.offset).toStrictEqual([20, 40]);
+    });
+
+    it("grows a range dragged too small to be grabbed again.", () => {
+      // a click leaves a range of a single point behind.
+      const item = editorItemFromRange("mosaic", range([20, 40], [20, 40]), "item-1");
+      expect(item.kind === "mosaic" && [item.width, item.height]).toStrictEqual([16, 16]);
+      // the head of the drag is kept, so the item grows away from where it started.
+      expect(item.offset).toStrictEqual([20, 40]);
+    });
+  });
+
   describe('"arrow"', () => {
     it("runs from the head of the drag to its end.", () => {
       // dragged right and down, three-four-five, hence a length of 500.

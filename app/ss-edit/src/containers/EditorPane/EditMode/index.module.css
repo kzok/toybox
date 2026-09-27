@@ -1,7 +1,8 @@
 .imageItem,
 .textItem,
 .rectItem,
-.arrowItem {
+.arrowItem,
+.mosaicItem {
   /* cancel out `transform: scale()` to keep the outline width constant */
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
@@ -10,7 +11,8 @@
   background: rgba(15, 108, 189, 0.2);
 }
 
-.rectItem {
+.rectItem,
+.mosaicItem {
   display: inline-block;
   position: absolute;
 }

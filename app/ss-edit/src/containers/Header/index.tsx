@@ -60,6 +60,7 @@ const EditMenu = React.memo(() => {
           <MenuItem onClick={() => actions.addItem.enter("text")}>Add text</MenuItem>
           <MenuItem onClick={() => actions.addItem.enter("rect")}>Add rectangle</MenuItem>
           <MenuItem onClick={() => actions.addItem.enter("arrow")}>Add arrow</MenuItem>
+          <MenuItem onClick={() => actions.addItem.enter("mosaic")}>Add mosaic</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

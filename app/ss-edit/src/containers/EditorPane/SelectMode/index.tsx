@@ -25,6 +25,8 @@ export const SelectMode = React.memo(() => {
         return <RectItem key={item.id} item={item} />;
       case "arrow":
         return <ArrowItem key={item.id} item={item} />;
+      case "mosaic":
+        return <MosaicItem key={item.id} item={item} />;
       default:
         item satisfies never;
         throw new Error(`unknown item: ${JSON.stringify(item)}`);
@@ -132,6 +134,31 @@ const ArrowItem = React.memo<{
   return (
     <span
       className={styles.arrowItem}
+      data-item-kind={item.kind}
+      data-selected={selected}
+      style={style}
+      {...usePointerActions(item, selected)}
+    />
+  );
+});
+
+const MosaicItem = React.memo<{
+  item: EditorItem.Mosaic;
+}>(({ item }) => {
+  const style = React.useMemo(
+    (): React.CSSProperties => ({
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
+    }),
+    [item],
+  );
+  const selected = useItemSelected(item.id);
+
+  return (
+    <span
+      className={styles.mosaicItem}
       data-item-kind={item.kind}
       data-selected={selected}
       style={style}

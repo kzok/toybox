@@ -7,6 +7,7 @@ import { createEditActions } from "../edit";
 import {
   createArrowItem,
   createImageItem,
+  createMosaicItem,
   createRectItem,
   createTestTarget,
   createTestTargetWithItems,
@@ -450,6 +451,68 @@ describe(createEditActions, () => {
       expect(() => actions.edit.resizeRect("missing-id", [207, 107])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
+  describe("resizeMosaic()", () => {
+    // width: 100, height: 50, drawn at exactly that size.
+    const setUp = () => {
+      const item = createMosaicItem("item-1", [0, 0]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    /**
+     * @param store the test target's store
+     * @param atoms the test target's atoms
+     * @returns the mosaic item under test, after whatever was done to it
+     */
+    const resizedOf = (
+      store: ReturnType<typeof setUp>["store"],
+      atoms: ReturnType<typeof setUp>["atoms"],
+    ) => store.get(atoms.editorItems).find((i) => i.id === "item-1") as EditorItem.Mosaic;
+
+    it("takes the two sides independently, keeping the offset.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      // unlike a rect, nothing pads the drawn box, so the pointer is the new corner as it is.
+      actions.edit.resizeMosaic(item.id, [200, 100]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(200);
+      expect(resized.height).toBeCloseTo(100);
+      expect(resized.offset).toStrictEqual([0, 0]);
+    });
+
+    it("does not shrink either side below the minimum length.", () => {
+      const { store, actions, atoms, item } = setUp();
+
+      actions.edit.resizeMosaic(item.id, [-1000, -1000]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(16);
+      expect(resized.height).toBeCloseTo(16);
+    });
+
+    it("scales the pointer position by the inverse of the view scale.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.view.zoom(2, new Vec2(0, 0));
+
+      // at 2x zoom, a 400,200 screen-px target is 200,100 canvas units — as in the first test.
+      actions.edit.resizeMosaic(item.id, [400, 200]);
+
+      const resized = resizedOf(store, atoms);
+      expect(resized.width).toBeCloseTo(200);
+      expect(resized.height).toBeCloseTo(100);
+    });
+
+    it("does nothing when the item is not a mosaic item.", () => {
+      const rectItem = createRectItem("rect-1", [0, 0]);
+      const { store, actions, atoms } = createTestTargetWithItems(rectItem);
+
+      actions.edit.resizeMosaic(rectItem.id, [200, 100]);
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
     });
   });
 

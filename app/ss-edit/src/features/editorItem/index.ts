@@ -1,6 +1,7 @@
 export * from "./arrowStyle";
 export * from "./fromRange";
 export * from "./measure";
+export * from "./mosaicStyle";
 export * from "./rectStyle";
 export * from "./textLayout";
 export * from "./textStyle";

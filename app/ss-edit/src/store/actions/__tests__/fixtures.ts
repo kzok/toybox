@@ -67,6 +67,22 @@ export const createRectItem = (id: string, offset: EditorItem.Rect["offset"]): E
 
 /**
  * @param id item.id
+ * @param offset top-left offset in canvas coordinates
+ * @returns a mosaic item of 100 x 50
+ */
+export const createMosaicItem = (
+  id: string,
+  offset: EditorItem.Mosaic["offset"],
+): EditorItem.Mosaic => ({
+  kind: "mosaic",
+  id,
+  offset,
+  width: 100,
+  height: 50,
+});
+
+/**
+ * @param id item.id
  * @param offset the tail of the arrow in canvas coordinates
  * @param angle direction the arrow points, in radians, defaulting to right
  * @returns an arrow item 200 long

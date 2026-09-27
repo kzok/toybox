@@ -34,6 +34,7 @@ const measureItem = (item: EditorItem): Rect => {
   let size: Vec2;
   switch (item.kind) {
     case "image":
+    case "mosaic":
       size = new Vec2(item.width, item.height);
       break;
     case "text":
