@@ -37,5 +37,12 @@ export const growBox = (box: Box, delta: number): Box => ({
   height: box.height + delta,
 });
 
+/**
+ * pixel comparison options for a baseline holding a mosaic.
+ * @note the default `threshold` of 0.2 takes the grey label of the fixtures, sharp or pixelated, as
+ *   the same colour, and hence would pass a mosaic that hides nothing.
+ */
+export const MOSAIC_PIXELS = { threshold: 0 } as const;
+
 /** digests keep a mismatch readable instead of dumping every byte of the PNG. */
 export const digest = (png: Buffer): string => createHash("sha256").update(png).digest("hex");

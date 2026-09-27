@@ -42,6 +42,13 @@ export const rectItems = (page: Page): Locator => page.locator("[data-item-kind=
  */
 export const arrowItems = (page: Page): Locator => page.locator("[data-item-kind='arrow']");
 
+/**
+ * mosaic items on the editor overlay, in the order they were added. see `items` on edit mode.
+ * @note unlike a rect, nothing is drawn outside the item, so the element spans its own `width` /
+ *   `height` exactly.
+ */
+export const mosaicItems = (page: Page): Locator => page.locator("[data-item-kind='mosaic']");
+
 /** the transparent `<textarea/>` of edit mode. there is at most one of it. */
 export const textEditor = (page: Page): Locator => page.locator("textarea");
 

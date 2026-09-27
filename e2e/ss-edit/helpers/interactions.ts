@@ -5,6 +5,7 @@ import {
   arrowItems,
   editorPane,
   imageItems,
+  mosaicItems,
   rectItems,
   saveImageDialog,
   textEditor,
@@ -53,6 +54,16 @@ export const addImage = async (page: Page, fileName: string): Promise<void> => {
   ]);
   await chooser.setFiles(fixture(fileName));
   await expect(imageItems(page)).toHaveCount(count + 1);
+};
+
+/**
+ * adds the 320x240 fixture, whose "320 x 240" label is something for a mosaic to hide.
+ * @returns the range over the label, in editor pane coordinates
+ */
+export const addLabelledImage = async (page: Page): Promise<Box> => {
+  await addImage(page, "320x240.png");
+  const image = await paneRectOf(page, imageItems(page).last());
+  return { x: image.x + 30, y: image.y + 80, width: 260, height: 80 };
 };
 
 /** gets into "add-item" mode through "Edit" -> "Add text". */
@@ -120,6 +131,27 @@ export const editArrow = async (page: Page): Promise<Locator> => {
   return arrowItems(page).first();
 };
 
+/** gets into "add-item" mode through "Edit" -> "Add mosaic". */
+export const enterAddMosaic = async (page: Page): Promise<void> => {
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByRole("menuitem", { name: "Add mosaic" }).click();
+  await expectMode(page, "add-item");
+};
+
+/**
+ * adds a mosaic item by dragging `rect`, given in editor pane coordinates.
+ * @returns the item on the select mode overlay, which is where a finished mosaic leaves the editor.
+ */
+export const addMosaicByDrag = async (page: Page, rect: Box): Promise<Locator> => {
+  const count = await mosaicItems(page).count();
+  const { x, y, width, height } = await paneRectToViewport(page, rect);
+  await enterAddMosaic(page);
+  await dragFromTo(page, { x, y }, { x: x + width, y: y + height });
+  await expectMode(page, "select");
+  await expect(mosaicItems(page)).toHaveCount(count + 1);
+  return mosaicItems(page).last();
+};
+
 /**
  * exports the picture through "File" -> "Save as image" with the dialog's default options.
  * @note the dialog stays open after a save, hence it is closed here so that it does not hold the
@@ -176,6 +208,13 @@ export const dragFromTo = async (page: Page, from: Point, to: Point): Promise<vo
 export const paneRectToViewport = async (page: Page, rect: Box): Promise<Box> => {
   const pane = await boundingBoxOf(editorPane(page));
   return { ...rect, x: pane.x + rect.x, y: pane.y + rect.y };
+};
+
+/** the element's box in editor pane coordinates, the inverse of `paneRectToViewport`. */
+export const paneRectOf = async (page: Page, element: Locator): Promise<Box> => {
+  const pane = await boundingBoxOf(editorPane(page));
+  const box = await boundingBoxOf(element);
+  return { ...box, x: box.x - pane.x, y: box.y - pane.y };
 };
 
 /** turns a point in editor pane coordinates into viewport coordinates. */
