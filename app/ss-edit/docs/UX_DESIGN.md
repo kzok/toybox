@@ -120,6 +120,14 @@ It is simply friendlier to look at than a plain wedge.
 Each end carries a handle, and dragging one moves that end alone,
 which changes the arrow's length and its direction at once.
 
+### Mosaic
+
+A mosaic item masks information by pixelating whatever is painted behind it.
+An item added after it lies in front and stays sharp.
+
+It draws nothing of its own, not even an outline, only the pixelated blocks.
+Resizing changes its width and height independently.
+
 ## Hotkeys
 
 - **They work while text is being edited, or not, depending on the key.** `Mod+S` and `Escape`
