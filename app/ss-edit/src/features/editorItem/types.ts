@@ -1,7 +1,12 @@
 import type { Vec2 } from "../../utils/geometry";
 
 /** editor item */
-export type EditorItem = EditorItem.Image | EditorItem.Text | EditorItem.Rect | EditorItem.Arrow;
+export type EditorItem =
+  | EditorItem.Image
+  | EditorItem.Text
+  | EditorItem.Rect
+  | EditorItem.Arrow
+  | EditorItem.Mosaic;
 
 export namespace EditorItem {
   /** image item */
@@ -72,6 +77,18 @@ export namespace EditorItem {
     /** arrow color */
     color: string;
   }>;
+
+  /** mosaic item, pixelating whatever is painted behind it */
+  export type Mosaic = Readonly<{
+    kind: "mosaic";
+    id: string;
+    /** top-left offset */
+    offset: Vec2.Tuple;
+    /** display width */
+    width: number;
+    /** display height */
+    height: number;
+  }>;
 }
 
 /**
@@ -81,7 +98,8 @@ export namespace EditorItem {
 export type AddableItemKind =
   | EditorItem.Text["kind"]
   | EditorItem.Rect["kind"]
-  | EditorItem.Arrow["kind"];
+  | EditorItem.Arrow["kind"]
+  | EditorItem.Mosaic["kind"];
 
 /** text item layout part */
 export type TextItemLayout = Pick<EditorItem.Text, "width" | "fontSize" | "content">;

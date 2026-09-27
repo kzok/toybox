@@ -25,6 +25,9 @@ export const renderEditorItem = (ctx: CanvasContext2D, item: EditorItem) => {
     case "arrow":
       renderArrow(ctx, item);
       break;
+    case "mosaic":
+      renderMosaic(ctx, item);
+      break;
     default:
       item satisfies never;
       throw new Error(`unknown item: ${JSON.stringify(item)}`);
@@ -203,5 +206,58 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   ctx.fill(shaft);
   ctx.fill(head);
 
+  ctx.restore();
+};
+
+/** side of a single square block of mosaic item */
+const MOSAIC_BLOCK_SIZE = 8;
+
+/**
+ * @note reads back what `ctx` already holds, so every item behind the mosaic must have been painted
+ *   before this is called.
+ * @note the grid is laid in canvas coordinates from the item's offset, never in the pixels of
+ *   `ctx.canvas`, so that neither the view transform nor the export crop shifts the blocks.
+ */
+const renderMosaic = (ctx: CanvasContext2D, item: EditorItem.Mosaic): void => {
+  const [x, y] = item.offset;
+  const columns = Math.ceil(item.width / MOSAIC_BLOCK_SIZE);
+  const rows = Math.ceil(item.height / MOSAIC_BLOCK_SIZE);
+  // whole blocks, the last column and row reaching past the item and clipped off below.
+  const gridWidth = columns * MOSAIC_BLOCK_SIZE;
+  const gridHeight = rows * MOSAIC_BLOCK_SIZE;
+
+  const transform = ctx.getTransform();
+  const sourceHead = transform.transformPoint({ x, y });
+  const sourceTail = transform.transformPoint({ x: x + gridWidth, y: y + gridHeight });
+
+  // one pixel per block, averaging what lies behind it.
+  const blocks = new OffscreenCanvas(columns, rows);
+  const blocksCtx = blocks.getContext("2d");
+  if (blocksCtx == null) {
+    throw new Error("failed to get OffscreenCanvas context 2d.");
+  }
+  blocksCtx.imageSmoothingQuality = "high";
+  blocksCtx.drawImage(
+    ctx.canvas,
+    sourceHead.x,
+    sourceHead.y,
+    sourceTail.x - sourceHead.x,
+    sourceTail.y - sourceHead.y,
+    0,
+    0,
+    columns,
+    rows,
+  );
+
+  const clip = new Path2D();
+  clip.rect(x, y, item.width, item.height);
+
+  ctx.save();
+  ctx.clip(clip);
+  // a block averaged with transparency is itself translucent, and would let the sharp content
+  // behind it show through were it drawn over rather than in place of that content.
+  ctx.clearRect(x, y, item.width, item.height);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(blocks, x, y, gridWidth, gridHeight);
   ctx.restore();
 };

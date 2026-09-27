@@ -66,6 +66,17 @@ const createArrowItem = (
   color: "#000",
 });
 
+const createMosaicItem = (
+  offset: EditorItem.Mosaic["offset"],
+  size: readonly [number, number],
+): EditorItem.Mosaic => ({
+  kind: "mosaic",
+  id: `item-${offset.join(",")}`,
+  offset,
+  width: size[0],
+  height: size[1],
+});
+
 describe(textItemSizeOf, () => {
   it("pads the laid out lines on every side to match what the renderer draws.", () => {
     const item = createTextItem([0, 0], 100, 20);
@@ -146,6 +157,12 @@ describe(measurePicture, () => {
     // the padding lies inside the item, so a thicker line never moves its visible top-left corner.
     expect(thin.head.tuple()).toStrictEqual([10, 20]);
     expect(thick.head.tuple()).toStrictEqual([10, 20]);
+  });
+
+  it("takes a mosaic item's rect as it is, the blocks never reaching past the item.", () => {
+    const rect = measurePicture([createMosaicItem([10, 20], [100, 50])]);
+    expect(rect.head.tuple()).toStrictEqual([10, 20]);
+    expect(rect.size.tuple()).toStrictEqual([100, 50]);
   });
 
   it("pads an arrow item's rect on every side, the offset landing inside rather than on a corner.", () => {

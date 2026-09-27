@@ -1,7 +1,8 @@
 .imageItem,
 .textItem,
 .rectItem,
-.arrowItem {
+.arrowItem,
+.mosaicItem {
   display: inline-block;
   position: absolute;
   cursor: move;

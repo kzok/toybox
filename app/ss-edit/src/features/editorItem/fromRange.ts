@@ -1,5 +1,6 @@
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { clampArrowLength } from "./arrowStyle";
+import { clampMosaicSide } from "./mosaicStyle";
 import { clampRectSide } from "./rectStyle";
 import { clampFontSize, clampTextWidth } from "./textStyle";
 import type { AddableItemKind, EditorItem } from "./types";
@@ -49,6 +50,15 @@ export const editorItemFromRange = (
         height: clampRectSide(size.y),
         color: NEW_ITEM_COLOR,
         lineWidth: NEW_RECT_LINE_WIDTH,
+      };
+    }
+    case "mosaic": {
+      return {
+        kind: "mosaic",
+        id,
+        offset: head.tuple(),
+        width: clampMosaicSide(size.x),
+        height: clampMosaicSide(size.y),
       };
     }
     case "arrow": {

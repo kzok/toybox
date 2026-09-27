@@ -1,6 +1,7 @@
 import {
   clampArrowLength,
   clampFontSize,
+  clampMosaicSide,
   clampRectSide,
   clampTextWidth,
   rectStyleSizeOf,
@@ -109,6 +110,20 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
         const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
         item.width = clampRectSide(scaledCursor.x - padding * 2);
         item.height = clampRectSide(scaledCursor.y - padding * 2);
+      });
+    },
+    /**
+     * resize a mosaic item, keeping its top-left offset fixed.
+     * @param cursor [width, height] distance from the item's top-left offset to the pointer
+     */
+    resizeMosaic: (itemId: string, cursor: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "mosaic") return;
+
+        const scaledCursor = Vec2.new(cursor).div(draft.editorView.scale);
+        item.width = clampMosaicSide(scaledCursor.x);
+        item.height = clampMosaicSide(scaledCursor.y);
       });
     },
     /**

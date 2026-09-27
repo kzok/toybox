@@ -26,6 +26,8 @@ export const EditMode = React.memo(() => {
         return <RectItem key={item.id} item={item} />;
       case "arrow":
         return <ArrowItem key={item.id} item={item} />;
+      case "mosaic":
+        return <MosaicItem key={item.id} item={item} />;
       default:
         item satisfies null;
         return null;
@@ -90,6 +92,40 @@ const RectItem = React.memo<{
   return (
     <ResizeContainer
       className={styles.rectItem}
+      data-item-kind={item.kind}
+      style={style}
+      onPointerDown={stopPropagation}
+      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerUp={stopPropagation}
+      // NOTE: keeps the click from reaching the pane, which would clear the selection.
+      onClick={stopPropagation}
+    >
+      <ResizeHandle direction="bottom-right" onResize={onResize} />
+    </ResizeContainer>
+  );
+});
+
+const MosaicItem = React.memo<{
+  item: EditorItem.Mosaic;
+}>(({ item }) => {
+  const actions = pageCtx.useActions();
+  const style = React.useMemo(
+    (): React.CSSProperties => ({
+      left: `${item.offset[0]}px`,
+      top: `${item.offset[1]}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
+    }),
+    [item],
+  );
+  const onResize = React.useCallback(
+    (cursor: Vec2.Tuple) => actions.edit.resizeMosaic(item.id, cursor),
+    [actions, item.id],
+  );
+
+  return (
+    <ResizeContainer
+      className={styles.mosaicItem}
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
