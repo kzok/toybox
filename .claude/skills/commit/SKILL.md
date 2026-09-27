@@ -1,7 +1,7 @@
 ---
 name: commit
 description: Inspect the working tree, settle open questions one at a time, then commit
-argument-hint: [how to commit — omit to leave it open]
+argument-hint: "[how to commit — omit to leave it open]"
 disable-model-invocation: true
 allowed-tools:
   - Bash(git status:*)
@@ -9,6 +9,9 @@ allowed-tools:
   - Bash(git add:*)
   - Bash(git reset)
   - Bash(git apply:*)
+  - Bash(git hash-object:*)
+  - Bash(git update-index:*)
+  - Bash(git ls-files:*)
   - Bash(git commit:*)
 ---
 
@@ -32,8 +35,8 @@ Don't stop until every planned commit is made.
 2. **Ask, one question at a time.**
   Send one question, wait for the answer, and let that answer decide the next one.
   Keep going until nothing is open.
-  Use `AskUserQuestion` for closed questions or when the answer can be predicted.
-  Return the turn for the others.
+  Ask in plain text and return the turn, not with `AskUserQuestion`:
+  text written right after its answer is hidden when the next dialog opens.
   Ask only what the repository cannot answer: what prompted the work,
   whether something that reads like a defect is deliberate,
   whether a leftover meant for debugging should be left out.
@@ -56,18 +59,16 @@ Propose one commit per concern whenever the diff spans concerns a reader wouldn'
 Show the plan as an ordered list — subject, plus the paths or hunks each commit takes —
 and commit only what the user agreed to.
 
-`git add -p` can't run here, so stage by patch instead:
-
 1. Save the index as it arrived: `git diff --cached > <scratchpad>/index-backup.patch`.
   Applying that with `git apply --cached` is the way back if the run is abandoned.
 2. `git reset`.
   This empties the index and touches no file in the working tree.
 3. For each planned commit, in order:
    - Whole files, untracked ones included: `git add <paths>`.
-   - Part of a file: write just those hunks to a patch in the scratchpad directory,
-     keeping the `diff --git` and `@@` headers, then `git apply --cached <patch>`.
-     The line counts in an `@@` header must match the hunk body or `git apply` refuses the patch;
-     correct the counts rather than working around the refusal.
+   - Part of a file: copy the file into the scratchpad directory,
+     edit the copy into the state that commit should hold,
+     then `git update-index --add --cacheinfo <mode>,$(git hash-object -w <copy>),<path>`,
+     taking `<mode>` from `git ls-files -s <path>`, or `100644` for an untracked file.
    - Check `git diff --cached --stat` against the plan, then `git commit -F <message-file>`.
 4. `git status --short`.
   Everything not committed on purpose must still be there.
@@ -106,12 +107,10 @@ Claim only what was checked.
 The body is the user's call, so never decide it alone.
 For each planned commit, show the subject and then either the body drafted for it,
 verbatim and already wrapped, or a statement that nothing in the diff calls for one.
-Say in one line why each point earns its place — or why the diff speaks for itself.
-Then ask with a multi-select `AskUserQuestion`: one option per drafted point,
-in the order they would appear, plus a final option for no body at all.
+Number the drafted points in the order they would appear,
+and say in one line why each point earns its place — or why the diff speaks for itself.
 Draft each point so that it stands alone, since any subset may come back.
+Then ask which numbers to keep, or none, and return the turn.
 The answer is the body: the chosen points, concatenated in that order.
-Spell the points out in the message first — `preview` does not render on a multi-select,
-so the options carry only their labels.
 Handle one commit at a time, the same way as step 2's questions.
 Commit only what came back confirmed.
