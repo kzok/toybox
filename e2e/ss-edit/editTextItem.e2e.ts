@@ -21,7 +21,7 @@ import {
 } from "./helpers";
 
 /** kept on the top left corner of the pane, clear of the images added on its center. */
-const TEXT_RANGE = { x: 40, y: 40, width: 400, height: 48 };
+const TEXT_RANGE = { x: 40, y: 40, width: 400, height: 40 };
 
 test("enters edit mode on the second click with the caret at the end", async ({ page }) => {
   await openApp(page);

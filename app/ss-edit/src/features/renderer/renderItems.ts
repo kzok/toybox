@@ -51,14 +51,13 @@ const textShadowBlurOf = (fontSize: number): number => Math.ceil(fontSize / 3);
 const textShadowOffsetOf = (fontSize: number): number => Math.ceil(fontSize / 12);
 
 const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
-  const { padding, lineHeight, letterSpacing } = textStyleSizeOf(item);
+  const { lineHeight, letterSpacing } = textStyleSizeOf(item);
   const strokeWidth = Math.ceil(item.fontSize / 6);
   const shadowBlur = textShadowBlurOf(item.fontSize);
   const shadowOffset = textShadowOffsetOf(item.fontSize);
 
   ctx.save();
   ctx.translate(...item.offset);
-  ctx.translate(padding, padding);
   ctx.font = `bold ${item.fontSize}px ${measuredFontFamily()}`;
   ctx.letterSpacing = `${letterSpacing}px`;
   ctx.textAlign = "left";

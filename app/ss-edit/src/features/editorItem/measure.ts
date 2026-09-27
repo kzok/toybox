@@ -24,10 +24,9 @@ export const measurePicture = (items: readonly EditorItem[]): Rect => {
  * @returns the size the text occupies, laid out at that layout
  */
 export const textItemSizeOf = (layout: TextItemLayout): Vec2 => {
-  const { padding, lineHeight } = textStyleSizeOf(layout);
+  const { lineHeight } = textStyleSizeOf(layout);
   const lineCount = splitLines(layout).length;
-  const doublePadding = padding * 2;
-  return new Vec2(layout.width, lineCount * lineHeight).add([doublePadding, doublePadding]);
+  return new Vec2(layout.width, lineCount * lineHeight);
 };
 
 const measureItem = (item: EditorItem): Rect => {

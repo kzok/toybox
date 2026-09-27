@@ -16,25 +16,25 @@ const range = (from: readonly [number, number], to: readonly [number, number]): 
 describe(editorItemFromRange, () => {
   describe('"text"', () => {
     it("builds a blank item sized by the dragged range.", () => {
-      expect(editorItemFromRange("text", range([20, 40], [420, 88]), "item-1")).toStrictEqual({
+      expect(editorItemFromRange("text", range([20, 40], [420, 80]), "item-1")).toStrictEqual({
         kind: "text",
         id: "item-1",
         content: "",
         offset: [20, 40],
         width: 400,
-        // the dragged height (48px) is a single line box of this font size.
+        // the dragged height (40px) is a single line box of this font size.
         fontSize: 32,
         color: expect.any(String),
       });
     });
 
     it("sorts the corners of a range dragged up and left.", () => {
-      const item = editorItemFromRange("text", range([420, 88], [20, 40]), "item-1");
+      const item = editorItemFromRange("text", range([420, 80], [20, 40]), "item-1");
       expect(item.offset).toStrictEqual([20, 40]);
     });
 
     it("widens a range too narrow for ten characters of its font size.", () => {
-      const item = editorItemFromRange("text", range([20, 40], [120, 88]), "item-1");
+      const item = editorItemFromRange("text", range([20, 40], [120, 80]), "item-1");
       expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([320, 32]);
     });
 

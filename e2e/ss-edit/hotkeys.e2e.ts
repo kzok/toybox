@@ -13,9 +13,9 @@ import {
 } from "./helpers";
 
 /** a range wide enough for the text below, dragged on an arbitrary spot of the pane. */
-const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 48 };
+const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 /** a second range, clear of `TEXT_RANGE`, for the tests that need two items. */
-const SECOND_RANGE = { x: 200, y: 300, width: 400, height: 48 };
+const SECOND_RANGE = { x: 200, y: 300, width: 400, height: 40 };
 
 test("opens the save dialog while the text editor holds the focus", async ({ page }) => {
   await openApp(page);

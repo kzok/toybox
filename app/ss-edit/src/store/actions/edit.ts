@@ -6,7 +6,6 @@ import {
   clampTextWidth,
   rectStyleSizeOf,
   textItemSizeOf,
-  textStyleSizeOf,
 } from "../../features/editorItem";
 import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
@@ -92,9 +91,8 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item?.kind !== "text") return;
 
-        const { padding } = textStyleSizeOf(item);
         const scaledCursorX = cursor[0] / draft.editorView.scale;
-        item.width = clampTextWidth(scaledCursorX - padding * 2, item.fontSize);
+        item.width = clampTextWidth(scaledCursorX, item.fontSize);
       });
     },
     /**

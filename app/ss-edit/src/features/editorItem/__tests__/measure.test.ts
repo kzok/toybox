@@ -7,7 +7,7 @@ import type { EditorItem } from "../types";
 
 // NOTE: this environment's jsdom does not implement Range.prototype.getClientRects(), which
 // splitLines() depends on to lay text out, so it is stubbed here to keep the test focused on
-// measureItem()'s padding arithmetic rather than real text wrapping.
+// measureItem()'s size arithmetic rather than real text wrapping.
 vi.mock("../textLayout", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../textLayout")>()),
   splitLines: vi.fn((): readonly string[] => ["first line", "second line"]),
@@ -78,22 +78,18 @@ const createMosaicItem = (
 });
 
 describe(textItemSizeOf, () => {
-  it("pads the laid out lines on every side to match what the renderer draws.", () => {
+  it("sizes a text item to its laid out lines, with nothing around them.", () => {
     const item = createTextItem([0, 0], 100, 20);
-    const { padding, lineHeight } = textStyleSizeOf(item);
+    const { lineHeight } = textStyleSizeOf(item);
     // the mocked `splitLines` lays the content out as two lines.
-    expect(textItemSizeOf(item).tuple()).toStrictEqual([
-      100 + 2 * padding,
-      2 * lineHeight + 2 * padding,
-    ]);
+    expect(textItemSizeOf(item).tuple()).toStrictEqual([100, 2 * lineHeight]);
   });
 
-  it("grows both dimensions with the font size.", () => {
+  it("grows only the height with the font size, the width being given.", () => {
     const small = textItemSizeOf(createTextItem([0, 0], 100, 20));
     const large = textItemSizeOf(createTextItem([0, 0], 100, 40));
     expect(large.y).toBeGreaterThan(small.y);
-    // the width is given rather than measured, so only the padding grows with the font size.
-    expect(large.x).toBeGreaterThan(small.x);
+    expect(large.x).toBe(small.x);
   });
 });
 
@@ -130,15 +126,14 @@ describe(measurePicture, () => {
     expect(rect.size.tuple()).toStrictEqual([100, 70]);
   });
 
-  it("pads a text item's rect on every side to match what the renderer draws.", () => {
+  it("encloses a text item's line box, the drawing having no padding around it.", () => {
     const width = 100;
     const fontSize = 20;
     const item = createTextItem([10, 20], width, fontSize);
     const rect = measurePicture([item]);
-    const { padding, lineHeight } = textStyleSizeOf(item);
-    const height = 2 * lineHeight;
+    const { lineHeight } = textStyleSizeOf(item);
     expect(rect.head.tuple()).toStrictEqual([10, 20]);
-    expect(rect.size.tuple()).toStrictEqual([width + 2 * padding, height + 2 * padding]);
+    expect(rect.size.tuple()).toStrictEqual([width, 2 * lineHeight]);
   });
 
   it("pads a rect item's rect on every side to take up the outline the renderer draws.", () => {

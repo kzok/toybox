@@ -10,7 +10,7 @@ import {
 } from "./helpers";
 
 /** a range wide enough for the text below, dragged on an arbitrary spot of the pane. */
-const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 48 };
+const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 
 test("enables Save as image only when the picture has an item", async ({ page }) => {
   await openApp(page);
