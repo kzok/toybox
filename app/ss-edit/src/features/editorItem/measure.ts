@@ -1,5 +1,5 @@
 import { Rect, Vec2 } from "../../utils/geometry";
-import { ARROW_STYLE_SIZE } from "./arrowStyle";
+import { ARROW_STYLE_SIZE, arrowOutlineCornersOf } from "./arrowStyle";
 import { rectStyleSizeOf } from "./rectStyle";
 import { splitLines } from "./textLayout";
 import { textStyleSizeOf } from "./textStyle";
@@ -47,10 +47,15 @@ const measureItem = (item: EditorItem): Rect => {
     }
     case "arrow": {
       const tail = Vec2.new(item.offset);
-      const tip = tail.add(Vec2.polar(item.length, item.angle));
-      const bounds = new Rect(tail, tip);
-      const padding = Vec2.new(ARROW_STYLE_SIZE.padding, ARROW_STYLE_SIZE.padding);
-      return new Rect(bounds.head.sub(padding), bounds.tail.add(padding));
+      const { tailReach } = ARROW_STYLE_SIZE;
+      let rect = new Rect(tail.sub([tailReach, tailReach]), tail.add([tailReach, tailReach]));
+      for (const corner of arrowOutlineCornersOf(item.length)) {
+        const point = tail.add(
+          Vec2.polar(corner.distance(Vec2.ORIGIN), corner.angle() + item.angle),
+        );
+        rect = rect.union(new Rect(point, point));
+      }
+      return rect;
     }
     default:
       item satisfies never;

@@ -51,14 +51,13 @@ an arrow's lands on whichever corner its `angle` points away from.
 `angle` is in radians with 0 pointing right and a positive turn going clockwise on screen,
 which is what `ctx.rotate()` and CSS `rotate()` both take unconverted.
 
-Two consequences pull in opposite directions, and both are load-bearing:
+Two consequences follow, and both are load-bearing:
 
-- [`measureItem`](../src/features/editorItem/measure.ts) builds the tail-to-tip
-  [`Rect`](../src/utils/geometry/rect.ts) **first** and grows it by the padding afterwards.
-  Padding the two points where they stand shrinks the box of an arrow pointing left or up,
-  the tip being the head of the rect there rather than its tail.
+- [`measureItem`](../src/features/editorItem/measure.ts) rotates the outline's corners
+  about the tail and takes the rect they span,
+  so it never assumes the tail is the top-left.
 - [`editorItemFromRange`](../src/features/editorItem/fromRange.ts) reads the drag **end to end**,
-  never through that normalised rect.
+  never through the [`Rect`](../src/utils/geometry/rect.ts) it spans.
   A `Rect` takes the min and the max of its two points and hence throws away
   which end the drag started from, which is the whole of what an arrow is.
 
@@ -69,9 +68,13 @@ there is no line width or font size to scale off.
 Every value in it is a true on-screen dimension rather than a ratio of another,
 so what is written there is what is drawn.
 
-`padding` is how far the drawing spreads to either side of the tail-to-tip line,
-and every hit-box and measurement of an arrow is sized from it rather than restating it.
+`padding` is the half-width of the band an arrow is hit-tested on,
+and every hit-box of an arrow is sized from it rather than restating it.
 In edit mode that band is also what keeps a click on the arrow from ending the edit.
+
+The exported picture is measured from the white outline instead,
+so that its margin stays as tight as the drawing.
+The shadow is left out and may be cut off at the picture's edge.
 
 ## Action grouping
 
