@@ -2,7 +2,7 @@ import { Rect, type Vec2 } from "../../utils/geometry";
 import { clampArrowLength } from "./arrowStyle";
 import { clampMosaicSide } from "./mosaicStyle";
 import { clampRectSide } from "./rectStyle";
-import { clampFontSize, clampTextWidth } from "./textStyle";
+import { clampFontSize, clampTextWidth, LINE_HEIGHT_RATIO } from "./textStyle";
 import type { AddableItemKind, EditorItem } from "./types";
 
 /** color of a newly added item, whichever kind it is */
@@ -30,7 +30,7 @@ export const editorItemFromRange = (
   switch (itemKind) {
     case "text": {
       // the dragged height is a single line box, hence the inverse of the `lineHeight`.
-      const fontSize = clampFontSize(size.y / 1.5);
+      const fontSize = clampFontSize(size.y / LINE_HEIGHT_RATIO);
       return {
         kind: "text",
         id,

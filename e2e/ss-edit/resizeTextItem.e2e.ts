@@ -14,15 +14,17 @@ import {
 } from "./helpers";
 
 /**
- * a range whose height drives the font size (`round(48 / 1.5)` = 32px) and whose width stays above
- * `fontSize * 10`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
- * 408 x 56 box: `textStyleSizeOf()` gives a 4px `padding` at 32px, added on every side of a
- * single 48px line.
+ * a range whose height drives the font size (`round(40 / 1.25)` = 32px) and whose width stays
+ * above `fontSize * 10`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
+ * 400 x 40 box: a single 40px line.
  */
-const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 48 };
+const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 
-/** narrow enough that `WRAPPED_TEXT` cannot fit on a single line. drawn, a 244 x 64 box. */
-const WRAPPED_RANGE = { x: 200, y: 160, width: 240, height: 30 };
+/**
+ * narrow enough that `WRAPPED_TEXT` cannot fit on a single line. drawn, a 240 x 50 box: two 25px
+ * lines at 20px.
+ */
+const WRAPPED_RANGE = { x: 200, y: 160, width: 240, height: 25 };
 /**
  * 22 full-width graphemes, which is what makes a re-wrap observable at all: a line of this range
  * holds 11 of them, so losing a single one per line spills the text onto a third line. at 20
@@ -65,8 +67,8 @@ test("scales the font size and the width together, keeping the top-left corner f
   const before = await boundingBoxOf(editor);
   const beforeLayout = await layoutOf(editor);
 
-  // a quarter of the 408 x 56 box it is drawn as, hence a 1.25x target on the diagonal.
-  await dragHandleBy(page, { x: 102, y: 14 });
+  // a quarter of the 400 x 40 box it is drawn as, hence a 1.25x target on the diagonal.
+  await dragHandleBy(page, { x: 100, y: 10 });
 
   await expect(editor).toHaveCSS("font-size", "40px");
 
@@ -90,8 +92,8 @@ test("keeps a wrapped text on the same number of lines", async ({ page }) => {
   // the `rows` of the `<textarea/>` is the line count the text was laid out into.
   await expect(editor).toHaveAttribute("rows", "2");
 
-  // half of the 244 x 64 box it is drawn as, hence a 1.5x target on the diagonal.
-  await dragHandleBy(page, { x: 122, y: 32 });
+  // half of the 240 x 50 box it is drawn as, hence a 1.5x target on the diagonal.
+  await dragHandleBy(page, { x: 120, y: 25 });
 
   await expect(editor).toHaveCSS("font-size", "30px");
   // the point of scaling the width along with the font size: the text re-wraps the same way.
@@ -117,7 +119,7 @@ test("does not re-wrap the text on the way through a drag", async ({ page }) => 
   const seen = new Set<string | null>();
   for (let step = 1; step <= steps; step++) {
     const ratio = step / steps;
-    await page.mouse.move(handle.x + 634 * ratio, handle.y + 166 * ratio);
+    await page.mouse.move(handle.x + 624 * ratio, handle.y + 130 * ratio);
     seen.add(await editor.getAttribute("rows"));
   }
   await page.mouse.up();
@@ -132,7 +134,7 @@ test("clamps the font size at both ends of the drag", async ({ page }) => {
   const editor = await addTextByDrag(page, MAIN_RANGE, "Hello");
 
   await test.step("stop growing at the maximum font size", async () => {
-    await dragHandleBy(page, { x: 2000, y: 2000 * (56 / 408) });
+    await dragHandleBy(page, { x: 2000, y: 2000 * (40 / 400) });
     await expect(editor).toHaveCSS("font-size", "72px");
     const layout = await layoutOf(editor);
     // the width stopped along with the font size instead of running away from it.
@@ -140,7 +142,7 @@ test("clamps the font size at both ends of the drag", async ({ page }) => {
   });
 
   await test.step("stop shrinking at the minimum font size", async () => {
-    await dragHandleBy(page, { x: -2000, y: -2000 * (56 / 408) });
+    await dragHandleBy(page, { x: -2000, y: -2000 * (40 / 400) });
     await expect(editor).toHaveCSS("font-size", "12px");
     const layout = await layoutOf(editor);
     expect(layout.width / layout.fontSize).toBeCloseTo(400 / 32, 0);
@@ -151,7 +153,7 @@ test("keeps the resized text in the exported picture", async ({ page }) => {
   await openApp(page);
   await addTextByDrag(page, MAIN_RANGE, "Hello");
 
-  await dragHandleBy(page, { x: 102, y: 14 });
+  await dragHandleBy(page, { x: 100, y: 10 });
   await commitText(page);
 
   await parkCursor(page);
@@ -166,7 +168,7 @@ test("narrows the width alone, re-wrapping the text at the same font size", asyn
 
   const before = await boundingBoxOf(editor);
 
-  // the handle sits on the right edge of the 244px box, so -20 asks for a 220px content width.
+  // the handle sits on the right edge of the 240px box, so -20 asks for a 220px width.
   await dragWidthHandleBy(page, { x: -20, y: 0 });
 
   // re-wrapping is the point of this handle, unlike the one on the corner.

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ARROW_STYLE_SIZE } from "../arrowStyle";
+import { ARROW_STYLE_SIZE, arrowOutlineCornersOf } from "../arrowStyle";
 import { measurePicture, textItemSizeOf } from "../measure";
 import { rectStyleSizeOf } from "../rectStyle";
 import { textStyleSizeOf } from "../textStyle";
@@ -7,7 +7,7 @@ import type { EditorItem } from "../types";
 
 // NOTE: this environment's jsdom does not implement Range.prototype.getClientRects(), which
 // splitLines() depends on to lay text out, so it is stubbed here to keep the test focused on
-// measureItem()'s padding arithmetic rather than real text wrapping.
+// measureItem()'s size arithmetic rather than real text wrapping.
 vi.mock("../textLayout", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../textLayout")>()),
   splitLines: vi.fn((): readonly string[] => ["first line", "second line"]),
@@ -78,22 +78,18 @@ const createMosaicItem = (
 });
 
 describe(textItemSizeOf, () => {
-  it("pads the laid out lines on every side to match what the renderer draws.", () => {
+  it("sizes a text item to its laid out lines, with nothing around them.", () => {
     const item = createTextItem([0, 0], 100, 20);
-    const { padding, lineHeight } = textStyleSizeOf(item);
+    const { lineHeight } = textStyleSizeOf(item);
     // the mocked `splitLines` lays the content out as two lines.
-    expect(textItemSizeOf(item).tuple()).toStrictEqual([
-      100 + 2 * padding,
-      2 * lineHeight + 2 * padding,
-    ]);
+    expect(textItemSizeOf(item).tuple()).toStrictEqual([100, 2 * lineHeight]);
   });
 
-  it("grows both dimensions with the font size.", () => {
+  it("grows only the height with the font size, the width being given.", () => {
     const small = textItemSizeOf(createTextItem([0, 0], 100, 20));
     const large = textItemSizeOf(createTextItem([0, 0], 100, 40));
     expect(large.y).toBeGreaterThan(small.y);
-    // the width is given rather than measured, so only the padding grows with the font size.
-    expect(large.x).toBeGreaterThan(small.x);
+    expect(large.x).toBe(small.x);
   });
 });
 
@@ -130,15 +126,14 @@ describe(measurePicture, () => {
     expect(rect.size.tuple()).toStrictEqual([100, 70]);
   });
 
-  it("pads a text item's rect on every side to match what the renderer draws.", () => {
+  it("encloses a text item's line box, the drawing having no padding around it.", () => {
     const width = 100;
     const fontSize = 20;
     const item = createTextItem([10, 20], width, fontSize);
     const rect = measurePicture([item]);
-    const { padding, lineHeight } = textStyleSizeOf(item);
-    const height = 2 * lineHeight;
+    const { lineHeight } = textStyleSizeOf(item);
     expect(rect.head.tuple()).toStrictEqual([10, 20]);
-    expect(rect.size.tuple()).toStrictEqual([width + 2 * padding, height + 2 * padding]);
+    expect(rect.size.tuple()).toStrictEqual([width, 2 * lineHeight]);
   });
 
   it("pads a rect item's rect on every side to take up the outline the renderer draws.", () => {
@@ -165,24 +160,36 @@ describe(measurePicture, () => {
     expect(rect.size.tuple()).toStrictEqual([100, 50]);
   });
 
-  it("pads an arrow item's rect on every side, the offset landing inside rather than on a corner.", () => {
-    const { padding } = ARROW_STYLE_SIZE;
-    // pointing right, hence `Math.cos`/`Math.sin` land on exactly 1 and 0.
+  it("reaches an arrow item's rect from the round tail to the tip's miter, as wide as the head's back corners.", () => {
+    const { tailReach } = ARROW_STYLE_SIZE;
+    const [tip, backCorner] = arrowOutlineCornersOf(100);
     const rect = measurePicture([createArrowItem([10, 20], 100, 0)]);
-    expect(rect.head.tuple()).toStrictEqual([10 - padding, 20 - padding]);
-    expect(rect.tail.tuple()).toStrictEqual([110 + padding, 20 + padding]);
+    expect(rect.head.x).toBeCloseTo(10 - tailReach);
+    expect(rect.head.y).toBeCloseTo(20 + (backCorner?.y ?? Number.NaN));
+    expect(rect.tail.x).toBeCloseTo(10 + (tip?.x ?? Number.NaN));
+    expect(rect.tail.y).toBeCloseTo(20 - (backCorner?.y ?? Number.NaN));
+  });
+
+  it("takes in the miters of an arrow's head, which reach past its edges by more than the outline.", () => {
+    const { headWidth, outlineWidth } = ARROW_STYLE_SIZE;
+    const rect = measurePicture([createArrowItem([10, 20], 100, 0)]);
+    expect(rect.tail.x).toBeGreaterThan(110 + outlineWidth / 2);
+    expect(rect.size.y).toBeGreaterThan(headWidth + outlineWidth);
   });
 
   it("encloses an arrow pointing back the way it came, whose tip is behind its offset.", () => {
-    const { padding } = ARROW_STYLE_SIZE;
-    // NOTE: the case that catches padding applied to the tail and the tip as they are rather than
-    //   to the rect they span — that shrinks the box here instead of growing it, `offset` being
-    //   the tail and hence the bottom right corner of an arrow drawn like this.
+    const { tailReach } = ARROW_STYLE_SIZE;
+    const [tip] = arrowOutlineCornersOf(100);
     const rect = measurePicture([createArrowItem([100, 50], 100, Math.PI)]);
-    expect(rect.head.x).toBeCloseTo(-padding);
-    expect(rect.head.y).toBeCloseTo(50 - padding);
-    expect(rect.tail.x).toBeCloseTo(100 + padding);
-    expect(rect.tail.y).toBeCloseTo(50 + padding);
+    expect(rect.head.x).toBeCloseTo(100 - (tip?.x ?? Number.NaN));
+    expect(rect.tail.x).toBeCloseTo(100 + tailReach);
+  });
+
+  it("keeps a diagonal arrow's rect from spreading behind the tail past the tail's own outline.", () => {
+    const { tailReach } = ARROW_STYLE_SIZE;
+    const rect = measurePicture([createArrowItem([10, 20], 100, Math.PI / 4)]);
+    expect(rect.head.x).toBeCloseTo(10 - tailReach);
+    expect(rect.head.y).toBeCloseTo(20 - tailReach);
   });
 
   it("keeps an arrow's rect the same size whichever way it points.", () => {
@@ -190,7 +197,7 @@ describe(measurePicture, () => {
       (angle) => measurePicture([createArrowItem([10, 20], 100, angle)]).size,
     );
     for (const size of sizes) {
-      // the padding is uniform, so a quarter turn only swaps the two dimensions over.
+      // a quarter turn only swaps the two dimensions over.
       expect(Math.min(size.x, size.y)).toBeCloseTo(Math.min(sizes[0]?.x ?? 0, sizes[0]?.y ?? 0));
       expect(Math.max(size.x, size.y)).toBeCloseTo(Math.max(sizes[0]?.x ?? 0, sizes[0]?.y ?? 0));
     }

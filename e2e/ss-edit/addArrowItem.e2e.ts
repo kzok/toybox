@@ -28,7 +28,7 @@ const MAIN_TIP: Point = { x: 600, y: 220 };
 /**
  * how far the drawing spreads either side of the line from the tail to the tip: half the width of
  * the arrowhead plus the white band around it. the overlay takes the pointer over exactly that
- * much, so it is both the height of the band and what the picture is grown by on every side.
+ * much, so it is the half-height of the band.
  */
 const ARROW_SPREAD = 19.5;
 
@@ -68,8 +68,9 @@ test("adds an arrow item by dragging from its tail to its tip", async ({ page })
     await page.keyboard.press("Escape");
     await parkCursor(page);
     await expect.soft(page).toHaveScreenshot("screenshot-arrow-added.png");
-    // the picture spans the tail-to-tip line grown by the spread on every side.
-    await expect(pictureSize(page)).toHaveText("439 x 39");
+    // the picture spans the white outline: from the round tail to the tip's miter, and as tall as
+    // the miters on the back corners of the head.
+    await expect(pictureSize(page)).toHaveText("411 x 44");
     expect.soft(await saveAsImage(page)).toMatchSnapshot("export-arrow.png");
   });
 });
@@ -83,9 +84,9 @@ test("falls back to the minimum length when clicked without dragging", async ({ 
 
   await expectMode(page, "select");
   await expect(arrowItems(page)).toHaveCount(1);
-  // an empty drag falls back to the minimum length of 120px, which the spread grows to 159px. it
-  // points right, `Math.atan2(0, 0)` being +0, so the height stays the band's own.
-  await expect(pictureSize(page)).toHaveText("159 x 39");
+  // an empty drag falls back to the minimum length of 120px, which the outline grows to 131px. it
+  // points right, `Math.atan2(0, 0)` being +0, so the height stays the head's own.
+  await expect(pictureSize(page)).toHaveText("131 x 44");
 });
 
 test("points from the end of the drag back to where it began", async ({ page }) => {

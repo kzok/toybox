@@ -175,7 +175,7 @@ describe(createEditActions, () => {
 
   describe("resizeTextFontSize()", () => {
     // width: 100, fontSize: 32, laid out as 2 lines by the stub above, hence
-    // padding: 4, lineHeight: 48 and a drawn box of 108 x 104.
+    // lineHeight: 40 and a drawn box of 100 x 80.
     const setUp = () => {
       const item = createTextItem("item-1", "first line\nsecond line");
       const target = createTestTargetWithItems(item);
@@ -194,8 +194,8 @@ describe(createEditActions, () => {
     it("scales the font size and the width together, keeping the offset.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      // an aspect-correct target (1.5x the 108 x 104 box), so the factor is reached exactly.
-      actions.edit.resizeTextFontSize(item.id, [162, 156]);
+      // an aspect-correct target (1.5x the 100 x 80 box), so the factor is reached exactly.
+      actions.edit.resizeTextFontSize(item.id, [150, 120]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toStrictEqual({
         width: 150,
@@ -207,8 +207,8 @@ describe(createEditActions, () => {
     it("projects an off-ratio target onto the diagonal and rounds the font size.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      // not on the box's diagonal; the projection asks for 40.3px, which is rounded down.
-      actions.edit.resizeTextFontSize(item.id, [162, 104]);
+      // not on the box's diagonal; the projection asks for 40.2px, which is rounded down.
+      actions.edit.resizeTextFontSize(item.id, [150, 70]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
         width: 125,
@@ -244,8 +244,8 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
       actions.view.zoom(2, new Vec2(0, 0));
 
-      // at 2x zoom, a 324,312 screen-px target is 162,156 canvas units — same as the first test.
-      actions.edit.resizeTextFontSize(item.id, [324, 312]);
+      // at 2x zoom, a 300,240 screen-px target is 150,120 canvas units — same as the first test.
+      actions.edit.resizeTextFontSize(item.id, [300, 240]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
         width: 150,
@@ -280,7 +280,7 @@ describe(createEditActions, () => {
   });
 
   describe("resizeTextWidth()", () => {
-    // width: 100, fontSize: 32, hence padding: 4 and a minimum width of 320.
+    // width: 100, fontSize: 32, hence a minimum width of 320.
     const setUp = () => {
       const item = createTextItem("item-1", "first line\nsecond line");
       const target = createTestTargetWithItems(item);
@@ -299,8 +299,7 @@ describe(createEditActions, () => {
     it("sets the width from the pointer, keeping the font size and the offset.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      // the drawn box is padded on both sides, hence 8px more than the width asked for.
-      actions.edit.resizeTextWidth(item.id, [408, 0]);
+      actions.edit.resizeTextWidth(item.id, [400, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toStrictEqual({
         width: 400,
@@ -312,7 +311,7 @@ describe(createEditActions, () => {
     it("ignores the y component of the pointer.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextWidth(item.id, [408, -1000]);
+      actions.edit.resizeTextWidth(item.id, [400, -1000]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({ width: 400 });
     });
@@ -320,7 +319,7 @@ describe(createEditActions, () => {
     it("rounds a fractional width, so that it never misses the line cache.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextWidth(item.id, [408.4, 0]);
+      actions.edit.resizeTextWidth(item.id, [400.4, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({ width: 400 });
     });
@@ -340,8 +339,8 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
       actions.view.zoom(2, new Vec2(0, 0));
 
-      // at 2x zoom, an 816 screen-px target is 408 canvas units — same as the first test.
-      actions.edit.resizeTextWidth(item.id, [816, 0]);
+      // at 2x zoom, an 800 screen-px target is 400 canvas units — same as the first test.
+      actions.edit.resizeTextWidth(item.id, [800, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({ width: 400 });
     });
