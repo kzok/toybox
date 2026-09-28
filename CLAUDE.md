@@ -7,10 +7,12 @@
   - Run affected files by changed files.
 - `make check`
   - Run before considering work done.
+  - Use it even for a quick lint, format or type check, instead of the underlying tools.
+  - Its file rewrites are intended: CI rejects unformatted code anyway.
 
 ## Project foundation docs
 
-@README.md
+See @README.md for the project overview.
 
 Details live in `README.md` file in each workspace.
 Read the one for whatever you're touching and don't assume this file has it.
