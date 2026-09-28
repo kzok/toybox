@@ -84,9 +84,17 @@ test("falls back to the minimum length when clicked without dragging", async ({ 
 
   await expectMode(page, "select");
   await expect(arrowItems(page)).toHaveCount(1);
-  // an empty drag falls back to the minimum length of 120px, which the outline grows to 131px. it
-  // points right, `Math.atan2(0, 0)` being +0, so the height stays the head's own.
-  await expect(pictureSize(page)).toHaveText("131 x 44");
+  // an empty drag falls back to the minimum length of 40px, which the outline grows to 44px. it
+  // points right, `Math.atan2(0, 0)` being +0, so the height stays the head's own, scaled down
+  // along with the rest of the arrow.
+  await expect(pictureSize(page)).toHaveText("44 x 17");
+
+  // drop the selection first, so the baseline holds what the canvas paints rather than the
+  // selection tint laid over it.
+  await page.keyboard.press("Escape");
+  await parkCursor(page);
+  await expect.soft(page).toHaveScreenshot("screenshot-arrow-minimum.png");
+  expect.soft(await saveAsImage(page)).toMatchSnapshot("export-arrow-minimum.png");
 });
 
 test("points from the end of the drag back to where it began", async ({ page }) => {

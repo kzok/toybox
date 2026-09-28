@@ -61,15 +61,9 @@ Two consequences follow, and both are load-bearing:
   A `Rect` takes the min and the max of its two points and hence throws away
   which end the drag started from, which is the whole of what an arrow is.
 
-[`ARROW_STYLE_SIZE`](../src/features/editorItem/arrowStyle.ts) is a plain constant where text
-and rect have a `...StyleSizeOf()` function,
-because nothing about an arrow's drawing is derived from its own fields —
-there is no line width or font size to scale off.
-Every value in it is a true on-screen dimension rather than a ratio of another,
-so what is written there is what is drawn.
-
-`padding` is the half-width of the band an arrow is hit-tested on,
-and every hit-box of an arrow is sized from it rather than restating it.
+[`arrowStyleSizeOf`](../src/features/editorItem/arrowStyle.ts)'s `padding` is the half-width of the
+band an arrow is hit-tested on, and every hit-box of an arrow is sized from it rather than restating
+it.
 In edit mode that band is also what keeps a click on the arrow from ending the edit.
 
 The exported picture is measured from the white outline instead,

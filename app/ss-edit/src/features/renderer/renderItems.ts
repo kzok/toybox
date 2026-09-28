@@ -1,5 +1,5 @@
 import {
-  ARROW_STYLE_SIZE,
+  arrowStyleSizeOf,
   type EditorItem,
   measuredFontFamily,
   rectStyleSizeOf,
@@ -147,7 +147,7 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
     shaftHeadWidth,
     shadowBlur,
     shadowOffset,
-  } = ARROW_STYLE_SIZE;
+  } = arrowStyleSizeOf(item.length);
   /** where the back two corners of the head sit on the axis */
   const backX = item.length - headLength;
   /** the control point of the curve that dents the head's back edge. */

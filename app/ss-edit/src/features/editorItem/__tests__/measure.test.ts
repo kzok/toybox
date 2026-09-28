@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ARROW_STYLE_SIZE, arrowOutlineCornersOf } from "../arrowStyle";
+import { arrowOutlineCornersOf, arrowStyleSizeOf } from "../arrowStyle";
 import { measurePicture, textItemSizeOf } from "../measure";
 import { rectStyleSizeOf } from "../rectStyle";
 import { textStyleSizeOf } from "../textStyle";
@@ -161,7 +161,7 @@ describe(measurePicture, () => {
   });
 
   it("reaches an arrow item's rect from the round tail to the tip's miter, as wide as the head's back corners.", () => {
-    const { tailReach } = ARROW_STYLE_SIZE;
+    const { tailReach } = arrowStyleSizeOf(100);
     const [tip, backCorner] = arrowOutlineCornersOf(100);
     const rect = measurePicture([createArrowItem([10, 20], 100, 0)]);
     expect(rect.head.x).toBeCloseTo(10 - tailReach);
@@ -171,14 +171,14 @@ describe(measurePicture, () => {
   });
 
   it("takes in the miters of an arrow's head, which reach past its edges by more than the outline.", () => {
-    const { headWidth, outlineWidth } = ARROW_STYLE_SIZE;
+    const { headWidth, outlineWidth } = arrowStyleSizeOf(100);
     const rect = measurePicture([createArrowItem([10, 20], 100, 0)]);
     expect(rect.tail.x).toBeGreaterThan(110 + outlineWidth / 2);
     expect(rect.size.y).toBeGreaterThan(headWidth + outlineWidth);
   });
 
   it("encloses an arrow pointing back the way it came, whose tip is behind its offset.", () => {
-    const { tailReach } = ARROW_STYLE_SIZE;
+    const { tailReach } = arrowStyleSizeOf(100);
     const [tip] = arrowOutlineCornersOf(100);
     const rect = measurePicture([createArrowItem([100, 50], 100, Math.PI)]);
     expect(rect.head.x).toBeCloseTo(100 - (tip?.x ?? Number.NaN));
@@ -186,7 +186,7 @@ describe(measurePicture, () => {
   });
 
   it("keeps a diagonal arrow's rect from spreading behind the tail past the tail's own outline.", () => {
-    const { tailReach } = ARROW_STYLE_SIZE;
+    const { tailReach } = arrowStyleSizeOf(100);
     const rect = measurePicture([createArrowItem([10, 20], 100, Math.PI / 4)]);
     expect(rect.head.x).toBeCloseTo(10 - tailReach);
     expect(rect.head.y).toBeCloseTo(20 - tailReach);

@@ -22,7 +22,7 @@ const MAIN_TAIL: Point = { x: 200, y: 220 };
 const MAIN_TIP: Point = { x: 600, y: 220 };
 
 /** the shortest an arrow can be made. */
-const MIN_LENGTH = 120;
+const MIN_LENGTH = 40;
 
 /** lays a 400px arrow out and opens its editor, answering where its two ends are on screen. */
 const setUp = async (page: Page): Promise<{ tail: Point; tip: Point }> => {
