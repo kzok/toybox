@@ -18,14 +18,7 @@ export const clampRectSide = (side: number): number => Math.max(side, MIN_SIDE_P
 /**
  * @returns shared style/layout size (px) for rect item rendering
  */
-export const rectStyleSizeOf = (
-  item: EditorItem.Rect,
-): {
-  strokeWidth: number;
-  padding: number;
-  shadowBlur: number;
-  shadowOffset: number;
-} => {
+export const rectStyleSizeOf = (item: EditorItem.Rect) => {
   const strokeWidth = Math.ceil(item.lineWidth * OUTLINE_RATIO);
 
   return {
@@ -33,5 +26,5 @@ export const rectStyleSizeOf = (
     padding: strokeWidth / 2,
     shadowBlur: strokeWidth * SHADOW_BLUR_RATIO,
     shadowOffset: strokeWidth / 2,
-  };
+  } as const;
 };
