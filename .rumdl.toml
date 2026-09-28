@@ -26,7 +26,6 @@
 exclude = [
     # Common directories to exclude
     ".git",
-    ".github",
     "node_modules",
     "vendor",
     "dist",
@@ -55,6 +54,9 @@ reflow-mode = "semantic-line-breaks"
 
 [MD041]
 front-matter-title-pattern = "^(title|header|name):"
+
+[per-file-ignores]
+".github/pull_request_template.md" = ["MD041"]
 
 # [MD044]
 # names = ["rumdl", "Markdown", "GitHub"]  # Proper names that should be capitalized correctly
