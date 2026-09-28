@@ -1,5 +1,5 @@
 import { Rect, Vec2 } from "../../utils/geometry";
-import { ARROW_STYLE_SIZE, arrowOutlineCornersOf } from "./arrowStyle";
+import { arrowOutlineCornersOf, arrowStyleSizeOf } from "./arrowStyle";
 import { rectStyleSizeOf } from "./rectStyle";
 import { splitLines } from "./textLayout";
 import { textStyleSizeOf } from "./textStyle";
@@ -46,7 +46,7 @@ const measureItem = (item: EditorItem): Rect => {
     }
     case "arrow": {
       const tail = Vec2.new(item.offset);
-      const { tailReach } = ARROW_STYLE_SIZE;
+      const { tailReach } = arrowStyleSizeOf(item.length);
       let rect = new Rect(tail.sub([tailReach, tailReach]), tail.add([tailReach, tailReach]));
       for (const corner of arrowOutlineCornersOf(item.length)) {
         const point = tail.add(

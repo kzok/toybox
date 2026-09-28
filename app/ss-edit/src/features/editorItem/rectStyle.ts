@@ -7,7 +7,7 @@ const OUTLINE_RATIO = 1.6;
 const SHADOW_BLUR_RATIO = 1.6;
 
 /** length a rect item's side is never laid out below */
-const MIN_SIDE_PX = 36;
+const MIN_SIDE_PX = 16;
 
 /**
  * @param side desired width or height (px), below the minimum or not
@@ -18,14 +18,7 @@ export const clampRectSide = (side: number): number => Math.max(side, MIN_SIDE_P
 /**
  * @returns shared style/layout size (px) for rect item rendering
  */
-export const rectStyleSizeOf = (
-  item: EditorItem.Rect,
-): {
-  strokeWidth: number;
-  padding: number;
-  shadowBlur: number;
-  shadowOffset: number;
-} => {
+export const rectStyleSizeOf = (item: EditorItem.Rect) => {
   const strokeWidth = Math.ceil(item.lineWidth * OUTLINE_RATIO);
 
   return {
@@ -33,5 +26,5 @@ export const rectStyleSizeOf = (
     padding: strokeWidth / 2,
     shadowBlur: strokeWidth * SHADOW_BLUR_RATIO,
     shadowOffset: strokeWidth / 2,
-  };
+  } as const;
 };

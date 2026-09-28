@@ -1,7 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
 import {
-  ARROW_STYLE_SIZE,
+  arrowStyleSizeOf,
   type EditorItem,
   rectStyleSizeOf,
   textStyleOf,
@@ -119,7 +119,7 @@ const ArrowItem = React.memo<{
   item: EditorItem.Arrow;
 }>(({ item }) => {
   const style = React.useMemo((): React.CSSProperties => {
-    const { padding } = ARROW_STYLE_SIZE;
+    const { padding } = arrowStyleSizeOf(item.length);
     return {
       left: `${item.offset[0]}px`,
       top: `${item.offset[1]}px`,

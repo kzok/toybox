@@ -15,7 +15,7 @@ import {
 
 /**
  * a range whose height drives the font size (`round(40 / 1.25)` = 32px) and whose width stays
- * above `fontSize * 10`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
+ * above `fontSize * 4`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
  * 400 x 40 box: a single 40px line.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 40 };
@@ -200,8 +200,8 @@ test("stops narrowing at the minimum width", async ({ page }) => {
 
   await dragWidthHandleBy(page, { x: -2000, y: 0 });
 
-  // ten graphemes' worth of the font size, the same floor a new text item is given.
-  await expect(editor).toHaveCSS("width", "200px");
+  // four graphemes' worth of the font size, the same floor a new text item is given.
+  await expect(editor).toHaveCSS("width", "80px");
   await expect(editor).toHaveCSS("font-size", "20px");
 });
 

@@ -1,7 +1,7 @@
 import { atom, useAtomValue } from "jotai";
 import React from "react";
 import {
-  ARROW_STYLE_SIZE,
+  arrowStyleSizeOf,
   type EditorItem,
   rectStyleSizeOf,
   splitLines,
@@ -157,7 +157,7 @@ const ArrowItem = React.memo<{
   // NOTE: the same band `SelectMode` uses as the item's hit area, laid inside the container so
   // that the container itself stays free of the rotation the handles must not be measured through.
   const bandStyle = React.useMemo((): React.CSSProperties => {
-    const { padding } = ARROW_STYLE_SIZE;
+    const { padding } = arrowStyleSizeOf(item.length);
     return {
       width: `${item.length}px`,
       height: `${padding * 2}px`,

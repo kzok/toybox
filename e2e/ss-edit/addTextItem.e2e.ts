@@ -24,7 +24,7 @@ import {
 
 /**
  * a range dragged on an arbitrary spot of the pane. the height drives the font size
- * (`round(40 / 1.25)` = 32px) and the width is kept above `fontSize * 10`, so that the item's
+ * (`round(40 / 1.25)` = 32px) and the width is kept above `fontSize * 4`, so that the item's
  * layout (its wrap width and the dragged font size) keeps exactly the dragged size.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 40 };
@@ -87,9 +87,9 @@ test("falls back to the minimum size when clicked without dragging", async ({ pa
   await page.mouse.click(point.x, point.y);
 
   await expectMode(page, "edit");
-  // an empty range falls back to the minimum font size, and the width to `fontSize * 10`.
+  // an empty range falls back to the minimum font size, and the width to `fontSize * 4`.
   await expect(textEditor(page)).toHaveCSS("font-size", "12px");
-  await expect(textEditor(page)).toHaveCSS("width", "120px");
+  await expect(textEditor(page)).toHaveCSS("width", "48px");
 });
 
 test("sorts the corners of a range dragged up and left", async ({ page }) => {
@@ -113,14 +113,14 @@ test("sorts the corners of a range dragged up and left", async ({ page }) => {
 test("clamps the font size of a tall range", async ({ page }) => {
   await openApp(page);
 
-  const range = await paneRectToViewport(page, { ...MAIN_RANGE, height: 300 });
+  const range = await paneRectToViewport(page, { ...MAIN_RANGE, width: 200, height: 300 });
   await enterAddText(page);
   await dragFromTo(page, range, { x: range.x + range.width, y: range.y + range.height });
 
   // `round(300 / 1.25)` would be 240px, which is clamped down to the maximum.
   await expect(textEditor(page)).toHaveCSS("font-size", "72px");
-  // the minimum width of `fontSize * 10` now exceeds the dragged width.
-  await expect(textEditor(page)).toHaveCSS("width", "720px");
+  // the minimum width of `fontSize * 4` now exceeds the dragged width.
+  await expect(textEditor(page)).toHaveCSS("width", "288px");
 });
 
 test("discards a text item left blank", async ({ page }) => {
@@ -171,7 +171,7 @@ test("adds the text where it was dragged after zooming and panning", async ({ pa
 
   /**
    * 600 x 60 on screen is 400 x 40 on the canvas at 150%, which keeps the width above
-   * `fontSize * 10` and hence makes the item's layout match the dragged range again.
+   * `fontSize * 4` and hence makes the item's layout match the dragged range again.
    */
   const range: Box = await paneRectToViewport(page, { x: 200, y: 160, width: 600, height: 60 });
   await enterAddText(page);

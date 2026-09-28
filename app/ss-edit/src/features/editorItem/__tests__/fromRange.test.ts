@@ -33,20 +33,20 @@ describe(editorItemFromRange, () => {
       expect(item.offset).toStrictEqual([20, 40]);
     });
 
-    it("widens a range too narrow for ten characters of its font size.", () => {
+    it("widens a range too narrow for four characters of its font size.", () => {
       const item = editorItemFromRange("text", range([20, 40], [120, 80]), "item-1");
-      expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([320, 32]);
+      expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([128, 32]);
     });
 
     it("clamps a font size the range asks to be smaller than a font can be.", () => {
       // a click leaves a range of a single point behind.
       const item = editorItemFromRange("text", range([20, 40], [20, 40]), "item-1");
-      expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([120, 12]);
+      expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([48, 12]);
     });
 
     it("clamps a font size the range asks to be larger than a font can be.", () => {
       const item = editorItemFromRange("text", range([20, 40], [120, 640]), "item-1");
-      expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([720, 72]);
+      expect(item.kind === "text" && [item.width, item.fontSize]).toStrictEqual([288, 72]);
     });
   });
 
@@ -71,7 +71,7 @@ describe(editorItemFromRange, () => {
     it("grows a range dragged too small to be grabbed again.", () => {
       // a click leaves a range of a single point behind.
       const item = editorItemFromRange("rect", range([20, 40], [20, 40]), "item-1");
-      expect(item.kind === "rect" && [item.width, item.height]).toStrictEqual([36, 36]);
+      expect(item.kind === "rect" && [item.width, item.height]).toStrictEqual([16, 16]);
       // the head of the drag is kept, so the item grows away from where it started.
       expect(item.offset).toStrictEqual([20, 40]);
     });

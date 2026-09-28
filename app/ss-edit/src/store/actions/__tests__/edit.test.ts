@@ -280,7 +280,7 @@ describe(createEditActions, () => {
   });
 
   describe("resizeTextWidth()", () => {
-    // width: 100, fontSize: 32, hence a minimum width of 320.
+    // width: 100, fontSize: 32, hence a minimum width of 128.
     const setUp = () => {
       const item = createTextItem("item-1", "first line\nsecond line");
       const target = createTestTargetWithItems(item);
@@ -330,7 +330,7 @@ describe(createEditActions, () => {
       actions.edit.resizeTextWidth(item.id, [-1000, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
-        width: 320,
+        width: 128,
         fontSize: 32,
       });
     });
@@ -418,8 +418,8 @@ describe(createEditActions, () => {
       actions.edit.resizeRect(item.id, [-1000, -1000]);
 
       const resized = resizedOf(store, atoms);
-      expect(resized.width).toBeCloseTo(36);
-      expect(resized.height).toBeCloseTo(36);
+      expect(resized.width).toBeCloseTo(16);
+      expect(resized.height).toBeCloseTo(16);
     });
 
     it("scales the pointer position by the inverse of the view scale.", () => {

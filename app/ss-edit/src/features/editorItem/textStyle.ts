@@ -16,7 +16,7 @@ export const clampFontSize = (fontSize: number): number =>
 export const LINE_HEIGHT_RATIO = 1.25;
 
 /** the fewest full-width graphemes a text item's line box is ever laid out to hold */
-const MIN_WIDTH_IN_GRAPHEMES = 10;
+const MIN_WIDTH_IN_GRAPHEMES = 4;
 
 /**
  * @param width desired width (px), fractional or below the minimum
@@ -29,22 +29,16 @@ export const clampTextWidth = (width: number, fontSize: number): number =>
 /**
  * @returns shared style/layout size (px) for text item rendering
  */
-export const textStyleSizeOf = (
-  layout: TextItemLayout,
-): {
-  width: number;
-  fontSize: number;
-  lineHeight: number;
-  letterSpacing: number;
-} => ({
-  width: layout.width,
-  fontSize: layout.fontSize,
-  lineHeight: Math.ceil(layout.fontSize * LINE_HEIGHT_RATIO),
-  // NOTE: deliberately left fractional.
-  // rounding it up would step the grapheme advance out of proportion with the font size,
-  // and a resize would then re-wrap the text every few pixels of the drag.
-  letterSpacing: layout.fontSize / 12,
-});
+export const textStyleSizeOf = (layout: TextItemLayout) =>
+  ({
+    width: layout.width,
+    fontSize: layout.fontSize,
+    lineHeight: Math.ceil(layout.fontSize * LINE_HEIGHT_RATIO),
+    // NOTE: deliberately left fractional.
+    // rounding it up would step the grapheme advance out of proportion with the font size,
+    // and a resize would then re-wrap the text every few pixels of the drag.
+    letterSpacing: layout.fontSize / 12,
+  }) as const;
 
 /**
  * @returns shared inline style for text item rendering

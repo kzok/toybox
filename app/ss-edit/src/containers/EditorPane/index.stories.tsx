@@ -197,10 +197,8 @@ const ARROW_FAN_COUNT = 8;
  * @param image image item data
  * @returns `exampleState` with arrows laid over it
  * @note a fan radiating from one point, so that every angle is read against the same origin and a
- *   rotation that is off shows up as a fan that is not even. some of it hangs off the screenshot,
- *   so that the outline and the shadow can be read against the transparent plane as well. the fan
- *   is drawn at the shortest length `clampArrowLength` allows, which is where the head is closest
- *   to swallowing the shaft.
+ *   rotation that is off shows up as a fan that is not even. it is drawn at the shortest length,
+ *   where the arrow is scaled down the furthest.
  * @note plus one long arrow, which is where the taper has the room to be read.
  */
 const arrowsState = (image: ImageBitmap): PageState =>
