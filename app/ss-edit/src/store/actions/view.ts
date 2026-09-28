@@ -3,8 +3,7 @@ import type { ActionCreatorParam } from "./types";
 
 /**
  * the lowest scale the view zooms to.
- * @note chosen so that wheeling back in from it lands neatly on 100%, and because the picture is
- *   no longer legible further out.
+ * @note chosen so that wheeling back in from it lands neatly on 100%.
  */
 const ZOOM_MIN = 0.27;
 /** the largest scale the view zooms to. */
