@@ -24,7 +24,7 @@ Stop if there is none.
   Open the changed files wherever the diff alone doesn't say *why* something changed: a guard,
   a deleted handler, an added flag.
 3. **Ask** for what the repository can't answer:
-  the related issue URL, what prompted the work, which suites were actually run,
+  the related issue URL, what prompted the work, what was checked beyond CI,
   and whether anything that reads like a defect is deliberate.
   Ask as many rounds as the answers warrant —
   a reply that opens a new question is worth following up on.
@@ -48,8 +48,10 @@ Claim only what was checked.
 ## Format
 
 Written in English, whatever language the conversation is in.
-These sections in order.
-Drop one that has nothing to say, except `Related materials`, which always stays.
+Use the headings of `.github/pull_request_template.md` in order,
+and follow the hint comment under each.
+Leave no hint comment in the body.
+Drop an optional section that has nothing to say.
 
 A section earns its length from what the diff cannot say.
 
@@ -58,33 +60,20 @@ A section earns its length from what the diff cannot say.
 - **One home per fact.**
   A table and the prose under it must not say the same thing twice.
 
-### Related materials
-
-Bare URLs as a bullet list, starting with the issue the work came from.
-A single `- N/A` bullet when there is nothing to link.
-
 ### Background
 
-Optional.
-The reason for the change, not a summary.
 Never invent the reason.
-Two or three sentences at most.
 
-### What's done
-
-What changed, and why it had to change that way.
-Use `###` subsections when the pull request spans concerns a reader wouldn't expect together.
+### What's changed
 
 Lead with what someone needs in order to review it — a table of the new keys, the new function,
 the new flag — then the parts of the diff that look arbitrary without their reason.
 
-### What's tested
+### What's tested locally
 
-Optional.
 As short as the evidence is.
 
-- `CI is passed.` is the whole section where that is what was checked.
-- Which tests cover it, and where they live, unless the diff already shows that.
-- Whether they were checked against a deliberately broken build, when that is known.
+- What was run beyond CI, such as manual checks in the app.
+- Whether a test was checked against a deliberately broken build, when that is known.
   A test never seen to fail is not yet evidence.
-- What was **not** run, and why.
+- A check the change called for but that was skipped, and why.
