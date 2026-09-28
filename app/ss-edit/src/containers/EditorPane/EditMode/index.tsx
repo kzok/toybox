@@ -54,6 +54,7 @@ const ImageItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeImage(item.id, cursor),
     [actions, item.id],
   );
+  const onMove = useMoveHandler(item.id);
 
   return (
     <ResizeContainer
@@ -61,7 +62,7 @@ const ImageItem = React.memo<{
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
-      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerMove={onMove}
       onPointerUp={stopPropagation}
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
@@ -88,6 +89,7 @@ const RectItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeRect(item.id, cursor),
     [actions, item.id],
   );
+  const onMove = useMoveHandler(item.id);
 
   return (
     <ResizeContainer
@@ -95,7 +97,7 @@ const RectItem = React.memo<{
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
-      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerMove={onMove}
       onPointerUp={stopPropagation}
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
@@ -122,6 +124,7 @@ const MosaicItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeMosaic(item.id, cursor),
     [actions, item.id],
   );
+  const onMove = useMoveHandler(item.id);
 
   return (
     <ResizeContainer
@@ -129,7 +132,7 @@ const MosaicItem = React.memo<{
       data-item-kind={item.kind}
       style={style}
       onPointerDown={stopPropagation}
-      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerMove={onMove}
       onPointerUp={stopPropagation}
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
@@ -173,13 +176,14 @@ const ArrowItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeArrowTip(item.id, cursor),
     [actions, item.id],
   );
+  const onMove = useMoveHandler(item.id);
 
   return (
     // a transparent container
     <ResizeContainer
       style={style}
       onPointerDown={stopPropagation}
-      onPointerMove={stopPropagationAndCapturePointer}
+      onPointerMove={onMove}
       onPointerUp={stopPropagation}
       // NOTE: keeps the click from reaching the pane, which would clear the selection.
       onClick={stopPropagation}
@@ -251,6 +255,22 @@ const TextItem = React.memo<{
     </ResizeContainer>
   );
 });
+
+/**
+ * @returns a `pointermove` handler dragging the item along while the main (left) button is held
+ */
+const useMoveHandler = (itemId: string) => {
+  const actions = pageCtx.useActions();
+  return React.useCallback(
+    (e: React.PointerEvent): void => {
+      stopPropagationAndCapturePointer(e);
+      if (e.buttons === 1) {
+        actions.edit.move(itemId, [e.movementX, e.movementY]);
+      }
+    },
+    [actions, itemId],
+  );
+};
 
 const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
   e.stopPropagation();

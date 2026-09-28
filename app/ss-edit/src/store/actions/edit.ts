@@ -41,6 +41,19 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
       });
     },
     /**
+     * move an item, staying in edit mode.
+     * @param delta [movementX, movementY]
+     */
+    move: (itemId: string, delta: Vec2.Tuple): void => {
+      updateAtom(atoms.state, (draft) => {
+        if (delta[0] === 0 && delta[1] === 0) return;
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item == null) return;
+
+        item.offset = Vec2.new(delta).div(draft.editorView.scale).add(item.offset).tuple();
+      });
+    },
+    /**
      * resize an image item, keeping its aspect ratio and its top-left offset fixed.
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      */
