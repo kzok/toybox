@@ -27,4 +27,4 @@ Please run `make` with no args to show help message.
 ## Other docs
 
 - [`docs/TEST_STRATEGY.md`](docs/TEST_STRATEGY.md)
-- [`docs/STYLING.md`](docs/STYLING.md)
+- [`docs/CSS_STYLING.md`](docs/CSS_STYLING.md)

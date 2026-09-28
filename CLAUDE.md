@@ -7,10 +7,12 @@
   - Run affected files by changed files.
 - `make check`
   - Run before considering work done.
+  - Use it even for a quick lint, format or type check, instead of the underlying tools.
+  - Its file rewrites are intended: CI rejects unformatted code anyway.
 
 ## Project foundation docs
 
-@README.md
+See @README.md for the project overview.
 
 Details live in `README.md` file in each workspace.
 Read the one for whatever you're touching and don't assume this file has it.
@@ -43,12 +45,22 @@ Rules here apply to both docs and code comments.
   - The `docs/` folders hold decisions the user made, which nothing in the code answers.
   - An agent cannot check its own edit against anything, so it asks instead.
 - **Write the invariant, the constraint and the reason.**
+- **Don't weaken a rule the code does not meet yet.**
+  - When a design doc rule runs ahead of the code, the code has not caught up yet.
+  - A rule loosened to match today's code ("Every" → "Most") can never catch a future change.
+  - Report the gap to the user instead.
+- **Keep `TODO`s and implementation status out of design docs.**
+  - They go stale the moment they are written.
+- **Leave Markdown line breaks to rumdl, and don't flag the mid-phrase wraps it leaves.**
 
 ### Writing code comments
 
 - **A comment earns its place by preventing a specific mistake.**
   - Write one where changing the code without it would break something.
   - Most exports need no rationale beyond `@param` / `@returns`.
+- **A doc never justifies deleting a code comment.**
+  - When a fact sits in both, the comment stays and the doc's copy shrinks.
+  - The doc is not open on screen when someone edits the line.
 - **A test can be a comment's home.**
   - Delete the comment where a test already pins the behaviour,
     and state the reason in the test's name.

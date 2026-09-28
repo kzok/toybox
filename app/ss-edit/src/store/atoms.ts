@@ -17,7 +17,6 @@ export type DialogEntry = {
   node: React.ReactNode;
 };
 
-/** initial state */
 export const INITIAL_EDITOR_STATE: PageState = {
   editorMode: { kind: "select", selectedIds: [] },
   editorView: { canvasSize: new Vec2(0, 0), offset: new Vec2(0, 0), scale: 1 },
@@ -42,11 +41,8 @@ export const createAtoms = () => {
   const dialogReactNode = atom((get) => get(dialogStack).at(-1)?.node ?? null);
   /** if a dialog is on the stack. */
   const isDialogOpen = atom((get): boolean => get(dialogStack).length > 0);
-  /** state.editorMode */
   const editorMode = atom((get) => get(state).editorMode);
-  /** state.editorView */
   const editorView = atom((get) => get(state).editorView);
-  /** state.editorItems */
   const editorItems = atom((get) => get(state).editorItems);
 
   /** if the picture has anything to save. */
