@@ -72,6 +72,7 @@ Text is the only kind with content to type.
 Edit mode shows a real caret and text selection over the text painted on the canvas,
 and takes IME composition, so composing Japanese previews on the picture before it is confirmed.
 Every other kind carries nothing but the handles, and resizing is what the extra click buys.
+Dragging it anywhere off the handles still moves it, as in Select mode, without leaving Edit mode.
 
 Every size is bounded, so that an item can always be grabbed again.
 

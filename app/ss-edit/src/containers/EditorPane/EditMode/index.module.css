@@ -7,6 +7,13 @@
   outline: calc(2px / var(--scale, 1)) solid #0f6cbd;
 }
 
+.imageItem,
+.rectItem,
+.arrowItem,
+.mosaicItem {
+  cursor: move;
+}
+
 .imageItem {
   background: rgba(15, 108, 189, 0.2);
 }

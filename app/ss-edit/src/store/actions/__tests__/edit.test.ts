@@ -87,6 +87,47 @@ describe(createEditActions, () => {
     });
   });
 
+  describe("move()", () => {
+    const setUp = () => {
+      const item1 = createImageItem("item-1", [0, 0]);
+      const item2 = createImageItem("item-2", [100, 100]);
+      const target = createTestTargetWithItems(item1, item2);
+      target.actions.edit.enter(item1.id);
+      return { ...target, item1, item2 } as const;
+    };
+
+    it("moves the specified item alone, staying in edit mode.", () => {
+      const { store, actions, atoms, item1, item2 } = setUp();
+      actions.edit.move(item1.id, [10, 20]);
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item1.id });
+      const items = store.get(atoms.editorItems);
+      expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
+      expect(items.find((item) => item.id === item2.id)?.offset).toStrictEqual(item2.offset);
+    });
+
+    it("scales the movement delta by the inverse of the view scale.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      actions.view.zoom(2, new Vec2(0, 0));
+      actions.edit.move(item1.id, [10, 20]);
+      const items = store.get(atoms.editorItems);
+      expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([5, 10]);
+    });
+
+    it("keeps the very same items list on a zero delta, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.edit.move(item1.id, [0, 0]);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.edit.move("missing-id", [10, 20]);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+  });
+
   describe("resizeImage()", () => {
     // width: 100, height: 50 (aspect ratio 2:1)
     const setUp = () => {
