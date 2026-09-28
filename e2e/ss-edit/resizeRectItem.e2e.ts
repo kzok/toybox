@@ -70,9 +70,9 @@ test("does not collapse the rect below the minimum side", async ({ page }) => {
   const before = await boundingBoxOf(item);
   await dragHandleBy(page, { x: -before.width, y: -before.height });
 
-  // the minimum side is 36px, which the outline grows to 43px on screen. the offset is the anchor
+  // the minimum side is 16px, which the outline grows to 23px on screen. the offset is the anchor
   // of the resize, so a rect collapsed against the floor can always be grabbed again.
-  await expectBoxOnScreen(item, { x: before.x, y: before.y, width: 43, height: 43 });
+  await expectBoxOnScreen(item, { x: before.x, y: before.y, width: 23, height: 23 });
 });
 
 test("keeps the resized rect in the exported picture", async ({ page }) => {

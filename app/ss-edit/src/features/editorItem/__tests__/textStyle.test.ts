@@ -33,14 +33,14 @@ describe(clampTextWidth, () => {
     expect(clampTextWidth(400.5, 32)).toBe(401);
   });
 
-  it("does not go below ten graphemes' worth of the font size.", () => {
-    expect(clampTextWidth(319, 32)).toBe(320);
-    expect(clampTextWidth(0, 32)).toBe(320);
-    expect(clampTextWidth(-1000, 32)).toBe(320);
+  it("does not go below four graphemes' worth of the font size.", () => {
+    expect(clampTextWidth(127, 32)).toBe(128);
+    expect(clampTextWidth(0, 32)).toBe(128);
+    expect(clampTextWidth(-1000, 32)).toBe(128);
   });
 
   it("takes the minimum from the font size it is given.", () => {
-    expect(clampTextWidth(0, 12)).toBe(120);
-    expect(clampTextWidth(0, 72)).toBe(720);
+    expect(clampTextWidth(0, 12)).toBe(48);
+    expect(clampTextWidth(0, 72)).toBe(288);
   });
 });

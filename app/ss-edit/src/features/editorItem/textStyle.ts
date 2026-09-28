@@ -16,7 +16,7 @@ export const clampFontSize = (fontSize: number): number =>
 export const LINE_HEIGHT_RATIO = 1.25;
 
 /** the fewest full-width graphemes a text item's line box is ever laid out to hold */
-const MIN_WIDTH_IN_GRAPHEMES = 10;
+const MIN_WIDTH_IN_GRAPHEMES = 4;
 
 /**
  * @param width desired width (px), fractional or below the minimum

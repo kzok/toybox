@@ -7,7 +7,7 @@ const OUTLINE_RATIO = 1.6;
 const SHADOW_BLUR_RATIO = 1.6;
 
 /** length a rect item's side is never laid out below */
-const MIN_SIDE_PX = 36;
+const MIN_SIDE_PX = 16;
 
 /**
  * @param side desired width or height (px), below the minimum or not

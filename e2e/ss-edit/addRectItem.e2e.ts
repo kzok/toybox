@@ -70,9 +70,9 @@ test("falls back to the minimum size when clicked without dragging", async ({ pa
   await page.mouse.click(point.x, point.y);
 
   await expectMode(page, "select");
-  // an empty range falls back to the minimum side of 36px, which the outline grows to 43px.
+  // an empty range falls back to the minimum side of 16px, which the outline grows to 23px.
   await expect(rectItems(page)).toHaveCount(1);
-  await expect(pictureSize(page)).toHaveText("43 x 43");
+  await expect(pictureSize(page)).toHaveText("23 x 23");
 });
 
 test("sorts the corners of a range dragged up and left", async ({ page }) => {
