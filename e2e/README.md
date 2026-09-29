@@ -1,29 +1,31 @@
 # E2E tests
 
-Playwright tests driving the built applications through a real browser.
-For when to reach for e2e over vitest/storybook,
+This folder holds Playwright tests.
+They drive the built applications through a real browser.
+For when to use e2e tests instead of Vitest or Storybook,
 see [`docs/TEST_STRATEGY.md`](../docs/TEST_STRATEGY.md).
 
 ## How to run
 
-The suite is driven by `make` from the repository root.
+Run the suite with `make` from the repository root.
 
 - `make e2e`
   - Run everything in Docker.
-    This is what CI does and the only way the pixel comparisons are meaningful,
-    since the baselines are rendered by the Linux browser of the container.
+    CI does the same.
+    This is the only way to get meaningful pixel comparisons,
+    because the Linux browser in the container renders the baselines.
 - `make e2e-update`
-  - Same, with `--update-snapshots`.
-    Use it after adding or intentionally changing a baseline,
-    and look at the written PNGs before committing them.
+  - Run the same as `make e2e`, with `--update-snapshots`.
+    Use it after you add or intentionally change a baseline.
+    Check the written PNG files before you commit them.
 - `make e2e-local`
   - Open the Playwright UI against the browser of the host.
-    Snapshots are ignored, because the host renders differently from the container.
+    This command ignores snapshots, because the host renders differently from the container.
 
-All of them build `./dist` first: the tests run against the production build served by `serve`,
-not against the Vite dev server.
+All of them build `./dist` first.
+The tests run against the production build that `serve` serves, not against the Vite dev server.
 
-To run a subset, pass the arguments through:
+To run a subset, pass Playwright arguments to `./e2e/runner.sh run`:
 
 ```sh
 ./e2e/runner.sh run addTextItem          # by file name
@@ -42,35 +44,42 @@ e2e/
     └── <feature>.e2e.ts-snapshots/   baselines, written by `make e2e-update`
 ```
 
-Only `**/*.e2e.ts` is collected as a test file,
-so anything under `helpers/` is free to be a plain module.
+Playwright collects only `**/*.e2e.ts` as test files.
+So any file under `helpers/` can be a plain module.
 
 ## Conventions
 
-- **One file per feature**, named after it. `happyPath.e2e.ts` is the deliberate exception: it is
-  a single flow crossing images, the view and the export, and its last assertion is that the view
-  operations left the exported picture byte for byte identical — which only holds because the
-  state accumulates through the whole test.
-- **Helpers over page objects.** `helpers/` exports plain functions, split by what they do:
-  - `locators.ts` — every selector lives here, so a markup change has one place to be fixed.
+- **One file per feature**, named after the feature.
+  `happyPath.e2e.ts` is an intentional exception.
+  It is a single flow across images, the view and the export.
+  Its last assertion checks that the view operations left the exported picture identical,
+  byte for byte.
+  This assertion works only because the state accumulates through the whole test.
+- **Use helpers, not page objects.**
+  `helpers/` exports plain functions, grouped by purpose:
+  - `locators.ts` — every selector is here, so a markup change needs a fix in only one place.
   - `interactions.ts` — what a user does (open menus, drag, type, export).
   - `assertions.ts` — assertions worth a name, mostly geometric.
   - `support.ts` — types and small pure utilities.
-- **Prefer roles and text**, and fall back to `data-*` attributes the application exposes on
-  purpose: `data-editor-mode` on the editor overlay, `data-item-kind` / `data-selected` on the
-  items, `data-range-preview` on the range being drawn.
-  CSS module class names are hashed and must never be selected on.
-- **Drive the pointer through `page.mouse`**, not `dragTo`: the editor reads `movementX` /
-  `movementY` of each `pointermove`, hence a drag needs intermediate steps (`dragBy` / `dragFromTo`
-  already do this).
-- **Type with the keyboard**, not `fill`: the `<textarea/>` of edit mode is uncontrolled, and
-  `fill` would replace its whole value and tell nothing about where the caret was.
-- **Park the cursor before a screenshot** (`parkCursor`), otherwise the `:hover` highlight of
-  whatever sits under the pointer leaks into the baseline.
-- **Pixel comparisons are soft** (`expect.soft`),
-  so that one drifted baseline does not hide the assertions after it.
-  They only read the page, hence continuing past a mismatch stays safe.
+- **Prefer roles and text.**
+  If they are not enough, use `data-*` attributes that the application exposes on purpose.
+  Examples: `data-editor-mode` on the editor overlay,
+  `data-item-kind` / `data-selected` on the items, `data-range-preview` on the range being drawn.
+  Never select on CSS Modules class names, because the build hashes them.
+- **Drive the pointer with `page.mouse`**, not `dragTo`.
+  The editor reads `movementX` / `movementY` of each `pointermove`.
+  So a drag needs intermediate steps.
+  `dragBy` / `dragFromTo` already do this.
+- **Type with the keyboard**, not `fill`.
+  The `<textarea/>` of Edit mode is uncontrolled.
+  `fill` replaces its whole value, so the test learns nothing about the caret position.
+- **Park the cursor before a screenshot** (`parkCursor`).
+  Otherwise, the `:hover` highlight of the element under the pointer appears in the baseline.
+- **Make pixel comparisons soft** (`expect.soft`).
+  Then one mismatched baseline does not hide the assertions after it.
+  The comparisons only read the page, so it is safe to continue after a mismatch.
 
 ## The network is cut off
 
-`openApp` aborts every request leaving the machine, so a run never depends on the network.
+`openApp` aborts every request that leaves the machine.
+So a run never depends on the network.

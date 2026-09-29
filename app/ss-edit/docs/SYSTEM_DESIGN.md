@@ -1,8 +1,8 @@
 # System design
 
-This document preserves the design intent and constraints across multiple files or modules.
-How the decisions got there is what `git log` is for.
-What the editor does from the end-user's perspective is in [`UX_DESIGN.md`](UX_DESIGN.md).
+This document preserves the design intent and the constraints that span multiple files or modules.
+For how the decisions came about, see `git log`.
+For what the editor does from the end user's view, see [`UX_DESIGN.md`](UX_DESIGN.md).
 
 ## Rendering pipeline
 
@@ -14,78 +14,87 @@ source of truth for what the user sees.
 [`AddItemMode`](../src/containers/EditorPane/AddItemMode/index.tsx)
 are transparent DOM overlays stacked on top of the canvas.
 
-Every overlay lines up with the canvas through
-[`CanvasLayer`](../src/containers/EditorPane/CanvasLayer/index.tsx),
-which owns the offset/scale transform and exposes the scale as a `--scale` CSS variable.
-Its children are laid out in canvas coordinates.
-`Painter` applies the equivalent math to the 2D context on its own,
-so `CanvasLayer` and `Painter` are the two places that must be kept in sync.
+Every overlay aligns with the canvas through
+[`CanvasLayer`](../src/containers/EditorPane/CanvasLayer/index.tsx).
+`CanvasLayer` owns the offset/scale transform.
+It exposes the scale as the `--scale` CSS variable.
+Its children use canvas coordinates.
+`Painter` applies the same transform to the 2D context separately.
+So `CanvasLayer` and `Painter` are the two places that you must keep in sync.
 
 ## Shared style for items
 
-Every style and layout value an item is drawn at lives in
-[`features/editorItem`](../src/features/editorItem/),
-and every consumer reads it from there.
-Rendering, editing, hit-testing and exporting all have to agree on the same numbers.
+Every style and layout value for drawing an item is in
+[`features/editorItem`](../src/features/editorItem/).
+Every consumer reads the values from there.
+Rendering, editing, hit-testing and exporting must all use the same numbers.
 
 ### Text layout invariants
 
-A text item's style is a pure function of its layout,
-and [`textStyleSizeOf` / `textStyleOf`](../src/features/editorItem/textStyle.ts) are where
-that function lives.
+A text item's style is a pure function of its layout.
+[`textStyleSizeOf` / `textStyleOf`](../src/features/editorItem/textStyle.ts) implement that
+function.
 
 [`splitLines`](../src/features/editorItem/textLayout.ts)
-caches the lines it lays out under that derived style.
-Every write to `width` or `fontSize` goes through
-[`clampTextWidth` / `clampFontSize`](../src/features/editorItem/textStyle.ts),
-which round as well as clamp because a fractional value would miss the cache on every frame of a
-resize drag.
+caches its lines and uses that derived style in the cache key.
+Every write to `width` or `fontSize` uses
+[`clampTextWidth` / `clampFontSize`](../src/features/editorItem/textStyle.ts).
+These functions clamp the value.
+They also round it because a fractional value would miss the cache on every frame of a resize drag.
 
 ## Arrow geometry
 
-An arrow is the one kind that carries a direction, and it is stored as one:
-`offset` plus `length` plus `angle`,
-where **`offset` is the tail point and not the top-left of a box**.
-Every other kind's `offset` is a corner;
-an arrow's lands on whichever corner its `angle` points away from.
-`angle` is in radians with 0 pointing right and a positive turn going clockwise on screen,
-which is what `ctx.rotate()` and CSS `rotate()` both take unconverted.
+An arrow is the only item kind that has a direction.
+Its data stores it as a direction: `offset`, `length` and `angle`.
+**`offset` is the tail point, not the top-left of a box.**
+For every other kind, `offset` is a corner.
+An arrow's `offset` is at the corner that its `angle` points away from.
+`angle` is in radians.
+0 points right, and a positive angle turns clockwise on screen.
+`ctx.rotate()` and CSS `rotate()` both take this value without conversion.
 
-Two consequences follow, and both are load-bearing:
+This has two consequences.
+Both are essential:
 
-- [`measureItem`](../src/features/editorItem/measure.ts) rotates the outline's corners
-  about the tail and takes the rect they span,
-  so it never assumes the tail is the top-left.
-- [`editorItemFromRange`](../src/features/editorItem/fromRange.ts) reads the drag **end to end**,
-  never through the [`Rect`](../src/utils/geometry/rect.ts) it spans.
-  A `Rect` takes the min and the max of its two points and hence throws away
-  which end the drag started from, which is the whole of what an arrow is.
+- [`measureItem`](../src/features/editorItem/measure.ts) rotates the corners of the outline around
+  the tail.
+  Then it takes the rect that the corners span.
+  So it never assumes that the tail is the top-left.
+- [`editorItemFromRange`](../src/features/editorItem/fromRange.ts) reads the drag
+  as its **start point and end point**,
+  never through the [`Rect`](../src/utils/geometry/rect.ts) that the drag spans.
+  A `Rect` keeps only the min and the max of its two points.
+  So it loses which end the drag started from, and that is exactly what defines an arrow.
 
-[`arrowStyleSizeOf`](../src/features/editorItem/arrowStyle.ts)'s `padding` is the half-width of the
-band an arrow is hit-tested on, and every hit-box of an arrow is sized from it rather than restating
-it.
-In edit mode that band is also what keeps a click on the arrow from ending the edit.
+The `padding` of [`arrowStyleSizeOf`](../src/features/editorItem/arrowStyle.ts) is the half-width of
+the band where an arrow is hit-tested.
+Every hit-box of an arrow takes its size from this value and does not repeat the number.
+In edit mode, this band also stops a click on the arrow from ending the edit.
 
-The exported picture is measured from the white outline instead,
-so that its margin stays as tight as the drawing.
-The shadow is left out and may be cut off at the picture's edge.
+The export measures the picture from the white outline instead.
+This keeps the margin of the picture as tight as the drawing.
+The measurement ignores the shadow, so the edge of the picture can cut off the shadow.
 
 ## Action grouping
 
-[`store/actions/`](../src/store/actions/) is split by the user-facing concern each action serves,
-not by the slice of [`PageState`](../src/store/types.ts) it writes.
-The slice axis does not hold here: the editor mode carries the `itemId` it acts on,
-so a mode transition and an item mutation are often the same operation
-([`addItem`](../src/store/actions/addItem.ts)'s commit pushes an item;
-[`selection`](../src/store/actions/selection.ts)'s move rewrites the selection),
-and every action updates the single [`state`](../src/store/atoms.ts) atom regardless.
+[`store/actions/`](../src/store/actions/) groups actions by the user-facing concern
+that each action serves.
+It does not group them by the slice of [`PageState`](../src/store/types.ts) that they write.
+Grouping by slice does not work here, for two reasons:
 
-One rule keeps the split decidable: the action that *enters* a mode belongs to that mode's file —
-[`edit.enter`](../src/store/actions/edit.ts), `addItem.enter`, and `selection.clear`.
-Operating within a mode belongs there too, so each file lines up with the containers that drive it.
+- The editor mode holds the `itemId` that it acts on.
+  So a mode transition and an item mutation are often the same operation.
+  For example, the commit in [`addItem`](../src/store/actions/addItem.ts) pushes an item,
+  and the move in [`selection`](../src/store/actions/selection.ts) rewrites the selection.
+- Every action updates the single [`state`](../src/store/atoms.ts) atom anyway.
 
-An action that rewrites [`editorItems`](../src/store/atoms.ts) returns before touching it
-when the result would be the same list:
-[`hasUnsavedChanges`](../src/store/atoms.ts) compares the list *by reference* against
-[`savedItems`](../src/store/atoms.ts), so rebuilding an identical one marks a saved picture as
-unsaved.
+One rule makes the place of each action clear:
+the action that *enters* a mode belongs in the file of that mode.
+Examples: [`edit.enter`](../src/store/actions/edit.ts), `addItem.enter` and `selection.clear`.
+An action that operates within a mode also belongs in that file.
+So each file matches the containers that call its actions.
+
+An action that rewrites [`editorItems`](../src/store/atoms.ts) returns without writing it
+if the result is the same list. [`hasUnsavedChanges`](../src/store/atoms.ts) compares the list with
+[`savedItems`](../src/store/atoms.ts) *by reference*.
+Without the return, a rebuilt but identical list would mark a saved picture as unsaved.

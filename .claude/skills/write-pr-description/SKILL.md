@@ -1,64 +1,67 @@
 ---
 name: write-pr-description
-description: Draft a pull request description — and its title when stale — from the diff and apply
-  it to GitHub directly
-argument-hint: "[PR url or number — omit for the current branch's PR]"
+description: Draft a pull request description from the diff, and a new title when the old one is
+  outdated. Apply them to GitHub directly.
+argument-hint: "[PR URL or number]"
 disable-model-invocation: true
 allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr edit:*)
 ---
 
-Write the description for the pull request in `$ARGUMENTS` —
-or the current branch's pull request when that is empty —
-and apply it to GitHub without asking for approval first.
-Stop if there is none.
+Write the description for the pull request in `$ARGUMENTS`.
+Stop if `$ARGUMENTS` is empty.
+Apply the description to GitHub without asking for approval first.
 
 ## Steps
 
-1. **Check it is still writable.**
-  `gh pr view <n> --json state,isDraft`.
-  Abort — change nothing, say why — unless `state` is `OPEN`;
-  a merged or closed pull request is left alone.
-  A draft is `OPEN` with `isDraft: true` and is fair game.
-2. **Read it.**
-  `gh pr view <n> --json title,body,headRefName,baseRefName,commits` and `gh pr diff <n>`.
-  Open the changed files wherever the diff alone doesn't say *why* something changed: a guard,
-  a deleted handler, an added flag.
-3. **Ask** for what the repository can't answer:
-  the related issue URL, what prompted the work, what was checked beyond CI,
-  and whether anything that reads like a defect is deliberate.
-  Ask as many rounds as the answers warrant —
-  a reply that opens a new question is worth following up on.
-  Draft with a placeholder rather than block when the user would rather fill it in themselves.
-4. **Draft** the body to a scratch file in the scratchpad directory, following `## Format`.
-  Draft a title as well when the existing one no longer says what the diff does;
-  leave it alone otherwise.
-  A title that names only part of what the diff does is stale too.
-5. **Apply** with `gh pr edit <n> --body-file <draft>`,
-  adding `--title <title>` only when step 4 drafted one, then read it back to confirm.
-6. **Report** what landed:
-  the pull request URL, the new title when it changed, and the body as applied.
-  The user reviews it on GitHub afterwards, so leave them enough to see what replaced what.
+1. **Check that the pull request is open.**
+  Run `gh pr view <n> --json state,isDraft`.
+  If `state` is not `OPEN`, stop and tell the user why.
+  Do not change a merged or closed pull request.
+  A draft is `OPEN` with `isDraft: true`, so you can edit it.
+2. **Read the pull request.**
+  Run `gh pr view <n> --json title,body,headRefName,baseRefName,commits` and `gh pr diff <n>`.
+  If the diff alone does not show *why* something changed,
+  read the changed files until the reason is clear.
+  Examples: a guard, a deleted handler, an added flag.
+3. **Ask** what the repository cannot answer.
+  Examples: the related issue URL, why the work started, what the user checked beyond CI,
+  whether an apparent defect is intentional.
+  Ask as many rounds as necessary.
+  If an answer raises a new question, ask it.
+  If the user wants to write a part themselves, put a placeholder there and continue.
+4. **Draft** the body in a file in the scratchpad directory.
+  Follow `## Format`.
+  If the current title is outdated, also draft a new title.
+  Otherwise, keep the current title.
+  A title is outdated if it does not describe everything that the diff does.
+5. **Apply** the draft with `gh pr edit <n> --body-file <draft>`.
+  Add `--title <title>` only if step 4 drafted a title.
+  Then read the pull request again to confirm the change.
+6. **Report** the result:
+  the pull request URL, the new title if it changed, and the applied body.
+  The user reviews the pull request on GitHub later.
+  Give enough detail for the user to see what the new text replaced.
 
-The pull request body is overwritten in place,
-so anything the previous body said and the new one doesn't is gone.
-Carry over whatever of it still holds.
+`gh pr edit` overwrites the body.
+Anything that is only in the previous body is lost.
+Keep every part of the previous body that is still true.
 
-Claim only what was checked.
+State only facts that you verified.
 
 ## Format
 
-Written in English, whatever language the conversation is in.
-Use the headings of `.github/pull_request_template.md` in order,
-and follow the hint comment under each.
-Leave no hint comment in the body.
-Drop an optional section that has nothing to say.
+Write the description in English, even if the conversation uses another language.
+Use the headings of `.github/pull_request_template.md` in the same order.
+Follow the hint comment under each heading.
+Remove all hint comments from the body.
+Omit an optional section that has no content.
 
-A section earns its length from what the diff cannot say.
+Add length to a section only for information that the diff cannot show.
 
-- **Cut what a reader gets elsewhere**: the diff, the changed-file list,
-  or a changed doc's own text.
+- **Remove what a reviewer can find elsewhere**: the diff, the list of changed files,
+  or the text of a changed doc.
 - **One home per fact.**
-  A table and the prose under it must not say the same thing twice.
+  A table and the prose under it must not state the same fact.
 
 ### Background
 
@@ -66,14 +69,15 @@ Never invent the reason.
 
 ### What's changed
 
-Lead with what someone needs in order to review it — a table of the new keys, the new function,
-the new flag — then the parts of the diff that look arbitrary without their reason.
+Start with what a reviewer needs.
+Examples: a table of the new keys, the new function, the new flag.
+Then explain the parts of the diff that look arbitrary without their reason.
 
 ### What's tested locally
 
-As short as the evidence is.
+Keep this section as short as the evidence.
 
-- What was run beyond CI, such as manual checks in the app.
-- Whether a test was checked against a deliberately broken build, when that is known.
-  A test never seen to fail is not yet evidence.
-- A check the change called for but that was skipped, and why.
+- Checks beyond CI, such as manual checks in the app.
+- Whether a test failed against an intentionally broken build, if that is known.
+  A test that nobody saw fail is not evidence yet.
+- A check that the change needed but nobody ran, and the reason.

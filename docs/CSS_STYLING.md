@@ -1,40 +1,42 @@
-# CSS Styling
+# CSS styling
 
-Policy for how CSS styling is organized across the repo.
+This document defines how the repo organizes CSS styling.
 
-## Build Pipeline
+## Build pipeline
 
-Styles go through Vite's built-in CSS pipeline
-(CSS Modules transform, etc.), which is PostCSS-based.
-There's no standalone `postcss.config.*` in this repo.
+Styles use the built-in CSS pipeline of Vite, which is based on PostCSS.
+This pipeline includes transforms such as CSS Modules.
+This repo has no standalone `postcss.config.*`.
 
-## Methods and Situations
+## Methods and situations
 
 ### CSS Modules
 
-Default choice for component-scoped styles.
-Colocated as `<name>.module.css` next to the component, imported as `styles`.
+Use CSS Modules by default for component-scoped styles.
+Put the file next to the component as `<name>.module.css`, and import it as `styles`.
 
 ### Inline styles
 
-Use inline styles only when CSS Modules can't express it: a value computed at runtime from state,
-not a fixed set of variants a class can switch between.
+Use inline styles only for a value computed at runtime from state.
+CSS Modules cannot express such a value.
+For a fixed set of variants, switch classes instead.
 
 ### Global styles
 
-Each workspace is allowed to have its own global styles.
-Styles shared among apps live in [`@~/ui`](../lib/ui/README.md).
+Each workspace can have its own global styles.
+Put styles that apps share in [`@~/ui`](../lib/ui/README.md).
 
 ## Conventions
 
 ### Variants
 
-When classes share their chrome and differ only in placement or state,
-keep one base class and nest each variant under it, never as a standalone class of its own.
+Sometimes classes share their visual style and differ only in placement or state.
+Then keep one base class, and nest each variant under it.
+Never write a variant as a standalone class.
 
-What the nested selector matches on depends on what the element already carries.
+The nested selector depends on what the element already has:
 
-1. Use an attribute the element has.
-  A `data-*` the application exposes on purpose is what to select on.
-  The variant then cannot drift from the attribute, because there is only the attribute.
-2. Use an `.isSomething` modifier class if there is no suitable attribute.
+1. Use an attribute that the element has.
+  Select on a `data-*` attribute that the application exposes on purpose.
+  Then the variant always matches the attribute, because the attribute is the only state.
+2. If there is no suitable attribute, use an `.isSomething` modifier class.

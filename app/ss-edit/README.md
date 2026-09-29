@@ -7,23 +7,27 @@ An image editor specialized for editing screenshots.
 - `src/app/`
   - The application root component.
 - `src/containers/`
-  - React components wired to application state managements.
+  - React components connected to the application state.
 - `src/components/`
   - Pure presentational React components.
 - `src/features/editorItem/`
-  - The item data model (the `EditorItem` union), the shared style values each kind is drawn at,
-    text layout, item measurement, and the factory turning a dragged range into a new item.
-    No canvas code lives here.
+  - This folder contains:
+    - The item data model (the `EditorItem` union).
+    - The shared style values for drawing each item kind.
+    - Text layout.
+    - Item measurement.
+    - The factory that makes a new item from a dragged range.
+  - It has no canvas code.
 - `src/features/renderer/`
   - Canvas drawing and image export.
-    Consumes `editorItem`'s data and style values to paint pixels;
-    this is where visuals are actually produced.
+    It draws the pixels from the data and style values in `editorItem`.
 - `src/hooks/`
   - React hooks shared across the application.
 - `src/store/`
   - Jotai-based application state management.
 - `src/utils/`
-  - Framework-agnostic helpers depending on no other folder.
+  - Framework-agnostic helpers.
+    They do not depend on any other folder.
 
 ## Other docs
 
