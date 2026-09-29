@@ -1,45 +1,46 @@
-# Test Strategy
+# Test strategy
 
-Policy for which testing tool to reach for and how far to test with it.
+This document defines which testing tool to use and how far to test with it.
 For commands and detailed conventions, follow the links in each section.
 
-Priority order is as follows.
+Use the tools in this order of priority:
 
-1. vitest
-1. storybook + chromatic
-1. playwright (e2e)
+1. Vitest
+1. Storybook + Chromatic
+1. Playwright (e2e)
 
-Cheapest and fastest first.
-Reach for a more expensive tool only when a cheaper one can't catch the class of bug.
+Use the cheapest and fastest tool first.
+Use a more expensive tool only when a cheaper tool cannot catch that class of bug.
 
-## vitest
+## Vitest
 
 - **Scope**
   - Logic that doesn't depend on rendering or visual output: pure functions and hooks.
 - **How far**
-  - Cover the logic's edge cases that can actually happen.
-  - Don't use it to assert on rendering or appearance because jsdom doesn't lay out real pixels.
+  - Cover the edge cases that can actually happen in the logic.
+  - Don't use it to assert on rendering or appearance, because jsdom doesn't lay out real pixels.
 - **Where**
-  - Colocate as `__tests__/<name>.test.ts{,x}` with the target production code.
+  - Put the test next to the production code as `__tests__/<name>.test.ts{,x}`.
 
-## storybook + chromatic
+## Storybook + Chromatic
 
 - **Scope**
   - How a component looks and renders in isolation, across its meaningfully distinct states.
 - **How far**
-  - One story per state worth catching a visual regression on.
-  - Don't assert on behavior spanning multiple components — that's playwright's job.
+  - Write one story for each state where a visual regression matters.
+  - Don't assert on behavior that spans multiple components.
+    Use Playwright for that.
 - **Where**
-  - Colocate as `*.stories.tsx` with the component.
+  - Put the story next to the component as `*.stories.tsx`.
 
-## playwright (e2e)
+## Playwright (e2e)
 
 - **Scope**
   - User flows that cross component or state boundaries,
-    and invariants only observable end-to-end.
+    and invariants that only an end-to-end test can observe.
 - **How far**
-  - Add a test here only for the class of bug vitest/storybook can't catch.
-    For example, pointer/drag interactions, real-browser rendering,
-    or drift between independently computed layout math across modules.
+  - Add a test here only for a class of bug that Vitest and Storybook cannot catch.
+    Examples: pointer and drag interactions, rendering in a real browser,
+    or a mismatch between layout calculations that different modules compute separately.
 - **Where and how**
   - See [`e2e/README.md`](../e2e/README.md) for the full conventions.
