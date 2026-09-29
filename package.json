@@ -34,7 +34,7 @@
     "@types/node": "24.13.3",
     "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.2",
+    "@vitejs/plugin-react": "6.0.4",
     "chromatic": "18.0.1",
     "jsdom": "29.1.1",
     "rumdl": "0.2.62",
