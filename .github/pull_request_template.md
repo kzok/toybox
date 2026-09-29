@@ -2,29 +2,32 @@
 
 <!--
 Optional.
-Bullet-pointed links for issues, tickets or references.
-Start with the issue the work came from.
+List links to issues, tickets or references as bullets.
+List the issue that started the work first.
 -->
 
 ## Background
 
 <!--
 Optional.
-The reason for the change, not a summary.
-Two or three sentences at most.
+Give the reason for the change.
+Do not summarize the change itself.
+Write three sentences or fewer.
 -->
 
 ## What's changed
 
 <!--
-What changed, and why it had to change that way.
-No need to explain what the code already makes clear.
-Use `###` subsections for concerns a reader wouldn't expect together.
+Describe what changed, and explain why it had to change that way.
+Do not explain what the code already shows.
+If the change mixes concerns that a reviewer would not expect together,
+use a `###` subsection for each.
 -->
 
 ## What's tested locally
 
 <!--
-Optional. No need to list what CI covers.
+Optional.
+Do not list what CI covers.
 Add screen captures if you have any.
 -->
