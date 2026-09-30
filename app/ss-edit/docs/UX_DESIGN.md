@@ -87,6 +87,16 @@ This does not leave Edit mode.
 
 Every size has limits, so the user can always grab the item again.
 
+### Context menu
+
+In Select mode and Edit mode, a right-click on the pane opens the app's context menu.
+
+- The menu has the same items in every case.
+- A right-click does not change the selection.
+- The text editor of Edit mode keeps the browser's own menu.
+- Add item mode shows the browser's own menu.
+- The menu closes when the view pans or zooms.
+
 ## Item
 
 The app draws every item on the canvas, and the user can edit every item.

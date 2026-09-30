@@ -83,6 +83,12 @@ export const pictureSize = (page: Page): Locator => page.getByTitle("Size");
 
 export const dropOverlay = (page: Page): Locator => page.getByText("Drop an image here");
 
+/**
+ * the context menu of the editor pane.
+ * @note it matches any open menu: the header menus share the role. open one menu at a time.
+ */
+export const contextMenu = (page: Page): Locator => page.getByRole("menu");
+
 /** the dialog asking whether the unsaved picture may be discarded. */
 export const confirmClearDialog = (page: Page): Locator => page.getByText("Unsaved Changes");
 
