@@ -10,6 +10,7 @@ import {
 import { useStore } from "jotai";
 import React from "react";
 import { type PageState, pageCtx } from "../../../store";
+import styles from "./index.module.css";
 
 /** where and on which view the menu was opened. */
 type OpenedAt = Readonly<{
@@ -70,11 +71,16 @@ const EditorContextMenu = React.memo<{
   return (
     <Menu open={open} onOpenChange={onOpenChange} positioning={{ target: openedAt.anchor }}>
       <MenuPopover>
-        <MenuList>
+        <MenuList className={styles.menuList}>
           <MenuItem onClick={() => actions.selection.bringToFront()}>Bring to front</MenuItem>
           <MenuItem onClick={() => actions.selection.sendToBack()}>Send to back</MenuItem>
           <MenuDivider />
-          <MenuItem onClick={() => actions.selection.deleteSelected()}>Delete</MenuItem>
+          <MenuItem
+            className={styles.deleteItem}
+            onClick={() => actions.selection.deleteSelected()}
+          >
+            Delete
+          </MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>
