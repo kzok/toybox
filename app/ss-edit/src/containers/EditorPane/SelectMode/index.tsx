@@ -170,7 +170,7 @@ const MosaicItem = React.memo<{
 const usePointerActions = (item: EditorItem, selected: boolean) => {
   const actions = pageCtx.useActions();
 
-  return usePointerEvents({
+  const pointerEvents = usePointerEvents({
     onPointerDown: (e) => {
       e.stopPropagation();
       // capture the pointer only when main (left) button.
@@ -196,6 +196,14 @@ const usePointerActions = (item: EditorItem, selected: boolean) => {
       }
     },
   });
+
+  return {
+    ...pointerEvents,
+    // NOTE: lets the event bubble up to the pane, which opens the menu on the new selection.
+    onContextMenu: (): void => {
+      if (!selected) actions.selection.select(item.id);
+    },
+  };
 };
 
 const useItemSelected = (itemId: string): boolean => {

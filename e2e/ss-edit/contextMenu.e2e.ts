@@ -35,16 +35,50 @@ const rightClickOnEmptySpot = async (page: Page): Promise<void> => {
   await rightClickAt(page, await panePointToViewport(page, EMPTY_POINT));
 };
 
-test("opens in select mode, leaving the selection alone", async ({ page }) => {
-  await openApp(page);
+/**
+ * adds two rects, the second of which ends up the only one selected.
+ * @returns the two rects
+ * @note not the locators that `addRectByDrag` returns: `last()` follows each item added later.
+ */
+const addTwoRects = async (page: Page): Promise<[Locator, Locator]> => {
   await addRectByDrag(page, FIRST_RANGE);
   await addRectByDrag(page, SECOND_RANGE);
-  // NOTE: not the locators that `addRectByDrag` returns: `last()` follows each item added later.
   const [first, second] = [rectItems(page).first(), rectItems(page).last()];
   await expect(first).toHaveAttribute("data-selected", "false");
   await expect(second).toHaveAttribute("data-selected", "true");
+  return [first, second];
+};
+
+test("selects an unselected item alone before opening in select mode", async ({ page }) => {
+  await openApp(page);
+  const [first, second] = await addTwoRects(page);
 
   await rightClickOn(page, first);
+
+  await expect(contextMenu(page)).toBeVisible();
+  await expect(first).toHaveAttribute("data-selected", "true");
+  await expect(second).toHaveAttribute("data-selected", "false");
+});
+
+test("keeps the whole selection on a selected item", async ({ page }) => {
+  await openApp(page);
+  const [first, second] = await addTwoRects(page);
+  await first.click({ modifiers: ["ControlOrMeta"] });
+  await expect(first).toHaveAttribute("data-selected", "true");
+
+  await rightClickOn(page, first);
+
+  await expect(contextMenu(page)).toBeVisible();
+  await expect(first).toHaveAttribute("data-selected", "true");
+  await expect(second).toHaveAttribute("data-selected", "true");
+  await expectMode(page, "select");
+});
+
+test("keeps the selection on an empty spot", async ({ page }) => {
+  await openApp(page);
+  const [first, second] = await addTwoRects(page);
+
+  await rightClickOnEmptySpot(page);
 
   await expect(contextMenu(page)).toBeVisible();
   await expect(first).toHaveAttribute("data-selected", "false");

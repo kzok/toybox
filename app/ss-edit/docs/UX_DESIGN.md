@@ -92,7 +92,8 @@ Every size has limits, so the user can always grab the item again.
 In Select mode and Edit mode, a right-click on the pane opens the app's context menu.
 
 - The menu has the same items in every case.
-- A right-click does not change the selection.
+- A right-click on an unselected item selects it first, as a drag does.
+  A right-click elsewhere does not change the selection.
 - The text editor of Edit mode keeps the browser's own menu.
 - Add item mode shows the browser's own menu.
 - The menu closes when the view pans or zooms.
