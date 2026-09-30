@@ -24,8 +24,8 @@ const EMPTY_POINT = { x: 100, y: 450 };
 /** another empty spot, clear of the menu opened at `EMPTY_POINT`. */
 const OTHER_EMPTY_POINT = { x: 600, y: 100 };
 
-const deleteMenuItem = (page: Page): Locator =>
-  contextMenu(page).getByRole("menuitem", { name: "Delete" });
+const menuItem = (page: Page, name: string): Locator =>
+  contextMenu(page).getByRole("menuitem", { name });
 
 const rightClickOn = async (page: Page, element: Locator): Promise<void> => {
   await rightClickAt(page, centerOf(await boundingBoxOf(element)));
@@ -71,7 +71,7 @@ test("deletes the selected item, keeping the rest", async ({ page }) => {
   const kept = await boundingBoxOf(rectItems(page).first());
 
   await rightClickOnEmptySpot(page);
-  await deleteMenuItem(page).click();
+  await menuItem(page, "Delete").click();
 
   await expect(contextMenu(page)).toBeHidden();
   await expect(rectItems(page)).toHaveCount(1);
@@ -86,11 +86,41 @@ test("deletes the item under edit", async ({ page }) => {
   await expectMode(page, "edit");
 
   await rightClickOn(page, rect);
-  await deleteMenuItem(page).click();
+  await menuItem(page, "Delete").click();
 
   // edit mode shows only the item under edit, hence the count means nothing until it ends.
   await expectMode(page, "select");
   await expect(rectItems(page)).toHaveCount(1);
+});
+
+test("brings the selected item to the front", async ({ page }) => {
+  await openApp(page);
+  await addRectByDrag(page, FIRST_RANGE);
+  await addRectByDrag(page, SECOND_RANGE);
+  const moved = await boundingBoxOf(rectItems(page).first());
+  await rectItems(page).first().click();
+
+  await rightClickOnEmptySpot(page);
+  await menuItem(page, "Bring to front").click();
+
+  await expect(contextMenu(page)).toBeHidden();
+  expect(await boundingBoxOf(rectItems(page).last())).toStrictEqual(moved);
+  await expect(rectItems(page).last()).toHaveAttribute("data-selected", "true");
+});
+
+test("sends the selected item to the back", async ({ page }) => {
+  await openApp(page);
+  await addRectByDrag(page, FIRST_RANGE);
+  await addRectByDrag(page, SECOND_RANGE);
+  // the rect added last is the only one selected.
+  const moved = await boundingBoxOf(rectItems(page).last());
+
+  await rightClickOnEmptySpot(page);
+  await menuItem(page, "Send to back").click();
+
+  await expect(contextMenu(page)).toBeHidden();
+  expect(await boundingBoxOf(rectItems(page).first())).toStrictEqual(moved);
+  await expect(rectItems(page).first()).toHaveAttribute("data-selected", "true");
 });
 
 test("deletes nothing while nothing is selected", async ({ page }) => {
@@ -101,7 +131,7 @@ test("deletes nothing while nothing is selected", async ({ page }) => {
   await expect(rectItems(page).first()).toHaveAttribute("data-selected", "false");
 
   await rightClickAt(page, empty);
-  await deleteMenuItem(page).click();
+  await menuItem(page, "Delete").click();
 
   await expect(contextMenu(page)).toBeHidden();
   await expect(rectItems(page)).toHaveCount(1);

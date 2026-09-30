@@ -15,27 +15,27 @@ export const canvas = (page: Page): Locator => page.locator("canvas");
 export const editorOverlay = (page: Page): Locator => page.locator("[data-editor-mode]");
 
 /**
- * every item on the editor overlay, in the order they were added. mainly for select mode, but note
+ * every item on the editor overlay, from the back to the front. mainly for select mode, but note
  * that edit mode's item carries the attribute too and hence also matches: its image item is a
  * `<span data-item-kind="image">` and its text item is a `<textarea data-item-kind="text">`.
  */
 export const items = (page: Page): Locator => page.locator("[data-item-kind]");
 
-/** image items on the editor overlay, in the order they were added. see `items` on edit mode. */
+/** image items on the editor overlay, from the back to the front. see `items` on edit mode. */
 export const imageItems = (page: Page): Locator => page.locator("[data-item-kind='image']");
 
-/** text items on the editor overlay, in the order they were added. see `items` on edit mode. */
+/** text items on the editor overlay, from the back to the front. see `items` on edit mode. */
 export const textItems = (page: Page): Locator => page.locator("[data-item-kind='text']");
 
 /**
- * rect items on the editor overlay, in the order they were added. see `items` on edit mode.
+ * rect items on the editor overlay, from the back to the front. see `items` on edit mode.
  * @note the element spans the box the outline is drawn in, which is wider than the item's own
  *   `width` / `height` by the half of the outline lying outside them on every edge.
  */
 export const rectItems = (page: Page): Locator => page.locator("[data-item-kind='rect']");
 
 /**
- * arrow items on the editor overlay, in the order they were added. see `items` on edit mode.
+ * arrow items on the editor overlay, from the back to the front. see `items` on edit mode.
  * @note the element is a band along the arrow rather than the box it spans, turned into place by
  *   a `rotate()`. its bounding box is therefore the box of the turned band, which for anything
  *   but a horizontal arrow is wider and taller than the band itself.
@@ -43,7 +43,7 @@ export const rectItems = (page: Page): Locator => page.locator("[data-item-kind=
 export const arrowItems = (page: Page): Locator => page.locator("[data-item-kind='arrow']");
 
 /**
- * mosaic items on the editor overlay, in the order they were added. see `items` on edit mode.
+ * mosaic items on the editor overlay, from the back to the front. see `items` on edit mode.
  * @note unlike a rect, nothing is drawn outside the item, so the element spans its own `width` /
  *   `height` exactly.
  */

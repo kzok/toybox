@@ -232,4 +232,83 @@ describe(createSelectionActions, () => {
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
   });
+
+  describe("bringToFront() / sendToBack()", () => {
+    const setUp = () => {
+      const item1 = createImageItem("item-1", [0, 0]);
+      const item2 = createImageItem("item-2", [100, 100]);
+      const item3 = createImageItem("item-3", [200, 200]);
+      const item4 = createImageItem("item-4", [300, 300]);
+      const target = createTestTargetWithItems(item1, item2, item3, item4);
+      const idsOf = () => target.store.get(target.atoms.editorItems).map((item) => item.id);
+      return { ...target, idsOf, item1, item2, item3, item4 } as const;
+    };
+
+    it("brings every selected item to the front, keeping their relative order.", () => {
+      const { actions, idsOf, item1, item2, item3, item4 } = setUp();
+      actions.selection.select(item3.id);
+      actions.selection.select(item1.id, true);
+
+      actions.selection.bringToFront();
+
+      expect(idsOf()).toStrictEqual([item2.id, item4.id, item1.id, item3.id]);
+    });
+
+    it("sends every selected item to the back, keeping their relative order.", () => {
+      const { actions, idsOf, item1, item2, item3, item4 } = setUp();
+      actions.selection.select(item4.id);
+      actions.selection.select(item2.id, true);
+
+      actions.selection.sendToBack();
+
+      expect(idsOf()).toStrictEqual([item2.id, item4.id, item1.id, item3.id]);
+    });
+
+    it("moves the item under edit in edit mode, staying in edit mode.", () => {
+      const { store, actions, atoms, idsOf, item1, item2, item3, item4 } = setUp();
+      actions.edit.enter(item2.id);
+
+      actions.selection.bringToFront();
+      expect(idsOf()).toStrictEqual([item1.id, item3.id, item4.id, item2.id]);
+
+      actions.selection.sendToBack();
+      expect(idsOf()).toStrictEqual([item2.id, item1.id, item3.id, item4.id]);
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item2.id });
+    });
+
+    it("keeps the very same items list when the selection is already in place, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item1, item4 } = setUp();
+      const before = store.get(atoms.editorItems);
+
+      actions.selection.select(item4.id);
+      actions.selection.bringToFront();
+      expect(store.get(atoms.editorItems)).toBe(before);
+
+      actions.selection.select(item1.id);
+      actions.selection.sendToBack();
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("does nothing when nothing is selected.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.state);
+
+      actions.selection.bringToFront();
+      actions.selection.sendToBack();
+
+      expect(store.get(atoms.state)).toBe(before);
+    });
+
+    it("does nothing in add-item mode.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.addItem.enter("rect");
+      const before = store.get(atoms.state);
+
+      actions.selection.bringToFront();
+      actions.selection.sendToBack();
+
+      expect(store.get(atoms.state)).toBe(before);
+    });
+  });
 });

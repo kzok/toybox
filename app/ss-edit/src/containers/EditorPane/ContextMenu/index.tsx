@@ -1,5 +1,6 @@
 import {
   Menu,
+  MenuDivider,
   MenuItem,
   MenuList,
   MenuPopover,
@@ -70,6 +71,9 @@ const EditorContextMenu = React.memo<{
     <Menu open={open} onOpenChange={onOpenChange} positioning={{ target: openedAt.anchor }}>
       <MenuPopover>
         <MenuList>
+          <MenuItem onClick={() => actions.selection.bringToFront()}>Bring to front</MenuItem>
+          <MenuItem onClick={() => actions.selection.sendToBack()}>Send to back</MenuItem>
+          <MenuDivider />
           <MenuItem onClick={() => actions.selection.deleteSelected()}>Delete</MenuItem>
         </MenuList>
       </MenuPopover>

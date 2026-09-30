@@ -101,6 +101,9 @@ In Select mode and Edit mode, a right-click on the pane opens the app's context 
 
 The app draws every item on the canvas, and the user can edit every item.
 
+Items stack in the order that the user added them, and a newer item is in front.
+The user can move the selected items to the front or to the back.
+
 ### Image
 
 An image item renders an image file that the user uploaded.
@@ -148,7 +151,7 @@ This changes the length and the direction of the arrow at the same time.
 ### Mosaic
 
 A mosaic item masks information by pixelating whatever is painted behind it.
-An item added after the mosaic is in front of it and stays sharp.
+An item in front of the mosaic stays sharp.
 
 It draws only the pixelated blocks, and nothing else, not even an outline.
 Resizing changes its width and height independently.
