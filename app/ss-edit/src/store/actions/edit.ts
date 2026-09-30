@@ -9,24 +9,20 @@ import {
 } from "../../features/editorItem";
 import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
-import { dropBlankEditTarget, moveItems } from "./utils";
+import { moveItems, switchMode } from "./utils";
 
 /** minimum width/height an image item can be resized down to (canvas units) */
 const MIN_IMAGE_SIZE = 36;
 
 export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
-    /**
-     * get into edit mode for the specified item.
-     * @note drops the previous target item of edit mode when it became blank.
-     */
+    /** get into edit mode for the specified item. */
     enter: (itemId: string): void => {
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind === "edit" && draft.editorMode.itemId === itemId) {
           return; // already editing it, hence not leaving edit mode.
         }
-        dropBlankEditTarget(draft);
-        draft.editorMode = { kind: "edit", itemId };
+        switchMode(draft, { kind: "edit", itemId });
       });
     },
     /**

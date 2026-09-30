@@ -5,7 +5,7 @@ import { pickImageFile, readImageFromDataTransfer, saveBlobAsFile } from "../../
 import { Vec2 } from "../../utils/geometry";
 import { createDialogActions } from "./dialogs";
 import type { ActionCreatorParam } from "./types";
-import { dropBlankEditTarget } from "./utils";
+import { switchMode } from "./utils";
 
 export const createPictureActions = (params: ActionCreatorParam) => {
   const { store, atoms, updateAtom } = params;
@@ -23,9 +23,8 @@ export const createPictureActions = (params: ActionCreatorParam) => {
       height: data.height,
     };
     updateAtom(atoms.state, (draft) => {
-      dropBlankEditTarget(draft);
       draft.editorItems.push(castDraft(newItem));
-      draft.editorMode = { kind: "select", selectedIds: [newItem.id] };
+      switchMode(draft, { kind: "select", selectedIds: [newItem.id] });
     });
   };
 

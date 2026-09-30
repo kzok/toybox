@@ -1,9 +1,8 @@
-import { castDraft } from "immer";
 import type { Vec2 } from "../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../atoms";
 import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
-import { dropBlankEditTarget, moveItems } from "./utils";
+import { moveItems, switchMode } from "./utils";
 
 export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   /** @note keeps the relative order within the targets and within the rest. */
@@ -24,8 +23,7 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
     /** get back into select mode with nothing selected. */
     clear: (): void => {
       updateAtom(atoms.state, (draft) => {
-        dropBlankEditTarget(draft);
-        draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);
+        switchMode(draft, INITIAL_EDITOR_STATE.editorMode);
       });
     },
     /**
@@ -34,7 +32,6 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
      */
     select: (itemId: string, multi: boolean = false): void => {
       updateAtom(atoms.state, (draft) => {
-        dropBlankEditTarget(draft);
         let selectedIds: string[] = [];
         if (multi) {
           // multi selection
@@ -52,7 +49,7 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
           // single selection
           selectedIds = [itemId];
         }
-        draft.editorMode = { kind: "select", selectedIds };
+        switchMode(draft, { kind: "select", selectedIds });
       });
     },
     /**
@@ -67,9 +64,9 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
           draft.editorMode.kind !== "select" ||
           !draft.editorMode.selectedIds.includes(triggerItemId)
         ) {
-          draft.editorMode = { kind: "select", selectedIds: [triggerItemId] };
+          switchMode(draft, { kind: "select", selectedIds: [triggerItemId] });
         }
-        moveItems(draft, draft.editorMode.selectedIds, delta);
+        moveItems(draft, targetIdsOf(draft.editorMode), delta);
       });
     },
     /** drop the selected items, or the item under edit in edit mode. */
@@ -79,7 +76,7 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
         // rewriting it with an identical list would count as an unsaved change.
         if (targetIds.length === 0) return;
         draft.editorItems = draft.editorItems.filter((item) => !targetIds.includes(item.id));
-        draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);
+        switchMode(draft, INITIAL_EDITOR_STATE.editorMode);
       });
     },
     /** move the selected items, or the item under edit in edit mode, in front of the rest. */
