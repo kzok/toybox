@@ -1,4 +1,5 @@
 import { Spacer } from "@~/ui/components/Spacer";
+import { TypedSingleDropdown } from "@~/ui/components/TypedSingleDropdown";
 import {
   Button,
   Dialog,
@@ -7,8 +8,6 @@ import {
   DialogContent,
   DialogSurface,
   DialogTitle,
-  Dropdown,
-  Option,
   useId,
 } from "@fluentui/react-components";
 import { SaveEditFilled } from "@fluentui/react-icons";
@@ -80,20 +79,13 @@ const FileFormatDropdown: React.FC<{
   return (
     <div className={styles.dropdownContainer}>
       <label htmlFor={htmlId}>File format</label>
-      <Dropdown
+      <TypedSingleDropdown
         id={htmlId}
         appearance="outline"
         value={props.value}
-        onOptionSelect={(_, d) => {
-          if (d.optionValue != null) {
-            props.onChange(d.optionValue as ExportOption["format"]);
-          }
-        }}
-      >
-        {ALL_FORMAT.map((option) => (
-          <Option key={option}>{option}</Option>
-        ))}
-      </Dropdown>
+        options={ALL_FORMAT.map((value) => ({ value, label: value }))}
+        onChange={({ value }) => props.onChange(value)}
+      />
     </div>
   );
 };
@@ -107,20 +99,13 @@ const BackgroundDropdown: React.FC<{
   return (
     <div className={styles.dropdownContainer}>
       <label htmlFor={htmlId}>Background</label>
-      <Dropdown
+      <TypedSingleDropdown
         id={htmlId}
         appearance="outline"
         value={props.value}
-        onOptionSelect={(_, d) => {
-          if (d.optionValue != null) {
-            props.onChange(d.optionValue as ExportOption["background"]);
-          }
-        }}
-      >
-        {ALL_BACKGROUND.map((option) => (
-          <Option key={option}>{option}</Option>
-        ))}
-      </Dropdown>
+        options={ALL_BACKGROUND.map((value) => ({ value, label: value }))}
+        onChange={({ value }) => props.onChange(value)}
+      />
     </div>
   );
 };
