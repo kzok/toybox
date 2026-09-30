@@ -88,12 +88,17 @@ Grouping by slice does not work here, for two reasons:
   and the move in [`selectMode`](../src/store/actions/selectMode.ts) rewrites the selection.
 - Every action updates the single [`state`](../src/store/atoms.ts) atom anyway.
 
-One rule makes the place of each action clear:
-the action that *enters* a mode belongs in the file of that mode.
-Examples: [`editMode.enter`](../src/store/actions/editMode.ts),
-`addItemMode.enter` and `selectMode.clear`.
-An action that operates within a mode also belongs in that file.
-So each file matches the containers that call its actions.
+These rules decide the place of each action:
+
+- A group whose name ends in `Mode` holds the actions for that mode only.
+  - An action that works within the mode belongs there.
+  - So does the action that *enters* the mode.
+    Examples: [`editMode.enter`](../src/store/actions/editMode.ts),
+    `addItemMode.enter` and `selectMode.clear`.
+- Every other group holds actions that work in any mode.
+  - [`view`](../src/store/actions/view.ts) holds the actions that change only the view.
+    They are independent of the other actions, because they never write the mode or the items.
+  - [`picture`](../src/store/actions/picture.ts) holds everything else.
 
 An action that rewrites [`editorItems`](../src/store/atoms.ts) returns without writing it
 if the result is the same list. [`hasUnsavedChanges`](../src/store/atoms.ts) compares the list with

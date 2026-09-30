@@ -31,9 +31,9 @@ const AppHotkeyRegistry = React.memo(() => {
   const enabled = !pageCtx.useIsDialogOpen();
   useHotkey("Mod+S", () => actions.picture.saveAsImage(), { enabled });
   useHotkey("Escape", () => actions.selectMode.clear(), { enabled });
-  useHotkey("Delete", () => actions.selectMode.deleteSelected(), { enabled });
+  useHotkey("Delete", () => actions.picture.deleteSelected(), { enabled });
   // NOTE: a mac keyboard without a Forward Delete key sends Backspace in its place.
-  useHotkey("Backspace", () => actions.selectMode.deleteSelected(), { enabled });
+  useHotkey("Backspace", () => actions.picture.deleteSelected(), { enabled });
   return null;
 });
 

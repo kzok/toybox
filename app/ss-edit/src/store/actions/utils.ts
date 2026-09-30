@@ -21,6 +21,21 @@ export const moveItems = (
   }
 };
 
+/** @returns the ids of the items that the actions on the selection act on in the mode */
+export const targetIdsOf = (mode: PageState.Mode): readonly string[] => {
+  switch (mode.kind) {
+    case "select":
+      return mode.selectedIds;
+    case "edit":
+      return [mode.itemId];
+    case "add-item":
+      return [];
+    default:
+      mode satisfies never;
+      return [];
+  }
+};
+
 /**
  * switch the editor mode.
  *

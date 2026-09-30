@@ -14,6 +14,7 @@ import { moveItems, switchMode } from "./utils";
 /** minimum width/height an image item can be resized down to (canvas units) */
 const MIN_IMAGE_SIZE = 36;
 
+/** actions specific to edit mode */
 export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /** get into edit mode for the specified item. */

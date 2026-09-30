@@ -9,6 +9,7 @@ const ZOOM_MIN = 0.27;
 /** the largest scale the view zooms to. */
 const ZOOM_MAX = 2.0;
 
+/** actions specific to the editor view */
 export const createViewActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /**
