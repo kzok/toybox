@@ -6,6 +6,7 @@ const BASE_URL = `http://localhost:${PORT}/`;
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.e2e.ts",
+  fullyParallel: true,
   retries: 1,
   // the CI runner has 2 vCPUs, where the default heuristic (`ceil(cpus / 2)`)
   // settles on a single worker and runs the whole suite serially.
