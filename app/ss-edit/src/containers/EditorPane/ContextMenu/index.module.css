@@ -1,0 +1,8 @@
+.menuList {
+  /* NOTE: nested so as to outrank the colors that Fluent gives a menu item in each state. */
+  .deleteItem,
+  .deleteItem:hover,
+  .deleteItem:hover:active {
+    color: var(--colorStatusDangerForeground1);
+  }
+}

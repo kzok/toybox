@@ -190,6 +190,11 @@ export const zoomTo = async (page: Page, percent: 200 | 150 | 100 | 50): Promise
   await expect(page.getByTitle("Zoom level")).toHaveText(`${percent}%`);
 };
 
+/** right-clicks the topmost element at `point`, given in viewport coordinates. */
+export const rightClickAt = async (page: Page, point: Point): Promise<void> => {
+  await page.mouse.click(point.x, point.y, { button: "right" });
+};
+
 /** drags the topmost element at `from` by `delta` with the main button held down. */
 export const dragBy = async (page: Page, from: Point, delta: Point): Promise<void> => {
   await dragFromTo(page, from, { x: from.x + delta.x, y: from.y + delta.y });

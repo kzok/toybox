@@ -96,9 +96,9 @@ describe(createEditActions, () => {
       return { ...target, item1, item2 } as const;
     };
 
-    it("moves the specified item alone, staying in edit mode.", () => {
+    it("moves the item under edit alone, staying in edit mode.", () => {
       const { store, actions, atoms, item1, item2 } = setUp();
-      actions.edit.move(item1.id, [10, 20]);
+      actions.edit.move([10, 20]);
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item1.id });
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
@@ -108,23 +108,24 @@ describe(createEditActions, () => {
     it("scales the movement delta by the inverse of the view scale.", () => {
       const { store, actions, atoms, item1 } = setUp();
       actions.view.zoom(2, new Vec2(0, 0));
-      actions.edit.move(item1.id, [10, 20]);
+      actions.edit.move([10, 20]);
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([5, 10]);
     });
 
     it("keeps the very same items list on a zero delta, which would count as unsaved otherwise.", () => {
-      const { store, actions, atoms, item1 } = setUp();
+      const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
-      actions.edit.move(item1.id, [0, 0]);
+      actions.edit.move([0, 0]);
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
-    it("keeps items unchanged when the item does not exist.", () => {
-      const { store, actions, atoms } = setUp();
-      const before = store.get(atoms.editorItems);
-      actions.edit.move("missing-id", [10, 20]);
-      expect(store.get(atoms.editorItems)).toBe(before);
+    it("does nothing outside edit mode.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      actions.selection.select(item1.id);
+      const before = store.get(atoms.state);
+      actions.edit.move([10, 20]);
+      expect(store.get(atoms.state)).toBe(before);
     });
   });
 

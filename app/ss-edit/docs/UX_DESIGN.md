@@ -87,9 +87,23 @@ This does not leave Edit mode.
 
 Every size has limits, so the user can always grab the item again.
 
+### Context menu
+
+In Select mode and Edit mode, a right-click on the pane opens the app's context menu.
+
+- The menu has the same items in every case.
+- A right-click on an unselected item selects it first, as a drag does.
+  A right-click elsewhere does not change the selection.
+- The text editor of Edit mode keeps the browser's own menu.
+- Add item mode shows the browser's own menu.
+- The menu closes when the view pans or zooms.
+
 ## Item
 
 The app draws every item on the canvas, and the user can edit every item.
+
+Items stack in the order that the user added them, and a newer item is in front.
+The user can move the selected items to the front or to the back.
 
 ### Image
 
@@ -138,13 +152,14 @@ This changes the length and the direction of the arrow at the same time.
 ### Mosaic
 
 A mosaic item masks information by pixelating whatever is painted behind it.
-An item added after the mosaic is in front of it and stays sharp.
+An item in front of the mosaic stays sharp.
 
 It draws only the pixelated blocks, and nothing else, not even an outline.
 Resizing changes its width and height independently.
 
 ## Hotkeys
 
+- **`Delete` and `Backspace` delete items in Select mode and Edit mode.**
 - **Some hotkeys work during text editing, and some do not.** `Mod+S`
   and `Escape` work inside the text editor, because the user wants to save or leave there.
   The text editor handles `Delete` and `Backspace`, where they mean "delete a character".

@@ -3,6 +3,7 @@ import React from "react";
 import { usePointerEvents } from "../../hooks";
 import { type PageState, pageCtx } from "../../store";
 import { AddItemMode } from "./AddItemMode";
+import { useEditorContextMenu } from "./ContextMenu";
 import { EditMode } from "./EditMode";
 import { useResizeObserver } from "./hooks/useResizeObserver";
 import { useWheelEvent } from "./hooks/useWheelEvent";
@@ -15,17 +16,22 @@ export const EditorPane = React.memo((props: { className?: string | undefined })
   const elementRef = React.useRef<HTMLDivElement>(null);
   useResizeObserver(elementRef);
   useWheelEvent(elementRef);
+  const [onContextMenu, contextMenu] = useEditorContextMenu();
 
   return (
-    <div
-      ref={elementRef}
-      className={clsx(styles.container, props.className)}
-      draggable={false}
-      {...usePointerActions()}
-    >
-      <Painter />
-      <EditorOverlay />
-    </div>
+    <>
+      <div
+        ref={elementRef}
+        className={clsx(styles.container, props.className)}
+        draggable={false}
+        onContextMenu={onContextMenu}
+        {...usePointerActions()}
+      >
+        <Painter />
+        <EditorOverlay />
+      </div>
+      {contextMenu}
+    </>
   );
 });
 

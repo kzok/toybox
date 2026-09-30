@@ -54,7 +54,7 @@ const ImageItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeImage(item.id, cursor),
     [actions, item.id],
   );
-  const onMove = useMoveHandler(item.id);
+  const onMove = useMoveHandler();
 
   return (
     <ResizeContainer
@@ -89,7 +89,7 @@ const RectItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeRect(item.id, cursor),
     [actions, item.id],
   );
-  const onMove = useMoveHandler(item.id);
+  const onMove = useMoveHandler();
 
   return (
     <ResizeContainer
@@ -124,7 +124,7 @@ const MosaicItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeMosaic(item.id, cursor),
     [actions, item.id],
   );
-  const onMove = useMoveHandler(item.id);
+  const onMove = useMoveHandler();
 
   return (
     <ResizeContainer
@@ -176,7 +176,7 @@ const ArrowItem = React.memo<{
     (cursor: Vec2.Tuple) => actions.edit.resizeArrowTip(item.id, cursor),
     [actions, item.id],
   );
-  const onMove = useMoveHandler(item.id);
+  const onMove = useMoveHandler();
 
   return (
     // a transparent container
@@ -249,6 +249,7 @@ const TextItem = React.memo<{
         onPointerMove={stopPropagation}
         onPointerUp={stopPropagation}
         onClick={stopPropagation}
+        onContextMenu={stopPropagation}
       />
       <ResizeHandle direction="right" onResize={onResizeWidth} />
       <ResizeHandle direction="bottom-right" onResize={onResizeFontSize} />
@@ -259,16 +260,16 @@ const TextItem = React.memo<{
 /**
  * @returns a `pointermove` handler dragging the item along while the main (left) button is held
  */
-const useMoveHandler = (itemId: string) => {
+const useMoveHandler = () => {
   const actions = pageCtx.useActions();
   return React.useCallback(
     (e: React.PointerEvent): void => {
       stopPropagationAndCapturePointer(e);
       if (e.buttons === 1) {
-        actions.edit.move(itemId, [e.movementX, e.movementY]);
+        actions.edit.move([e.movementX, e.movementY]);
       }
     },
-    [actions, itemId],
+    [actions],
   );
 };
 
