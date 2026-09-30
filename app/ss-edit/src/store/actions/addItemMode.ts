@@ -4,15 +4,15 @@ import type { Vec2 } from "../../utils/geometry";
 import { canvasOffset } from "../selectors";
 import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
-import { dropBlankEditTarget } from "./utils";
+import { switchMode } from "./utils";
 
-export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+/** actions specific to add item mode */
+export const createAddItemModeActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /** get into add-item mode */
     enter: (itemKind: PageState.Mode.AddItem["itemKind"]): void => {
       updateAtom(atoms.state, (draft) => {
-        dropBlankEditTarget(draft);
-        draft.editorMode = { kind: "add-item", itemKind, range: null };
+        switchMode(draft, { kind: "add-item", itemKind, range: null });
       });
     },
     /**
@@ -46,11 +46,13 @@ export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) 
 
         const newItem = editorItemFromRange(itemKind, range, crypto.randomUUID());
         draft.editorItems.push(castDraft(newItem));
-        draft.editorMode =
+        switchMode(
+          draft,
           newItem.kind === "text"
             ? // a text item gets dropped unless the user types anything.
               { kind: "edit", itemId: newItem.id }
-            : { kind: "select", selectedIds: [newItem.id] };
+            : { kind: "select", selectedIds: [newItem.id] },
+        );
       });
     },
   } as const;

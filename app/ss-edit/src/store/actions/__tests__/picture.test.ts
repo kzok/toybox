@@ -163,7 +163,7 @@ describe(createPictureActions, () => {
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
       await saveThroughDialog({ store, actions, atoms });
 
-      actions.selection.move(item.id, [10, 20]);
+      actions.selectMode.move(item.id, [10, 20]);
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(true);
     });
@@ -175,7 +175,7 @@ describe(createPictureActions, () => {
 
       actions.view.zoom(2, new Vec2(0, 0));
       actions.view.scroll(10, 20);
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
@@ -192,8 +192,8 @@ describe(createPictureActions, () => {
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
       await saveThroughDialog({ store, actions, atoms });
 
-      actions.edit.enter(filled.id);
-      actions.selection.clear();
+      actions.editMode.enter(filled.id);
+      actions.selectMode.clear();
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
@@ -260,6 +260,77 @@ describe(createPictureActions, () => {
       expect(store.get(atoms.dialogReactNode)).toBeNull();
     });
 
+    it("adds nothing when any of the dropped images cannot be decoded.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      const broken = new File(["x"], "broken.png", { type: "image/png" });
+      vi.stubGlobal("createImageBitmap", async (blob: Blob) => {
+        if (blob === broken) throw new Error("decode failed");
+        return { width: 100, height: 50 };
+      });
+
+      const adding = actions.picture.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "ok.png", { type: "image/png" }), broken),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      (store.get(atoms.dialogReactNode) as ReactElement<{ resolve: () => void }>).props.resolve();
+      await adding;
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+    });
+
+    it("adds every dropped image, each to the lower right of the one before it.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
+
+      await actions.picture.addFromDataTransfer(
+        dataTransferOf(
+          new File(["x"], "a.png", { type: "image/png" }),
+          new File(["x"], "b.png", { type: "image/png" }),
+        ),
+      );
+
+      // the view is centered on the origin, hence the first image is centered there.
+      expect(store.get(atoms.editorItems).map((item) => item.offset)).toStrictEqual([
+        [-50, -25],
+        [-18, 7],
+      ]);
+    });
+
+    it("selects only the added images in select mode.", async () => {
+      const { store, actions, atoms } = createTestTargetWithItems(
+        createImageItem("item-1", [0, 0]),
+      );
+      vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
+      actions.selectMode.select("item-1");
+
+      await actions.picture.addFromDataTransfer(
+        dataTransferOf(
+          new File(["x"], "a.png", { type: "image/png" }),
+          new File(["x"], "b.png", { type: "image/png" }),
+        ),
+      );
+
+      const added = store.get(atoms.editorItems).slice(1);
+      expect(added.map((item) => item.kind)).toStrictEqual(["image", "image"]);
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: added.map((item) => item.id),
+      });
+    });
+
+    it("drops the blank text item being edited when it adds an image.", async () => {
+      const { store, actions, atoms } = createTestTargetWithItems(createTextItem("item-1", ""));
+      vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
+      actions.editMode.enter("item-1");
+
+      await actions.picture.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),
+      );
+
+      expect(store.get(atoms.editorItems).map((item) => item.kind)).toStrictEqual(["image"]);
+    });
+
     it("adds no item and shows no dialog when the payload carries no image.", async () => {
       const { store, actions, atoms } = createTestTarget();
 
@@ -269,6 +340,148 @@ describe(createPictureActions, () => {
 
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
       expect(store.get(atoms.dialogReactNode)).toBeNull();
+    });
+  });
+
+  describe("deleteSelected()", () => {
+    const setUp = () => {
+      const item1 = createImageItem("item-1", [0, 0]);
+      const item2 = createImageItem("item-2", [100, 100]);
+      const item3 = createImageItem("item-3", [200, 200]);
+      const target = createTestTargetWithItems(item1, item2, item3);
+      return { ...target, item1, item2, item3 } as const;
+    };
+
+    it("drops every selected item, keeping the rest.", () => {
+      const { store, actions, atoms, item1, item2, item3 } = setUp();
+      actions.selectMode.select(item1.id);
+      actions.selectMode.select(item3.id, true);
+
+      actions.picture.deleteSelected();
+
+      expect(store.get(atoms.editorItems).map((item) => item.id)).toStrictEqual([item2.id]);
+    });
+
+    it("leaves nothing selected.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      actions.selectMode.select(item1.id);
+
+      actions.picture.deleteSelected();
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "select", selectedIds: [] });
+    });
+
+    it("drops the item under edit in edit mode, keeping the rest.", () => {
+      const { store, actions, atoms, item1, item2, item3 } = setUp();
+      actions.editMode.enter(item2.id);
+
+      actions.picture.deleteSelected();
+
+      expect(store.get(atoms.editorItems).map((item) => item.id)).toStrictEqual([
+        item1.id,
+        item3.id,
+      ]);
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "select", selectedIds: [] });
+    });
+
+    it("does nothing in add-item mode.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.addItemMode.enter("rect");
+      const before = store.get(atoms.state);
+
+      actions.picture.deleteSelected();
+
+      expect(store.get(atoms.state)).toBe(before);
+    });
+
+    it("does not count as a change when nothing is selected.", () => {
+      const { store, actions, atoms } = setUp();
+      store.set(atoms.savedItems, store.get(atoms.editorItems));
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
+
+      actions.picture.deleteSelected();
+
+      // NOTE: rewriting the list, identical or not, would have made this true.
+      expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
+    });
+  });
+
+  describe("bringToFront() / sendToBack()", () => {
+    const setUp = () => {
+      const item1 = createImageItem("item-1", [0, 0]);
+      const item2 = createImageItem("item-2", [100, 100]);
+      const item3 = createImageItem("item-3", [200, 200]);
+      const item4 = createImageItem("item-4", [300, 300]);
+      const target = createTestTargetWithItems(item1, item2, item3, item4);
+      const idsOf = () => target.store.get(target.atoms.editorItems).map((item) => item.id);
+      return { ...target, idsOf, item1, item2, item3, item4 } as const;
+    };
+
+    it("brings every selected item to the front, keeping their relative order.", () => {
+      const { actions, idsOf, item1, item2, item3, item4 } = setUp();
+      actions.selectMode.select(item3.id);
+      actions.selectMode.select(item1.id, true);
+
+      actions.picture.bringToFront();
+
+      expect(idsOf()).toStrictEqual([item2.id, item4.id, item1.id, item3.id]);
+    });
+
+    it("sends every selected item to the back, keeping their relative order.", () => {
+      const { actions, idsOf, item1, item2, item3, item4 } = setUp();
+      actions.selectMode.select(item4.id);
+      actions.selectMode.select(item2.id, true);
+
+      actions.picture.sendToBack();
+
+      expect(idsOf()).toStrictEqual([item2.id, item4.id, item1.id, item3.id]);
+    });
+
+    it("moves the item under edit in edit mode, staying in edit mode.", () => {
+      const { store, actions, atoms, idsOf, item1, item2, item3, item4 } = setUp();
+      actions.editMode.enter(item2.id);
+
+      actions.picture.bringToFront();
+      expect(idsOf()).toStrictEqual([item1.id, item3.id, item4.id, item2.id]);
+
+      actions.picture.sendToBack();
+      expect(idsOf()).toStrictEqual([item2.id, item1.id, item3.id, item4.id]);
+
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item2.id });
+    });
+
+    it("keeps the very same items list when the selection is already in place, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item1, item4 } = setUp();
+      const before = store.get(atoms.editorItems);
+
+      actions.selectMode.select(item4.id);
+      actions.picture.bringToFront();
+      expect(store.get(atoms.editorItems)).toBe(before);
+
+      actions.selectMode.select(item1.id);
+      actions.picture.sendToBack();
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("does nothing when nothing is selected.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.state);
+
+      actions.picture.bringToFront();
+      actions.picture.sendToBack();
+
+      expect(store.get(atoms.state)).toBe(before);
+    });
+
+    it("does nothing in add-item mode.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.addItemMode.enter("rect");
+      const before = store.get(atoms.state);
+
+      actions.picture.bringToFront();
+      actions.picture.sendToBack();
+
+      expect(store.get(atoms.state)).toBe(before);
     });
   });
 });

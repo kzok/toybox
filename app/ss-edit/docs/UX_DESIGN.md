@@ -54,11 +54,7 @@ The app adds nothing until the user releases the pointer.
 `Escape` leaves the mode and adds nothing.
 
 During a drag, the app paints the item exactly as it will add it.
-
-After the release, the new item becomes the target of the next action:
-
-- A text item enters Edit mode, because it starts blank and the user must type into it.
-- Any other kind becomes selected, because it is complete when the user draws it.
+After the release, the new item becomes the target of the next action, as described below.
 
 ### Select mode
 
@@ -105,11 +101,16 @@ The app draws every item on the canvas, and the user can edit every item.
 Items stack in the order that the user added them, and a newer item is in front.
 The user can move the selected items to the front or to the back.
 
+A new item becomes the target of the next action:
+
+- A text item enters Edit mode, because it starts blank and the user must type into it.
+- Any other kind becomes selected, because it is complete when the user adds it.
+
 ### Image
 
 An image item renders an image file that the user uploaded.
 
-The user adds it from a header menu item, or by dropping a file anywhere in the window.
+The user adds image items from a header menu item, or by dropping files anywhere in the window.
 While the user drags files over the window, an overlay says so.
 The overlay is necessary because the drop target is the whole window, not the pane.
 Without the overlay, the user would have nothing to aim at.

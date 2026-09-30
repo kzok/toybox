@@ -7,7 +7,6 @@
   - Run the tests that the changed files affect.
 - `make check`
   - Run it before you consider the work done.
-  - Use it even for a quick lint, format or type check, instead of the underlying tools.
   - It rewrites files on purpose.
     CI rejects unformatted code anyway.
 

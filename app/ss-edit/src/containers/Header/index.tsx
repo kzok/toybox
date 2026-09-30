@@ -57,10 +57,10 @@ const EditMenu = React.memo(() => {
       <MenuPopover>
         <MenuList>
           <MenuItem onClick={() => actions.picture.addFromFilePicker()}>Add image</MenuItem>
-          <MenuItem onClick={() => actions.addItem.enter("text")}>Add text</MenuItem>
-          <MenuItem onClick={() => actions.addItem.enter("rect")}>Add rectangle</MenuItem>
-          <MenuItem onClick={() => actions.addItem.enter("arrow")}>Add arrow</MenuItem>
-          <MenuItem onClick={() => actions.addItem.enter("mosaic")}>Add mosaic</MenuItem>
+          <MenuItem onClick={() => actions.addItemMode.enter("text")}>Add text</MenuItem>
+          <MenuItem onClick={() => actions.addItemMode.enter("rect")}>Add rectangle</MenuItem>
+          <MenuItem onClick={() => actions.addItemMode.enter("arrow")}>Add arrow</MenuItem>
+          <MenuItem onClick={() => actions.addItemMode.enter("mosaic")}>Add mosaic</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

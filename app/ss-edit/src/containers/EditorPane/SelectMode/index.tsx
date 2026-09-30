@@ -183,16 +183,16 @@ const usePointerActions = (item: EditorItem, selected: boolean) => {
       e.stopPropagation();
       // main (left) button
       if (e.buttons === 1) {
-        actions.selection.move(item.id, [e.movementX, e.movementY]);
+        actions.selectMode.move(item.id, [e.movementX, e.movementY]);
         return;
       }
     },
     onClick: (e) => {
       e.stopPropagation();
       if (selected && !e.ctrlKey) {
-        actions.edit.enter(item.id);
+        actions.editMode.enter(item.id);
       } else {
-        actions.selection.select(item.id, e.ctrlKey);
+        actions.selectMode.select(item.id, e.ctrlKey);
       }
     },
   });
@@ -201,7 +201,7 @@ const usePointerActions = (item: EditorItem, selected: boolean) => {
     ...pointerEvents,
     // NOTE: lets the event bubble up to the pane, which opens the menu on the new selection.
     onContextMenu: (): void => {
-      if (!selected) actions.selection.select(item.id);
+      if (!selected) actions.selectMode.select(item.id);
     },
   };
 };

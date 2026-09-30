@@ -30,10 +30,10 @@ const AppHotkeyRegistry = React.memo(() => {
   // NOTE: a dialog is modal, hence every hotkey stays out while one is open.
   const enabled = !pageCtx.useIsDialogOpen();
   useHotkey("Mod+S", () => actions.picture.saveAsImage(), { enabled });
-  useHotkey("Escape", () => actions.selection.clear(), { enabled });
-  useHotkey("Delete", () => actions.selection.deleteSelected(), { enabled });
+  useHotkey("Escape", () => actions.selectMode.clear(), { enabled });
+  useHotkey("Delete", () => actions.picture.deleteSelected(), { enabled });
   // NOTE: a mac keyboard without a Forward Delete key sends Backspace in its place.
-  useHotkey("Backspace", () => actions.selection.deleteSelected(), { enabled });
+  useHotkey("Backspace", () => actions.picture.deleteSelected(), { enabled });
   return null;
 });
 
@@ -47,7 +47,7 @@ const DropZone = React.memo(() => {
   return (
     <div className={styles.dropOverlay}>
       <ImageAddRegular className={styles.dropOverlayIcon!} />
-      Drop an image here
+      Drop images here
     </div>
   );
 });
