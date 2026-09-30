@@ -1,13 +1,18 @@
 import { expect, test } from "@playwright/test";
 import {
+  addRectByDrag,
   addText,
   addTextByDrag,
+  boundingBoxOf,
+  centerOf,
   confirmClearDialog,
+  dragBy,
   enterAddText,
   expectMode,
   items,
   newInstance,
   openApp,
+  rightResizeHandle,
   saveImageDialog,
   textItems,
 } from "./helpers";
@@ -151,6 +156,20 @@ for (const key of ["Delete", "Backspace"] as const) {
     await expect(items(page)).toHaveCount(1);
     await expectMode(page, "select");
   });
+
+  test(`deletes the item under edit on ${key}`, async ({ page }) => {
+    await openApp(page);
+    await addText(page, TEXT_RANGE, "Hello");
+    const rect = await addRectByDrag(page, SECOND_RANGE);
+    await rect.click();
+    await expectMode(page, "edit");
+
+    await page.keyboard.press(key);
+
+    // edit mode shows only the item under edit, hence the count means nothing until it ends.
+    await expectMode(page, "select");
+    await expect(items(page)).toHaveCount(1);
+  });
 }
 
 test("deletes nothing while nothing is selected", async ({ page }) => {
@@ -179,4 +198,15 @@ test("leaves Delete and Backspace to the text editor in edit mode", async ({ pag
 
   await page.keyboard.press("Escape");
   await expect(items(page)).toHaveCount(2);
+});
+
+test("leaves Backspace to the text editor after a drag on its handle", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+  await dragBy(page, centerOf(await boundingBoxOf(rightResizeHandle(page))), { x: 40, y: 0 });
+
+  await page.keyboard.press("Backspace");
+
+  await expect(editor).toHaveValue("Hell");
+  await expectMode(page, "edit");
 });

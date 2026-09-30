@@ -63,14 +63,26 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
         }
       });
     },
-    /** drop the selected items. */
+    /** drop the selected items, or the item under edit in edit mode. */
     deleteSelected: (): void => {
       updateAtom(atoms.state, (draft) => {
-        if (draft.editorMode.kind !== "select") return;
-        const { selectedIds } = draft.editorMode;
+        let targetIds: readonly string[];
+        switch (draft.editorMode.kind) {
+          case "select":
+            targetIds = draft.editorMode.selectedIds;
+            break;
+          case "edit":
+            targetIds = [draft.editorMode.itemId];
+            break;
+          case "add-item":
+            return;
+          default:
+            draft.editorMode satisfies never;
+            return;
+        }
         // rewriting it with an identical list would count as an unsaved change.
-        if (selectedIds.length === 0) return;
-        draft.editorItems = draft.editorItems.filter((item) => !selectedIds.includes(item.id));
+        if (targetIds.length === 0) return;
+        draft.editorItems = draft.editorItems.filter((item) => !targetIds.includes(item.id));
         draft.editorMode = castDraft(INITIAL_EDITOR_STATE.editorMode);
       });
     },

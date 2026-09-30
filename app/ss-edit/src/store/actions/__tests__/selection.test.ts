@@ -188,9 +188,22 @@ describe(createSelectionActions, () => {
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "select", selectedIds: [] });
     });
 
-    it("does nothing outside select mode.", () => {
-      const { store, actions, atoms, item1 } = setUp();
-      actions.edit.enter(item1.id);
+    it("drops the item under edit in edit mode, keeping the rest.", () => {
+      const { store, actions, atoms, item1, item2, item3 } = setUp();
+      actions.edit.enter(item2.id);
+
+      actions.selection.deleteSelected();
+
+      expect(store.get(atoms.editorItems).map((item) => item.id)).toStrictEqual([
+        item1.id,
+        item3.id,
+      ]);
+      expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "select", selectedIds: [] });
+    });
+
+    it("does nothing in add-item mode.", () => {
+      const { store, actions, atoms } = setUp();
+      actions.addItem.enter("rect");
       const before = store.get(atoms.state);
 
       actions.selection.deleteSelected();
