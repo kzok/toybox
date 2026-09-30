@@ -1,8 +1,8 @@
 import { castDraft } from "immer";
-import { Vec2 } from "../../utils/geometry";
+import type { Vec2 } from "../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../atoms";
 import type { ActionCreatorParam } from "./types";
-import { dropBlankEditTarget } from "./utils";
+import { dropBlankEditTarget, moveItems } from "./utils";
 
 export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
@@ -54,13 +54,7 @@ export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam
         ) {
           draft.editorMode = { kind: "select", selectedIds: [triggerItemId] };
         }
-
-        const scaledDelta = Vec2.new(delta).div(draft.editorView.scale);
-        for (const id of draft.editorMode.selectedIds) {
-          const item = draft.editorItems.find((item) => item.id === id);
-          if (item == null) continue;
-          item.offset = scaledDelta.add(item.offset).tuple();
-        }
+        moveItems(draft, draft.editorMode.selectedIds, delta);
       });
     },
     /** drop the selected items, or the item under edit in edit mode. */

@@ -134,6 +134,16 @@ describe(createSelectionActions, () => {
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([5, 10]);
     });
 
+    it("keeps the very same items list on a zero delta, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item1 } = setUp();
+      actions.selection.select(item1.id);
+      const before = store.get(atoms.editorItems);
+
+      actions.selection.move(item1.id, [0, 0]);
+
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
     it("ignores selected ids that no longer match an existing item.", () => {
       const { store, actions, atoms, item1 } = setUp();
       actions.selection.select(item1.id);

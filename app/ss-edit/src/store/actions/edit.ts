@@ -9,7 +9,7 @@ import {
 } from "../../features/editorItem";
 import { Vec2 } from "../../utils/geometry";
 import type { ActionCreatorParam } from "./types";
-import { dropBlankEditTarget } from "./utils";
+import { dropBlankEditTarget, moveItems } from "./utils";
 
 /** minimum width/height an image item can be resized down to (canvas units) */
 const MIN_IMAGE_SIZE = 36;
@@ -41,16 +41,13 @@ export const createEditActions = ({ atoms, updateAtom }: ActionCreatorParam) => 
       });
     },
     /**
-     * move an item, staying in edit mode.
+     * move the item under edit, staying in edit mode.
      * @param delta [movementX, movementY]
      */
-    move: (itemId: string, delta: Vec2.Tuple): void => {
+    move: (delta: Vec2.Tuple): void => {
       updateAtom(atoms.state, (draft) => {
-        if (delta[0] === 0 && delta[1] === 0) return;
-        const item = draft.editorItems.find((item) => item.id === itemId);
-        if (item == null) return;
-
-        item.offset = Vec2.new(delta).div(draft.editorView.scale).add(item.offset).tuple();
+        if (draft.editorMode.kind !== "edit") return;
+        moveItems(draft, [draft.editorMode.itemId], delta);
       });
     },
     /**
