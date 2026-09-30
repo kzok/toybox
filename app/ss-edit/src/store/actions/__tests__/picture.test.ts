@@ -260,6 +260,37 @@ describe(createPictureActions, () => {
       expect(store.get(atoms.dialogReactNode)).toBeNull();
     });
 
+    it("selects only the added image in select mode.", async () => {
+      const { store, actions, atoms } = createTestTargetWithItems(
+        createImageItem("item-1", [0, 0]),
+      );
+      vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
+      actions.selection.select("item-1");
+
+      await actions.picture.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),
+      );
+
+      const added = store.get(atoms.editorItems).at(-1);
+      expect(added?.kind).toBe("image");
+      expect(store.get(atoms.editorMode)).toStrictEqual({
+        kind: "select",
+        selectedIds: [added?.id],
+      });
+    });
+
+    it("drops the blank text item being edited when it adds an image.", async () => {
+      const { store, actions, atoms } = createTestTargetWithItems(createTextItem("item-1", ""));
+      vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
+      actions.edit.enter("item-1");
+
+      await actions.picture.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),
+      );
+
+      expect(store.get(atoms.editorItems).map((item) => item.kind)).toStrictEqual(["image"]);
+    });
+
     it("adds no item and shows no dialog when the payload carries no image.", async () => {
       const { store, actions, atoms } = createTestTarget();
 
