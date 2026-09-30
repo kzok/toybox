@@ -81,7 +81,7 @@ export const zoomLevel = (page: Page): Locator => page.getByTitle("Zoom level");
 
 export const pictureSize = (page: Page): Locator => page.getByTitle("Size");
 
-export const dropOverlay = (page: Page): Locator => page.getByText("Drop an image here");
+export const dropOverlay = (page: Page): Locator => page.getByText("Drop images here");
 
 /**
  * the context menu of the editor pane.

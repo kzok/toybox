@@ -30,16 +30,16 @@ test("adds an image dropped anywhere in the window", async ({ page }) => {
   });
 });
 
-test("takes only the first image of a multi-file drop", async ({ page }) => {
+test("adds every image of a multi-file drop", async ({ page }) => {
   await openApp(page);
 
   const dataTransfer = await dataTransferOf(page, ["320x240.png", "200x200.png"]);
   await dispatchDrag(dataTransfer, "dragenter");
   await dispatchDrag(dataTransfer, "drop");
 
-  await expect(imageItems(page)).toHaveCount(1);
-  // the size of the whole picture tells which of the two fixtures was taken.
-  await expect(pictureSize(page)).toHaveText("320 x 240");
+  await expect(imageItems(page)).toHaveCount(2);
+  // the 200x200 one is centered 32 below the 320x240 one, hence 120 + 100 + 32 tall.
+  await expect(pictureSize(page)).toHaveText("320 x 252");
 });
 
 test("hides the overlay when the drag leaves the window without dropping", async ({ page }) => {

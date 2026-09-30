@@ -260,7 +260,44 @@ describe(createPictureActions, () => {
       expect(store.get(atoms.dialogReactNode)).toBeNull();
     });
 
-    it("selects only the added image in select mode.", async () => {
+    it("adds nothing when any of the dropped images cannot be decoded.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      const broken = new File(["x"], "broken.png", { type: "image/png" });
+      vi.stubGlobal("createImageBitmap", async (blob: Blob) => {
+        if (blob === broken) throw new Error("decode failed");
+        return { width: 100, height: 50 };
+      });
+
+      const adding = actions.picture.addFromDataTransfer(
+        dataTransferOf(new File(["x"], "ok.png", { type: "image/png" }), broken),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      (store.get(atoms.dialogReactNode) as ReactElement<{ resolve: () => void }>).props.resolve();
+      await adding;
+
+      expect(store.get(atoms.editorItems)).toStrictEqual([]);
+    });
+
+    it("adds every dropped image, each to the lower right of the one before it.", async () => {
+      const { store, actions, atoms } = createTestTarget();
+      vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
+
+      await actions.picture.addFromDataTransfer(
+        dataTransferOf(
+          new File(["x"], "a.png", { type: "image/png" }),
+          new File(["x"], "b.png", { type: "image/png" }),
+        ),
+      );
+
+      // the view is centered on the origin, hence the first image is centered there.
+      expect(store.get(atoms.editorItems).map((item) => item.offset)).toStrictEqual([
+        [-50, -25],
+        [-18, 7],
+      ]);
+    });
+
+    it("selects only the added images in select mode.", async () => {
       const { store, actions, atoms } = createTestTargetWithItems(
         createImageItem("item-1", [0, 0]),
       );
@@ -268,14 +305,17 @@ describe(createPictureActions, () => {
       actions.selection.select("item-1");
 
       await actions.picture.addFromDataTransfer(
-        dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),
+        dataTransferOf(
+          new File(["x"], "a.png", { type: "image/png" }),
+          new File(["x"], "b.png", { type: "image/png" }),
+        ),
       );
 
-      const added = store.get(atoms.editorItems).at(-1);
-      expect(added?.kind).toBe("image");
+      const added = store.get(atoms.editorItems).slice(1);
+      expect(added.map((item) => item.kind)).toStrictEqual(["image", "image"]);
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
-        selectedIds: [added?.id],
+        selectedIds: added.map((item) => item.id),
       });
     });
 

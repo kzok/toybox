@@ -47,7 +47,7 @@ const DropZone = React.memo(() => {
   return (
     <div className={styles.dropOverlay}>
       <ImageAddRegular className={styles.dropOverlayIcon!} />
-      Drop an image here
+      Drop images here
     </div>
   );
 });

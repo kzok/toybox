@@ -110,7 +110,7 @@ A new item becomes the target of the next action:
 
 An image item renders an image file that the user uploaded.
 
-The user adds it from a header menu item, or by dropping a file anywhere in the window.
+The user adds image items from a header menu item, or by dropping files anywhere in the window.
 While the user drags files over the window, an overlay says so.
 The overlay is necessary because the drop target is the whole window, not the pane.
 Without the overlay, the user would have nothing to aim at.
