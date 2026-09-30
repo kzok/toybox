@@ -1,9 +1,9 @@
 import { produce } from "immer";
 import type { Atoms } from "../atoms";
-import { createAddItemActions } from "./addItem";
-import { createEditActions } from "./edit";
+import { createAddItemModeActions } from "./addItemMode";
+import { createEditModeActions } from "./editMode";
 import { createPictureActions } from "./picture";
-import { createSelectionActions } from "./selection";
+import { createSelectModeActions } from "./selectMode";
 import type { ActionCreatorParam, StoreInterface, UpdateAtom } from "./types";
 import { createViewActions } from "./view";
 
@@ -21,9 +21,9 @@ export const createActions = (store: StoreInterface, atoms: Atoms) => {
 
   return {
     view: createViewActions(params),
-    selection: createSelectionActions(params),
-    edit: createEditActions(params),
-    addItem: createAddItemActions(params),
+    selectMode: createSelectModeActions(params),
+    editMode: createEditModeActions(params),
+    addItemMode: createAddItemModeActions(params),
     picture: createPictureActions(params),
   } as const;
 };

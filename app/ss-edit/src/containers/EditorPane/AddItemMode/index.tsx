@@ -50,7 +50,7 @@ const usePointerActions = () => {
   return React.useMemo(() => {
     const updateRange = (e: React.PointerEvent): void => {
       const p = Vec2.new(e.clientX, e.clientY).sub(e.currentTarget.getBoundingClientRect());
-      actions.addItem.updateRange(p);
+      actions.addItemMode.updateRange(p);
     };
     const onPointerDown: React.PointerEventHandler = (e) => {
       if (e.button !== 0) return; // main (left) button only
@@ -69,13 +69,13 @@ const usePointerActions = () => {
       e.stopPropagation();
       if (draggingIdRef.current !== e.pointerId || e.button !== 0) return;
       draggingIdRef.current = null;
-      actions.addItem.commit();
+      actions.addItemMode.commit();
     };
     const onPointerCancel: React.PointerEventHandler = (e) => {
       e.stopPropagation();
       if (draggingIdRef.current !== e.pointerId) return;
       draggingIdRef.current = null;
-      actions.addItem.cancel();
+      actions.addItemMode.cancel();
     };
     const onClick: React.MouseEventHandler = (e) => {
       e.stopPropagation();

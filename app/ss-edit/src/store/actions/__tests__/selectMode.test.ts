@@ -2,7 +2,7 @@ import { produce } from "immer";
 import { describe, expect, it } from "vitest";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
-import { createSelectionActions } from "../selection";
+import { createSelectModeActions } from "../selectMode";
 import {
   createArrowItem,
   createImageItem,
@@ -10,19 +10,19 @@ import {
   createTestTargetWithItems,
 } from "./fixtures";
 
-describe(createSelectionActions, () => {
+describe(createSelectModeActions, () => {
   describe("clear()", () => {
     it("resets the mode to its initial state.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
-      actions.selection.clear();
+      actions.selectMode.select("item-1");
+      actions.selectMode.clear();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
     });
 
     it("resets the mode from edit mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.edit.enter("item-1");
-      actions.selection.clear();
+      actions.editMode.enter("item-1");
+      actions.selectMode.clear();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
     });
   });
@@ -31,7 +31,7 @@ describe(createSelectionActions, () => {
     it("gets into select mode with the specified item.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.editorMode = { kind: "select", selectedIds: ["item-1"] };
@@ -41,10 +41,10 @@ describe(createSelectionActions, () => {
 
     it("replaces the selection on single selection.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
-      actions.selection.select("item-2", true);
+      actions.selectMode.select("item-1");
+      actions.selectMode.select("item-2", true);
 
-      actions.selection.select("item-3");
+      actions.selectMode.select("item-3");
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -54,8 +54,8 @@ describe(createSelectionActions, () => {
 
     it("adds the item to the selection on multi selection.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
-      actions.selection.select("item-2", true);
+      actions.selectMode.select("item-1");
+      actions.selectMode.select("item-2", true);
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
         selectedIds: ["item-1", "item-2"],
@@ -64,10 +64,10 @@ describe(createSelectionActions, () => {
 
     it("removes the item from the selection on multi selection when it is already selected.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
-      actions.selection.select("item-2", true);
+      actions.selectMode.select("item-1");
+      actions.selectMode.select("item-2", true);
 
-      actions.selection.select("item-1", true);
+      actions.selectMode.select("item-1", true);
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -77,9 +77,9 @@ describe(createSelectionActions, () => {
 
     it("starts a new selection on multi selection from edit mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.edit.enter("item-1");
+      actions.editMode.enter("item-1");
 
-      actions.selection.select("item-2", true);
+      actions.selectMode.select("item-2", true);
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -98,7 +98,7 @@ describe(createSelectionActions, () => {
 
     it("selects the trigger item and moves it when it is not selected.", () => {
       const { store, actions, atoms, item1, item2 } = setUp();
-      actions.selection.move(item1.id, [10, 20]);
+      actions.selectMode.move(item1.id, [10, 20]);
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
         selectedIds: [item1.id],
@@ -110,10 +110,10 @@ describe(createSelectionActions, () => {
 
     it("moves every selected item when the trigger item is already selected.", () => {
       const { store, actions, atoms, item1, item2 } = setUp();
-      actions.selection.select(item1.id);
-      actions.selection.select(item2.id, true);
+      actions.selectMode.select(item1.id);
+      actions.selectMode.select(item2.id, true);
 
-      actions.selection.move(item1.id, [10, 20]);
+      actions.selectMode.move(item1.id, [10, 20]);
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -128,7 +128,7 @@ describe(createSelectionActions, () => {
       const { store, actions, atoms, item1 } = setUp();
       actions.view.zoom(2, new Vec2(0, 0));
 
-      actions.selection.move(item1.id, [10, 20]);
+      actions.selectMode.move(item1.id, [10, 20]);
 
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([5, 10]);
@@ -136,20 +136,20 @@ describe(createSelectionActions, () => {
 
     it("keeps the very same items list on a zero delta, which would count as unsaved otherwise.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.selection.select(item1.id);
+      actions.selectMode.select(item1.id);
       const before = store.get(atoms.editorItems);
 
-      actions.selection.move(item1.id, [0, 0]);
+      actions.selectMode.move(item1.id, [0, 0]);
 
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
     it("ignores selected ids that no longer match an existing item.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.selection.select(item1.id);
-      actions.selection.select("missing-id", true);
+      actions.selectMode.select(item1.id);
+      actions.selectMode.select("missing-id", true);
 
-      expect(() => actions.selection.move(item1.id, [10, 20])).not.toThrow();
+      expect(() => actions.selectMode.move(item1.id, [10, 20])).not.toThrow();
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
     });
@@ -161,7 +161,7 @@ describe(createSelectionActions, () => {
       const arrow = createArrowItem("arrow-1", [100, 100], Math.PI);
       const { store, actions, atoms } = createTestTargetWithItems(arrow);
 
-      actions.selection.move(arrow.id, [10, 20]);
+      actions.selectMode.move(arrow.id, [10, 20]);
 
       const moved = store.get(atoms.editorItems)[0];
       expect(moved?.offset).toStrictEqual([110, 120]);
@@ -181,28 +181,28 @@ describe(createSelectionActions, () => {
 
     it("drops every selected item, keeping the rest.", () => {
       const { store, actions, atoms, item1, item2, item3 } = setUp();
-      actions.selection.select(item1.id);
-      actions.selection.select(item3.id, true);
+      actions.selectMode.select(item1.id);
+      actions.selectMode.select(item3.id, true);
 
-      actions.selection.deleteSelected();
+      actions.selectMode.deleteSelected();
 
       expect(store.get(atoms.editorItems).map((item) => item.id)).toStrictEqual([item2.id]);
     });
 
     it("leaves nothing selected.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.selection.select(item1.id);
+      actions.selectMode.select(item1.id);
 
-      actions.selection.deleteSelected();
+      actions.selectMode.deleteSelected();
 
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "select", selectedIds: [] });
     });
 
     it("drops the item under edit in edit mode, keeping the rest.", () => {
       const { store, actions, atoms, item1, item2, item3 } = setUp();
-      actions.edit.enter(item2.id);
+      actions.editMode.enter(item2.id);
 
-      actions.selection.deleteSelected();
+      actions.selectMode.deleteSelected();
 
       expect(store.get(atoms.editorItems).map((item) => item.id)).toStrictEqual([
         item1.id,
@@ -213,10 +213,10 @@ describe(createSelectionActions, () => {
 
     it("does nothing in add-item mode.", () => {
       const { store, actions, atoms } = setUp();
-      actions.addItem.enter("rect");
+      actions.addItemMode.enter("rect");
       const before = store.get(atoms.state);
 
-      actions.selection.deleteSelected();
+      actions.selectMode.deleteSelected();
 
       expect(store.get(atoms.state)).toBe(before);
     });
@@ -226,7 +226,7 @@ describe(createSelectionActions, () => {
       store.set(atoms.savedItems, store.get(atoms.editorItems));
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
 
-      actions.selection.deleteSelected();
+      actions.selectMode.deleteSelected();
 
       // NOTE: rewriting the list, identical or not, would have made this true.
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
@@ -246,32 +246,32 @@ describe(createSelectionActions, () => {
 
     it("brings every selected item to the front, keeping their relative order.", () => {
       const { actions, idsOf, item1, item2, item3, item4 } = setUp();
-      actions.selection.select(item3.id);
-      actions.selection.select(item1.id, true);
+      actions.selectMode.select(item3.id);
+      actions.selectMode.select(item1.id, true);
 
-      actions.selection.bringToFront();
+      actions.selectMode.bringToFront();
 
       expect(idsOf()).toStrictEqual([item2.id, item4.id, item1.id, item3.id]);
     });
 
     it("sends every selected item to the back, keeping their relative order.", () => {
       const { actions, idsOf, item1, item2, item3, item4 } = setUp();
-      actions.selection.select(item4.id);
-      actions.selection.select(item2.id, true);
+      actions.selectMode.select(item4.id);
+      actions.selectMode.select(item2.id, true);
 
-      actions.selection.sendToBack();
+      actions.selectMode.sendToBack();
 
       expect(idsOf()).toStrictEqual([item2.id, item4.id, item1.id, item3.id]);
     });
 
     it("moves the item under edit in edit mode, staying in edit mode.", () => {
       const { store, actions, atoms, idsOf, item1, item2, item3, item4 } = setUp();
-      actions.edit.enter(item2.id);
+      actions.editMode.enter(item2.id);
 
-      actions.selection.bringToFront();
+      actions.selectMode.bringToFront();
       expect(idsOf()).toStrictEqual([item1.id, item3.id, item4.id, item2.id]);
 
-      actions.selection.sendToBack();
+      actions.selectMode.sendToBack();
       expect(idsOf()).toStrictEqual([item2.id, item1.id, item3.id, item4.id]);
 
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item2.id });
@@ -281,12 +281,12 @@ describe(createSelectionActions, () => {
       const { store, actions, atoms, item1, item4 } = setUp();
       const before = store.get(atoms.editorItems);
 
-      actions.selection.select(item4.id);
-      actions.selection.bringToFront();
+      actions.selectMode.select(item4.id);
+      actions.selectMode.bringToFront();
       expect(store.get(atoms.editorItems)).toBe(before);
 
-      actions.selection.select(item1.id);
-      actions.selection.sendToBack();
+      actions.selectMode.select(item1.id);
+      actions.selectMode.sendToBack();
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
@@ -294,19 +294,19 @@ describe(createSelectionActions, () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.state);
 
-      actions.selection.bringToFront();
-      actions.selection.sendToBack();
+      actions.selectMode.bringToFront();
+      actions.selectMode.sendToBack();
 
       expect(store.get(atoms.state)).toBe(before);
     });
 
     it("does nothing in add-item mode.", () => {
       const { store, actions, atoms } = setUp();
-      actions.addItem.enter("rect");
+      actions.addItemMode.enter("rect");
       const before = store.get(atoms.state);
 
-      actions.selection.bringToFront();
-      actions.selection.sendToBack();
+      actions.selectMode.bringToFront();
+      actions.selectMode.sendToBack();
 
       expect(store.get(atoms.state)).toBe(before);
     });

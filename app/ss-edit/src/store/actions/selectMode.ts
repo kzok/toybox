@@ -4,7 +4,7 @@ import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 import { moveItems, switchMode } from "./utils";
 
-export const createSelectionActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+export const createSelectModeActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   /** @note keeps the relative order within the targets and within the rest. */
   const restack = (side: "front" | "back"): void => {
     updateAtom(atoms.state, (draft) => {

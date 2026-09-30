@@ -163,7 +163,7 @@ describe(createPictureActions, () => {
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
       await saveThroughDialog({ store, actions, atoms });
 
-      actions.selection.move(item.id, [10, 20]);
+      actions.selectMode.move(item.id, [10, 20]);
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(true);
     });
@@ -175,7 +175,7 @@ describe(createPictureActions, () => {
 
       actions.view.zoom(2, new Vec2(0, 0));
       actions.view.scroll(10, 20);
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
@@ -192,8 +192,8 @@ describe(createPictureActions, () => {
       vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
       await saveThroughDialog({ store, actions, atoms });
 
-      actions.edit.enter(filled.id);
-      actions.selection.clear();
+      actions.editMode.enter(filled.id);
+      actions.selectMode.clear();
 
       expect(store.get(atoms.hasUnsavedChanges)).toBe(false);
     });
@@ -302,7 +302,7 @@ describe(createPictureActions, () => {
         createImageItem("item-1", [0, 0]),
       );
       vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
 
       await actions.picture.addFromDataTransfer(
         dataTransferOf(
@@ -322,7 +322,7 @@ describe(createPictureActions, () => {
     it("drops the blank text item being edited when it adds an image.", async () => {
       const { store, actions, atoms } = createTestTargetWithItems(createTextItem("item-1", ""));
       vi.stubGlobal("createImageBitmap", async () => ({ width: 100, height: 50 }));
-      actions.edit.enter("item-1");
+      actions.editMode.enter("item-1");
 
       await actions.picture.addFromDataTransfer(
         dataTransferOf(new File(["x"], "a.png", { type: "image/png" })),

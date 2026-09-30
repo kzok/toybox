@@ -51,7 +51,7 @@ const ImageItem = React.memo<{
     [item],
   );
   const onResize = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeImage(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeImage(item.id, cursor),
     [actions, item.id],
   );
   const onMove = useMoveHandler();
@@ -86,7 +86,7 @@ const RectItem = React.memo<{
     };
   }, [item]);
   const onResize = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeRect(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeRect(item.id, cursor),
     [actions, item.id],
   );
   const onMove = useMoveHandler();
@@ -121,7 +121,7 @@ const MosaicItem = React.memo<{
     [item],
   );
   const onResize = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeMosaic(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeMosaic(item.id, cursor),
     [actions, item.id],
   );
   const onMove = useMoveHandler();
@@ -169,11 +169,11 @@ const ArrowItem = React.memo<{
     };
   }, [item.length, item.angle]);
   const onResizeTail = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeArrowTail(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeArrowTail(item.id, cursor),
     [actions, item.id],
   );
   const onResizeTip = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeArrowTip(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeArrowTip(item.id, cursor),
     [actions, item.id],
   );
   const onMove = useMoveHandler();
@@ -213,11 +213,11 @@ const TextItem = React.memo<{
   );
   const style = React.useMemo((): React.CSSProperties => textStyleOf(item), [item]);
   const onResizeFontSize = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeTextFontSize(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeTextFontSize(item.id, cursor),
     [actions, item.id],
   );
   const onResizeWidth = React.useCallback(
-    (cursor: Vec2.Tuple) => actions.edit.resizeTextWidth(item.id, cursor),
+    (cursor: Vec2.Tuple) => actions.editMode.resizeTextWidth(item.id, cursor),
     [actions, item.id],
   );
 
@@ -244,7 +244,7 @@ const TextItem = React.memo<{
         // canvas previews the text before it is confirmed.
         defaultValue={item.content}
         spellCheck={false}
-        onChange={(e) => actions.edit.setText(item.id, e.target.value)}
+        onChange={(e) => actions.editMode.setText(item.id, e.target.value)}
         onPointerDown={stopPropagationAndCapturePointer}
         onPointerMove={stopPropagation}
         onPointerUp={stopPropagation}
@@ -266,7 +266,7 @@ const useMoveHandler = () => {
     (e: React.PointerEvent): void => {
       stopPropagationAndCapturePointer(e);
       if (e.buttons === 1) {
-        actions.edit.move([e.movementX, e.movementY]);
+        actions.editMode.move([e.movementX, e.movementY]);
       }
     },
     [actions],

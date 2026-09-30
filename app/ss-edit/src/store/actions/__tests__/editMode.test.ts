@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { clampArrowLength, type EditorItem } from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
-import { createEditActions } from "../edit";
+import { createEditModeActions } from "../editMode";
 import {
   createArrowItem,
   createImageItem,
@@ -22,12 +22,12 @@ vi.mock("../../../features/editorItem/textLayout", async (importOriginal) => ({
   splitLines: vi.fn((): readonly string[] => ["first line", "second line"]),
 }));
 
-describe(createEditActions, () => {
+describe(createEditModeActions, () => {
   describe("enter()", () => {
     it("gets into edit mode with the specified item.", () => {
       const { store, actions, atoms } = createTestTarget();
       expect(store.get(atoms.state)).toStrictEqual(INITIAL_EDITOR_STATE);
-      actions.edit.enter("item-1");
+      actions.editMode.enter("item-1");
       expect(store.get(atoms.state)).toStrictEqual(
         produce(INITIAL_EDITOR_STATE, (draft) => {
           draft.editorMode = { kind: "edit", itemId: "item-1" };
@@ -37,17 +37,17 @@ describe(createEditActions, () => {
 
     it("overwrites the target item of edit mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.edit.enter("item-1");
-      actions.edit.enter("item-2");
+      actions.editMode.enter("item-1");
+      actions.editMode.enter("item-2");
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: "item-2" });
     });
 
     it("keeps the state as it is when the item is already being edited.", () => {
       const item = createTextItem("item-1", "");
       const { store, actions, atoms } = createTestTargetWithItems(item);
-      actions.edit.enter(item.id);
+      actions.editMode.enter(item.id);
 
-      actions.edit.enter(item.id);
+      actions.editMode.enter(item.id);
 
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item.id });
       expect(store.get(atoms.editorItems)).toStrictEqual([item]);
@@ -64,7 +64,7 @@ describe(createEditActions, () => {
 
     it("updates the content of the specified text item.", () => {
       const { store, actions, atoms, textItem } = setUp();
-      actions.edit.setText(textItem.id, "こんにちは");
+      actions.editMode.setText(textItem.id, "こんにちは");
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === textItem.id)).toStrictEqual({
         ...textItem,
@@ -75,14 +75,14 @@ describe(createEditActions, () => {
     it("keeps items unchanged when the item is not a text item.", () => {
       const { store, actions, atoms, imageItem } = setUp();
       const before = store.get(atoms.editorItems);
-      actions.edit.setText(imageItem.id, "こんにちは");
+      actions.editMode.setText(imageItem.id, "こんにちは");
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
 
     it("keeps items unchanged when the item does not exist.", () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
-      actions.edit.setText("missing-id", "こんにちは");
+      actions.editMode.setText("missing-id", "こんにちは");
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
   });
@@ -92,13 +92,13 @@ describe(createEditActions, () => {
       const item1 = createImageItem("item-1", [0, 0]);
       const item2 = createImageItem("item-2", [100, 100]);
       const target = createTestTargetWithItems(item1, item2);
-      target.actions.edit.enter(item1.id);
+      target.actions.editMode.enter(item1.id);
       return { ...target, item1, item2 } as const;
     };
 
     it("moves the item under edit alone, staying in edit mode.", () => {
       const { store, actions, atoms, item1, item2 } = setUp();
-      actions.edit.move([10, 20]);
+      actions.editMode.move([10, 20]);
       expect(store.get(atoms.editorMode)).toStrictEqual({ kind: "edit", itemId: item1.id });
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([10, 20]);
@@ -108,7 +108,7 @@ describe(createEditActions, () => {
     it("scales the movement delta by the inverse of the view scale.", () => {
       const { store, actions, atoms, item1 } = setUp();
       actions.view.zoom(2, new Vec2(0, 0));
-      actions.edit.move([10, 20]);
+      actions.editMode.move([10, 20]);
       const items = store.get(atoms.editorItems);
       expect(items.find((item) => item.id === item1.id)?.offset).toStrictEqual([5, 10]);
     });
@@ -116,15 +116,15 @@ describe(createEditActions, () => {
     it("keeps the very same items list on a zero delta, which would count as unsaved otherwise.", () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
-      actions.edit.move([0, 0]);
+      actions.editMode.move([0, 0]);
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
     it("does nothing outside edit mode.", () => {
       const { store, actions, atoms, item1 } = setUp();
-      actions.selection.select(item1.id);
+      actions.selectMode.select(item1.id);
       const before = store.get(atoms.state);
-      actions.edit.move([10, 20]);
+      actions.editMode.move([10, 20]);
       expect(store.get(atoms.state)).toBe(before);
     });
   });
@@ -141,7 +141,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // an aspect-correct target (2:1, same ratio as the item), so it is reached exactly.
-      actions.edit.resizeImage(item.id, [110, 55]);
+      actions.editMode.resizeImage(item.id, [110, 55]);
 
       const resized = store.get(atoms.editorItems).find((i) => i.id === item.id);
       expect(resized?.kind).toBe("image");
@@ -154,7 +154,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // not on the 2:1 diagonal; only the projection onto it drives the resize.
-      actions.edit.resizeImage(item.id, [110, 40]);
+      actions.editMode.resizeImage(item.id, [110, 40]);
 
       const resized = store
         .get(atoms.editorItems)
@@ -166,7 +166,7 @@ describe(createEditActions, () => {
     it("does not shrink either dimension below the minimum size.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeImage(item.id, [-1000, -500]);
+      actions.editMode.resizeImage(item.id, [-1000, -500]);
 
       const resized = store
         .get(atoms.editorItems)
@@ -180,7 +180,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, a 220,110 screen-px target is 110,55 canvas units — same as the first test.
-      actions.edit.resizeImage(item.id, [220, 110]);
+      actions.editMode.resizeImage(item.id, [220, 110]);
 
       const resized = store
         .get(atoms.editorItems)
@@ -200,7 +200,7 @@ describe(createEditActions, () => {
       );
       const before = store.get(atoms.editorItems);
 
-      actions.edit.resizeImage(textItem.id, [10, 5]);
+      actions.editMode.resizeImage(textItem.id, [10, 5]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -209,7 +209,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
 
-      expect(() => actions.edit.resizeImage("missing-id", [10, 5])).not.toThrow();
+      expect(() => actions.editMode.resizeImage("missing-id", [10, 5])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -237,7 +237,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // an aspect-correct target (1.5x the 100 x 80 box), so the factor is reached exactly.
-      actions.edit.resizeTextFontSize(item.id, [150, 120]);
+      actions.editMode.resizeTextFontSize(item.id, [150, 120]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toStrictEqual({
         width: 150,
@@ -250,7 +250,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // not on the box's diagonal; the projection asks for 40.2px, which is rounded down.
-      actions.edit.resizeTextFontSize(item.id, [150, 70]);
+      actions.editMode.resizeTextFontSize(item.id, [150, 70]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
         width: 125,
@@ -261,7 +261,7 @@ describe(createEditActions, () => {
     it("stops shrinking at the minimum font size, and the width with it.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextFontSize(item.id, [-1000, -1000]);
+      actions.editMode.resizeTextFontSize(item.id, [-1000, -1000]);
 
       // 12 / 32 of the original width, rather than collapsing along with the pointer.
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
@@ -273,7 +273,7 @@ describe(createEditActions, () => {
     it("stops growing at the maximum font size, and the width with it.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextFontSize(item.id, [1080, 1040]);
+      actions.editMode.resizeTextFontSize(item.id, [1080, 1040]);
 
       // 72 / 32 of the original width, rather than growing along with the pointer.
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
@@ -287,7 +287,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, a 300,240 screen-px target is 150,120 canvas units — same as the first test.
-      actions.edit.resizeTextFontSize(item.id, [300, 240]);
+      actions.editMode.resizeTextFontSize(item.id, [300, 240]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
         width: 150,
@@ -306,7 +306,7 @@ describe(createEditActions, () => {
       );
       const before = store.get(atoms.editorItems);
 
-      actions.edit.resizeTextFontSize(imageItem.id, [100, 50]);
+      actions.editMode.resizeTextFontSize(imageItem.id, [100, 50]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -315,7 +315,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
 
-      expect(() => actions.edit.resizeTextFontSize("missing-id", [10, 5])).not.toThrow();
+      expect(() => actions.editMode.resizeTextFontSize("missing-id", [10, 5])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -341,7 +341,7 @@ describe(createEditActions, () => {
     it("sets the width from the pointer, keeping the font size and the offset.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextWidth(item.id, [400, 0]);
+      actions.editMode.resizeTextWidth(item.id, [400, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toStrictEqual({
         width: 400,
@@ -353,7 +353,7 @@ describe(createEditActions, () => {
     it("ignores the y component of the pointer.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextWidth(item.id, [400, -1000]);
+      actions.editMode.resizeTextWidth(item.id, [400, -1000]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({ width: 400 });
     });
@@ -361,7 +361,7 @@ describe(createEditActions, () => {
     it("rounds a fractional width, so that it never misses the line cache.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextWidth(item.id, [400.4, 0]);
+      actions.editMode.resizeTextWidth(item.id, [400.4, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({ width: 400 });
     });
@@ -369,7 +369,7 @@ describe(createEditActions, () => {
     it("stops shrinking at the minimum width, leaving the font size alone.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeTextWidth(item.id, [-1000, 0]);
+      actions.editMode.resizeTextWidth(item.id, [-1000, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({
         width: 128,
@@ -382,7 +382,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, an 800 screen-px target is 400 canvas units — same as the first test.
-      actions.edit.resizeTextWidth(item.id, [800, 0]);
+      actions.editMode.resizeTextWidth(item.id, [800, 0]);
 
       expect(textItemOf(store.get(atoms.editorItems), item.id)).toMatchObject({ width: 400 });
     });
@@ -398,7 +398,7 @@ describe(createEditActions, () => {
       );
       const before = store.get(atoms.editorItems);
 
-      actions.edit.resizeTextWidth(imageItem.id, [408, 0]);
+      actions.editMode.resizeTextWidth(imageItem.id, [408, 0]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -407,7 +407,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
 
-      expect(() => actions.edit.resizeTextWidth("missing-id", [408, 0])).not.toThrow();
+      expect(() => actions.editMode.resizeTextWidth("missing-id", [408, 0])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -435,7 +435,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // the drawn box is padded by 7, so a 207 x 107 target leaves a 200 x 100 line box.
-      actions.edit.resizeRect(item.id, [207, 107]);
+      actions.editMode.resizeRect(item.id, [207, 107]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(200);
@@ -447,7 +447,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // the height component matches the item's current drawn height (50 + 7).
-      actions.edit.resizeRect(item.id, [207, 57]);
+      actions.editMode.resizeRect(item.id, [207, 57]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(200);
@@ -457,7 +457,7 @@ describe(createEditActions, () => {
     it("does not shrink either side below the minimum length.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeRect(item.id, [-1000, -1000]);
+      actions.editMode.resizeRect(item.id, [-1000, -1000]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(16);
@@ -469,7 +469,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, a 414,214 screen-px target is 207,107 canvas units — as in the first test.
-      actions.edit.resizeRect(item.id, [414, 214]);
+      actions.editMode.resizeRect(item.id, [414, 214]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(200);
@@ -480,7 +480,7 @@ describe(createEditActions, () => {
       const textItem = createTextItem("text-1", "hello");
       const { store, actions, atoms } = createTestTargetWithItems(textItem);
 
-      actions.edit.resizeRect(textItem.id, [207, 107]);
+      actions.editMode.resizeRect(textItem.id, [207, 107]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual([textItem]);
     });
@@ -489,7 +489,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms } = setUp();
       const before = store.get(atoms.editorItems);
 
-      expect(() => actions.edit.resizeRect("missing-id", [207, 107])).not.toThrow();
+      expect(() => actions.editMode.resizeRect("missing-id", [207, 107])).not.toThrow();
 
       expect(store.get(atoms.editorItems)).toStrictEqual(before);
     });
@@ -517,7 +517,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // unlike a rect, nothing pads the drawn box, so the pointer is the new corner as it is.
-      actions.edit.resizeMosaic(item.id, [200, 100]);
+      actions.editMode.resizeMosaic(item.id, [200, 100]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(200);
@@ -528,7 +528,7 @@ describe(createEditActions, () => {
     it("does not shrink either side below the minimum length.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeMosaic(item.id, [-1000, -1000]);
+      actions.editMode.resizeMosaic(item.id, [-1000, -1000]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(16);
@@ -540,7 +540,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, a 400,200 screen-px target is 200,100 canvas units — as in the first test.
-      actions.edit.resizeMosaic(item.id, [400, 200]);
+      actions.editMode.resizeMosaic(item.id, [400, 200]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.width).toBeCloseTo(200);
@@ -551,7 +551,7 @@ describe(createEditActions, () => {
       const rectItem = createRectItem("rect-1", [0, 0]);
       const { store, actions, atoms } = createTestTargetWithItems(rectItem);
 
-      actions.edit.resizeMosaic(rectItem.id, [200, 100]);
+      actions.editMode.resizeMosaic(rectItem.id, [200, 100]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
     });
@@ -579,7 +579,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // three-four-five down and to the right of the tail, hence 500 long.
-      actions.edit.resizeArrowTip(item.id, [300, 400]);
+      actions.editMode.resizeArrowTip(item.id, [300, 400]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.length).toBeCloseTo(500);
@@ -590,7 +590,7 @@ describe(createEditActions, () => {
     it("turns the arrow around when the tip is put behind the tail.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeArrowTip(item.id, [-300, 0]);
+      actions.editMode.resizeArrowTip(item.id, [-300, 0]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.length).toBeCloseTo(300);
@@ -600,7 +600,7 @@ describe(createEditActions, () => {
     it("holds the length at the minimum while still following the direction.", () => {
       const { store, actions, atoms, item } = setUp();
 
-      actions.edit.resizeArrowTip(item.id, [0, 1]);
+      actions.editMode.resizeArrowTip(item.id, [0, 1]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.length).toBe(clampArrowLength(0));
@@ -613,7 +613,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, a 600,800 screen-px target is 300,400 canvas units — as in the first test.
-      actions.edit.resizeArrowTip(item.id, [600, 800]);
+      actions.editMode.resizeArrowTip(item.id, [600, 800]);
 
       expect(resizedOf(store, atoms).length).toBeCloseTo(500);
     });
@@ -622,7 +622,7 @@ describe(createEditActions, () => {
       const rectItem = createRectItem("rect-1", [0, 0]);
       const { store, actions, atoms } = createTestTargetWithItems(rectItem);
 
-      actions.edit.resizeArrowTip(rectItem.id, [300, 400]);
+      actions.editMode.resizeArrowTip(rectItem.id, [300, 400]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
     });
@@ -645,7 +645,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // the tail goes to (-100, 0), which leaves it 300 from the tip at (200, 0).
-      actions.edit.resizeArrowTail(item.id, [-100, 0]);
+      actions.editMode.resizeArrowTail(item.id, [-100, 0]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.offset[0]).toBeCloseTo(-100);
@@ -658,7 +658,7 @@ describe(createEditActions, () => {
       const { store, actions, atoms, item } = setUp();
 
       // the tail goes to (500, 0), which is 300 beyond the tip at (200, 0).
-      actions.edit.resizeArrowTail(item.id, [500, 0]);
+      actions.editMode.resizeArrowTail(item.id, [500, 0]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.offset[0]).toBeCloseTo(500);
@@ -671,7 +671,7 @@ describe(createEditActions, () => {
       const minimum = clampArrowLength(0);
 
       // the tail is dragged right up to the tip, closer than an arrow is allowed to be short.
-      actions.edit.resizeArrowTail(item.id, [199, 0]);
+      actions.editMode.resizeArrowTail(item.id, [199, 0]);
 
       const resized = resizedOf(store, atoms);
       expect(resized.length).toBe(minimum);
@@ -687,7 +687,7 @@ describe(createEditActions, () => {
       actions.view.zoom(2, new Vec2(0, 0));
 
       // at 2x zoom, a -200 screen-px target is -100 canvas units — as in the first test.
-      actions.edit.resizeArrowTail(item.id, [-200, 0]);
+      actions.editMode.resizeArrowTail(item.id, [-200, 0]);
 
       expect(resizedOf(store, atoms).length).toBeCloseTo(300);
     });
@@ -696,7 +696,7 @@ describe(createEditActions, () => {
       const rectItem = createRectItem("rect-1", [0, 0]);
       const { store, actions, atoms } = createTestTargetWithItems(rectItem);
 
-      actions.edit.resizeArrowTail(rectItem.id, [-100, 0]);
+      actions.editMode.resizeArrowTail(rectItem.id, [-100, 0]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
     });
@@ -708,33 +708,33 @@ describe(createEditActions, () => {
 
     const setUp = () => {
       const target = createTestTargetWithItems(blank, filled);
-      target.actions.edit.enter(blank.id);
+      target.actions.editMode.enter(blank.id);
       return target;
     };
 
     it("drops the blank target item on clearing the selection.", () => {
       const { store, actions, atoms } = setUp();
-      actions.selection.clear();
+      actions.selectMode.clear();
       expect(store.get(atoms.editorItems)).toStrictEqual([filled]);
     });
 
     it("drops the blank target item on selecting another item.", () => {
       const { store, actions, atoms } = setUp();
-      actions.selection.select(filled.id);
+      actions.selectMode.select(filled.id);
       expect(store.get(atoms.editorItems)).toStrictEqual([filled]);
     });
 
     it("drops the blank target item on entering edit mode for another item.", () => {
       const { store, actions, atoms } = setUp();
-      actions.edit.enter(filled.id);
+      actions.editMode.enter(filled.id);
       expect(store.get(atoms.editorItems)).toStrictEqual([filled]);
     });
 
     it("keeps the target item when its content is not blank.", () => {
       const { store, actions, atoms } = createTestTargetWithItems(blank, filled);
-      actions.edit.enter(filled.id);
+      actions.editMode.enter(filled.id);
 
-      actions.selection.clear();
+      actions.selectMode.clear();
 
       // blank items other than the target one are left as they are.
       expect(store.get(atoms.editorItems)).toStrictEqual([blank, filled]);
@@ -742,9 +742,9 @@ describe(createEditActions, () => {
 
     it("keeps items as they are when the mode is not edit mode.", () => {
       const { store, actions, atoms } = createTestTargetWithItems(blank, filled);
-      actions.selection.select(blank.id);
+      actions.selectMode.select(blank.id);
 
-      actions.selection.clear();
+      actions.selectMode.clear();
 
       expect(store.get(atoms.editorItems)).toStrictEqual([blank, filled]);
     });

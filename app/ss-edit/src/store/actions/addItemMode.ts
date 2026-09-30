@@ -6,7 +6,7 @@ import type { PageState } from "../types";
 import type { ActionCreatorParam } from "./types";
 import { switchMode } from "./utils";
 
-export const createAddItemActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+export const createAddItemModeActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /** get into add-item mode */
     enter: (itemKind: PageState.Mode.AddItem["itemKind"]): void => {

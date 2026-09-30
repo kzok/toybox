@@ -84,13 +84,14 @@ Grouping by slice does not work here, for two reasons:
 
 - The editor mode holds the `itemId` that it acts on.
   So a mode transition and an item mutation are often the same operation.
-  For example, the commit in [`addItem`](../src/store/actions/addItem.ts) pushes an item,
-  and the move in [`selection`](../src/store/actions/selection.ts) rewrites the selection.
+  For example, the commit in [`addItemMode`](../src/store/actions/addItemMode.ts) pushes an item,
+  and the move in [`selectMode`](../src/store/actions/selectMode.ts) rewrites the selection.
 - Every action updates the single [`state`](../src/store/atoms.ts) atom anyway.
 
 One rule makes the place of each action clear:
 the action that *enters* a mode belongs in the file of that mode.
-Examples: [`edit.enter`](../src/store/actions/edit.ts), `addItem.enter` and `selection.clear`.
+Examples: [`editMode.enter`](../src/store/actions/editMode.ts),
+`addItemMode.enter` and `selectMode.clear`.
 An action that operates within a mode also belongs in that file.
 So each file matches the containers that call its actions.
 

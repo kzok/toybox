@@ -4,14 +4,14 @@ import { editorItemFromRange, type ItemRange } from "../../../features/editorIte
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
 import type { PageState } from "../../types";
-import { createAddItemActions } from "../addItem";
+import { createAddItemModeActions } from "../addItemMode";
 import { createTestTarget, createTestTargetWithItems, createTextItem } from "./fixtures";
 
-describe(createAddItemActions, () => {
+describe(createAddItemModeActions, () => {
   describe("enter()", () => {
     it("gets into add-item mode with no range yet.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.addItem.enter("text");
+      actions.addItemMode.enter("text");
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
         itemKind: "text",
@@ -22,9 +22,9 @@ describe(createAddItemActions, () => {
     it("drops the blank target item of edit mode.", () => {
       const blank = createTextItem("blank-item", "");
       const { store, actions, atoms } = createTestTargetWithItems(blank);
-      actions.edit.enter(blank.id);
+      actions.editMode.enter(blank.id);
 
-      actions.addItem.enter("text");
+      actions.addItemMode.enter("text");
 
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
     });
@@ -49,13 +49,13 @@ describe(createAddItemActions, () => {
           draft.editorView = castDraft(view);
         }),
       );
-      target.actions.addItem.enter("text");
+      target.actions.addItemMode.enter("text");
       return target;
     };
 
     it("starts the range at the cursor, in canvas coordinates.", () => {
       const { store, actions, atoms } = setUp();
-      actions.addItem.updateRange(new Vec2(280, 210));
+      actions.addItemMode.updateRange(new Vec2(280, 210));
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
         itemKind: "text",
@@ -65,9 +65,9 @@ describe(createAddItemActions, () => {
 
     it("moves only the end of the range afterwards.", () => {
       const { store, actions, atoms } = setUp();
-      actions.addItem.updateRange(new Vec2(280, 210));
+      actions.addItemMode.updateRange(new Vec2(280, 210));
 
-      actions.addItem.updateRange(new Vec2(380, 310));
+      actions.addItemMode.updateRange(new Vec2(380, 310));
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
@@ -78,9 +78,9 @@ describe(createAddItemActions, () => {
 
     it("keeps the state as it is when the mode is not add-item mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
 
-      actions.addItem.updateRange(new Vec2(280, 210));
+      actions.addItemMode.updateRange(new Vec2(280, 210));
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -92,10 +92,10 @@ describe(createAddItemActions, () => {
   describe("cancel()", () => {
     it("drops the dragged range, staying in add-item mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.addItem.enter("text");
-      actions.addItem.updateRange(new Vec2(20, 40));
+      actions.addItemMode.enter("text");
+      actions.addItemMode.updateRange(new Vec2(20, 40));
 
-      actions.addItem.cancel();
+      actions.addItemMode.cancel();
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
@@ -106,11 +106,11 @@ describe(createAddItemActions, () => {
 
     it("lets the next drag start its range afresh.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.addItem.enter("text");
-      actions.addItem.updateRange(new Vec2(20, 40));
-      actions.addItem.cancel();
+      actions.addItemMode.enter("text");
+      actions.addItemMode.updateRange(new Vec2(20, 40));
+      actions.addItemMode.cancel();
 
-      actions.addItem.updateRange(new Vec2(300, 200));
+      actions.addItemMode.updateRange(new Vec2(300, 200));
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
@@ -121,9 +121,9 @@ describe(createAddItemActions, () => {
 
     it("keeps the state as it is when the mode is not add-item mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
 
-      actions.addItem.cancel();
+      actions.addItemMode.cancel();
 
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "select",
@@ -135,9 +135,9 @@ describe(createAddItemActions, () => {
   describe("commit()", () => {
     const setUpAs = (itemKind: PageState.Mode.AddItem["itemKind"], ...range: readonly Vec2[]) => {
       const target = createTestTarget();
-      target.actions.addItem.enter(itemKind);
+      target.actions.addItemMode.enter(itemKind);
       for (const cursor of range) {
-        target.actions.addItem.updateRange(cursor);
+        target.actions.addItemMode.updateRange(cursor);
       }
       return target;
     };
@@ -158,7 +158,7 @@ describe(createAddItemActions, () => {
     it("adds the text item the drag describes, and edits it.", () => {
       const drag: ItemRange = [new Vec2(20, 40), new Vec2(420, 88)];
       const { store, actions, atoms } = setUpAs("text", ...drag);
-      actions.addItem.commit();
+      actions.addItemMode.commit();
 
       const items = store.get(atoms.editorItems);
       expect(items).toHaveLength(1);
@@ -171,7 +171,7 @@ describe(createAddItemActions, () => {
     it("adds the rect item the drag describes, and selects it.", () => {
       const drag: ItemRange = [new Vec2(20, 40), new Vec2(420, 140)];
       const { store, actions, atoms } = setUpAs("rect", ...drag);
-      actions.addItem.commit();
+      actions.addItemMode.commit();
 
       const items = store.get(atoms.editorItems);
       expect(items).toHaveLength(1);
@@ -186,7 +186,7 @@ describe(createAddItemActions, () => {
     it("adds the arrow item the drag describes, and selects it.", () => {
       const drag: ItemRange = [new Vec2(20, 40), new Vec2(320, 440)];
       const { store, actions, atoms } = setUpAs("arrow", ...drag);
-      actions.addItem.commit();
+      actions.addItemMode.commit();
 
       const items = store.get(atoms.editorItems);
       expect(items).toHaveLength(1);
@@ -204,14 +204,14 @@ describe(createAddItemActions, () => {
       //   to the factory would go unnoticed until an arrow came out pointing back at itself.
       const drag: ItemRange = [new Vec2(320, 440), new Vec2(20, 40)];
       const { store, actions, atoms } = setUpAs("arrow", ...drag);
-      actions.addItem.commit();
+      actions.addItemMode.commit();
 
       expect(store.get(atoms.editorItems)[0]).toStrictEqual(itemOf("arrow", drag));
     });
 
     it("keeps the state as it is when the drag never began.", () => {
       const { store, actions, atoms } = setUpAs("text");
-      actions.addItem.commit();
+      actions.addItemMode.commit();
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
       expect(store.get(atoms.editorMode)).toStrictEqual({
         kind: "add-item",
@@ -222,9 +222,9 @@ describe(createAddItemActions, () => {
 
     it("keeps the state as it is when the mode is not add-item mode.", () => {
       const { store, actions, atoms } = createTestTarget();
-      actions.selection.select("item-1");
+      actions.selectMode.select("item-1");
 
-      actions.addItem.commit();
+      actions.addItemMode.commit();
 
       expect(store.get(atoms.editorItems)).toStrictEqual([]);
       expect(store.get(atoms.editorMode)).toStrictEqual({
