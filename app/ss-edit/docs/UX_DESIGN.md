@@ -161,6 +161,9 @@ Resizing changes its width and height independently.
 ## Hotkeys
 
 - **`Delete` and `Backspace` delete items in Select mode and Edit mode.**
+  Edit mode of a text item is the exception.
+  There, these keys never delete the item, even when the focus is outside the text editor.
+  A key meant to delete a character must not delete the whole item.
 - **Some hotkeys work during text editing, and some do not.** `Mod+S`
   and `Escape` work inside the text editor, because the user wants to save or leave there.
   The text editor handles `Delete` and `Backspace`, where they mean "delete a character".

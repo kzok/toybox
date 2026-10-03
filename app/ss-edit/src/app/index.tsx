@@ -29,11 +29,15 @@ const AppHotkeyRegistry = React.memo(() => {
   const actions = pageCtx.useActions();
   // NOTE: a dialog is modal, hence every hotkey stays out while one is open.
   const enabled = !pageCtx.useIsDialogOpen();
+  // NOTE: off on a text item even when the focus is outside its editor, so that a key meant to
+  // delete a character never deletes the whole item.
+  const isEditingText = pageCtx.useIsEditingText();
+  const deleteEnabled = enabled && !isEditingText;
   useHotkey("Mod+S", () => actions.picture.saveAsImage(), { enabled });
   useHotkey("Escape", () => actions.selectMode.clear(), { enabled });
-  useHotkey("Delete", () => actions.picture.deleteSelected(), { enabled });
+  useHotkey("Delete", () => actions.picture.deleteSelected(), { enabled: deleteEnabled });
   // NOTE: a mac keyboard without a Forward Delete key sends Backspace in its place.
-  useHotkey("Backspace", () => actions.picture.deleteSelected(), { enabled });
+  useHotkey("Backspace", () => actions.picture.deleteSelected(), { enabled: deleteEnabled });
   return null;
 });
 
