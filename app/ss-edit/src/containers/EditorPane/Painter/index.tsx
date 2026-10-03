@@ -50,8 +50,12 @@ const useRequestAnimationFrame = (
   callback: FrameRequestCallback,
   deps: readonly unknown[],
 ): void => {
-  React.useLayoutEffect(() => {
-    const handle = requestAnimationFrame(callback);
-    return () => cancelAnimationFrame(handle);
-  }, deps);
+  React.useLayoutEffect(
+    () => {
+      const handle = requestAnimationFrame(callback);
+      return () => cancelAnimationFrame(handle);
+    },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: the caller passes `deps`.
+    deps,
+  );
 };
