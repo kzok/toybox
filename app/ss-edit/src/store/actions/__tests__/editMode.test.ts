@@ -717,6 +717,42 @@ describe(createEditModeActions, () => {
     });
   });
 
+  describe("setMosaicBlockSize()", () => {
+    const setUp = () => {
+      const item = createMosaicItem("item-1", [100, 100]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    it("updates the block size, leaving the box where it is.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setMosaicBlockSize(item.id, 16);
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, blockSize: 16 }]);
+    });
+
+    it("keeps the very same items list on the current block size, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setMosaicBlockSize(item.id, item.blockSize);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a mosaic item.", () => {
+      const rectItem = createRectItem("item-1", [0, 0]);
+      const { store, actions, atoms } = createTestTargetWithItems(rectItem);
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setMosaicBlockSize(rectItem.id, 16);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setMosaicBlockSize("missing-id", 16);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+  });
+
   describe("resizeArrowTip()", () => {
     // 200 long, pointing right, its tail on the origin.
     const setUp = () => {

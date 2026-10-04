@@ -38,6 +38,18 @@ export const EditingRect: StoryObj<typeof meta> = {
     }),
 };
 
+export const EditingMosaic: StoryObj<typeof meta> = {
+  render: () =>
+    renderToolbar({
+      kind: "mosaic",
+      id: "story-mosaic",
+      offset: [0, 0],
+      width: 200,
+      height: 100,
+      blockSize: 8,
+    }),
+};
+
 /** @param item the item under edit */
 const renderToolbar = (item: EditorItem): React.ReactElement => {
   const Wrapper: React.FC = () => {

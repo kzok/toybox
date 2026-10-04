@@ -25,7 +25,8 @@
       width: 72px;
     }
 
-    .lineWidthDropdown {
+    .lineWidthDropdown,
+    .blockSizeDropdown {
       min-width: 88px;
     }
   }

@@ -102,8 +102,14 @@ export const fontSizeIcon = (page: Page): Locator => editToolbar(page).locator("
 export const lineWidthDropdown = (page: Page): Locator =>
   editToolbar(page).getByRole("combobox", { name: "Line width" });
 
-/** an option of the line width dropdown, by its text. it is visible only while the list is open. */
-export const lineWidthOption = (page: Page, name: string): Locator =>
+export const blockSizeDropdown = (page: Page): Locator =>
+  editToolbar(page).getByRole("combobox", { name: "Block size" });
+
+/**
+ * an option of a toolbar dropdown, by its text. it is visible only while the list is open.
+ * @note it matches an option of any dropdown. open one dropdown at a time.
+ */
+export const dropdownOption = (page: Page, name: string): Locator =>
   page.getByRole("option", { name });
 
 /** the toolbar button that opens the line color swatches. */

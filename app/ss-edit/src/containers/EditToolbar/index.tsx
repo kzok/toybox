@@ -15,6 +15,7 @@ import {
 } from "@fluentui/react-components";
 import {
   ColorLineRegular,
+  GridRegular,
   LineThicknessRegular,
   TextColorRegular,
   TextFontSizeRegular,
@@ -25,6 +26,7 @@ import {
   ITEM_COLORS,
   MAX_FONT_SIZE_PX,
   MIN_FONT_SIZE_PX,
+  MOSAIC_BLOCK_SIZES,
   RECT_LINE_WIDTHS,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
@@ -64,6 +66,8 @@ const renderControls = (item: EditorItem | null): React.ReactNode => {
           <ColorPicker item={item} label="Line color" icon={<ColorLineRegular />} />
         </>
       );
+    case "mosaic":
+      return <BlockSizeDropdown item={item} />;
     default:
       return null;
   }
@@ -119,6 +123,29 @@ const LineWidthDropdown = React.memo<{
         value={item.lineWidth}
         options={RECT_LINE_WIDTHS.map((value) => ({ value, label: `${value}px` }))}
         onChange={({ value }) => actions.editMode.setRectLineWidth(item.id, value)}
+      />
+    </span>
+  );
+});
+
+const BlockSizeDropdown = React.memo<{
+  item: EditorItem.Mosaic;
+}>(({ item }) => {
+  const actions = pageCtx.useActions();
+  const dropdownId = React.useId();
+
+  return (
+    <span className={styles.labelled} title="Block size">
+      <label className={styles.icon} htmlFor={dropdownId}>
+        <GridRegular />
+      </label>
+      <TypedSingleDropdown
+        id={dropdownId}
+        className={styles.blockSizeDropdown}
+        aria-label="Block size"
+        value={item.blockSize}
+        options={MOSAIC_BLOCK_SIZES.map((value) => ({ value, label: `${value}px` }))}
+        onChange={({ value }) => actions.editMode.setMosaicBlockSize(item.id, value)}
       />
     </span>
   );

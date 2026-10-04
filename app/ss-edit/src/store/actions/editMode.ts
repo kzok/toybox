@@ -169,6 +169,17 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       });
     },
     /**
+     * set the block size of a mosaic item.
+     * @param blockSize block size (px)
+     */
+    setMosaicBlockSize: (itemId: string, blockSize: number): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "mosaic") return;
+        item.blockSize = blockSize;
+      });
+    },
+    /**
      * move the tip of an arrow item, keeping its tail where it is.
      * @param cursor where the tip should go, measured from the item's tail
      */
