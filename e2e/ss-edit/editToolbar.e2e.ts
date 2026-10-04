@@ -2,11 +2,11 @@ import { expect, test } from "@playwright/test";
 import {
   addRectByDrag,
   addTextByDrag,
-  commitText,
   editToolbar,
   expectMode,
   fontSizeIcon,
   fontSizeInput,
+  leaveEditMode,
   openApp,
   textColorButton,
   textColorSwatch,
@@ -28,7 +28,7 @@ test("shows the toolbar only while a text item is under edit", async ({ page }) 
   await addTextByDrag(page, TEXT_RANGE, "Hello");
   await expect(editToolbar(page)).toBeVisible();
 
-  await commitText(page);
+  await leaveEditMode(page);
   await expect(editToolbar(page)).toBeHidden();
 
   const rect = await addRectByDrag(page, SECOND_RANGE);
@@ -89,7 +89,7 @@ test("sets the color picked on the toolbar", async ({ page }) => {
   await expectMode(page, "edit");
 
   // NOTE: the click leaves the pointer on an empty corner, hence no hover highlight either.
-  await commitText(page);
+  await leaveEditMode(page);
   await expect.soft(page).toHaveScreenshot("screenshot-text-recolored.png");
 });
 

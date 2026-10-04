@@ -5,10 +5,10 @@ import {
   boundingBoxOf,
   centerOf,
   dragBy,
-  editorPane,
   expectBoxOnScreen,
   expectMode,
   imageItems,
+  leaveEditMode,
   openApp,
   parkCursor,
   saveAsImage,
@@ -81,10 +81,7 @@ test("keeps the resized image in the exported picture", async ({ page }) => {
   const delta = { x: 80, y: (80 * before.height) / before.width };
   await dragBy(page, centerOf(await boundingBoxOf(handle)), delta);
 
-  // leave edit mode by clicking an empty corner of the pane, as a user would.
-  const pane = await boundingBoxOf(editorPane(page));
-  await page.mouse.click(pane.x + 20, pane.y + 20);
-  await expectMode(page, "select");
+  await leaveEditMode(page);
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized.png");

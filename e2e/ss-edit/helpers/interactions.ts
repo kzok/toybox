@@ -247,7 +247,7 @@ export const addTextByDrag = async (page: Page, rect: Box, content?: string): Pr
 /** adds a text item and ends the edit right away, for tests that only need one to exist. */
 export const addText = async (page: Page, rect: Box, content: string): Promise<void> => {
   await addTextByDrag(page, rect, content);
-  await commitText(page);
+  await leaveEditMode(page);
 };
 
 /**
@@ -277,7 +277,7 @@ const emptyCornerOf = async (page: Page): Promise<Point> => {
 };
 
 /** ends the edit by clicking an empty corner of the pane, as a user would. */
-export const commitText = async (page: Page): Promise<void> => {
+export const leaveEditMode = async (page: Page): Promise<void> => {
   const { x, y } = await emptyCornerOf(page);
   await page.mouse.click(x, y);
   await expectMode(page, "select");
