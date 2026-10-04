@@ -83,6 +83,11 @@ This does not leave Edit mode.
 
 Every size has limits, so the user can always grab the item again.
 
+Edit mode shows a toolbar for a kind with styles to change.
+The toolbar changes the styles of the item in Edit mode.
+It floats over the top-left corner of the pane.
+So showing or hiding it never changes the size of the view.
+
 ### Context menu
 
 In Select mode and Edit mode, a right-click on the pane opens the app's context menu.
