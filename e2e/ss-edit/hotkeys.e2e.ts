@@ -144,6 +144,19 @@ test("still closes the File menu on Escape", async ({ page }) => {
   await expect(page.getByRole("menuitem", { name: "New instance" })).toBeHidden();
 });
 
+test("keeps the selection when Escape closes a menu", async ({ page }) => {
+  await openApp(page);
+  await addText(page, TEXT_RANGE, "Hello");
+  await textItems(page).first().click();
+  await page.getByRole("button", { name: "File" }).click();
+  await expect(page.getByRole("menuitem", { name: "New instance" })).toBeVisible();
+
+  await page.keyboard.press("Escape");
+
+  await expect(page.getByRole("menuitem", { name: "New instance" })).toBeHidden();
+  await expect(textItems(page).first()).toHaveAttribute("data-selected", "true");
+});
+
 for (const key of ["Delete", "Backspace"] as const) {
   test(`deletes the selected item on ${key}`, async ({ page }) => {
     await openApp(page);

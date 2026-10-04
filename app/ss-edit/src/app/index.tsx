@@ -34,7 +34,17 @@ const AppHotkeyRegistry = React.memo(() => {
   const isEditingText = pageCtx.useIsEditingText();
   const deleteEnabled = enabled && !isEditingText;
   useHotkey("Mod+S", () => actions.picture.saveAsImage(), { enabled });
-  useHotkey("Escape", () => actions.selectMode.clear(), { enabled });
+  useHotkey(
+    "Escape",
+    (e) => {
+      // NOTE: an overlay such as a popover or a menu marks the Escape that closes it as handled.
+      if (e.defaultPrevented) return;
+      e.preventDefault();
+      actions.selectMode.clear();
+    },
+    // NOTE: the manager would mark every Escape as handled before the check above otherwise.
+    { enabled, preventDefault: false },
+  );
   useHotkey("Delete", () => actions.picture.deleteSelected(), { enabled: deleteEnabled });
   // NOTE: a mac keyboard without a Forward Delete key sends Backspace in its place.
   useHotkey("Backspace", () => actions.picture.deleteSelected(), { enabled: deleteEnabled });
