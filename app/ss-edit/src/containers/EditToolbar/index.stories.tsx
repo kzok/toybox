@@ -50,6 +50,18 @@ export const EditingMosaic: StoryObj<typeof meta> = {
     }),
 };
 
+export const EditingArrow: StoryObj<typeof meta> = {
+  render: () =>
+    renderToolbar({
+      kind: "arrow",
+      id: "story-arrow",
+      offset: [0, 0],
+      length: 200,
+      angle: 0,
+      color: "#EF3171",
+    }),
+};
+
 /** @param item the item under edit */
 const renderToolbar = (item: EditorItem): React.ReactElement => {
   const Wrapper: React.FC = () => {

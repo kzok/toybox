@@ -14,6 +14,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import {
+  ColorFillRegular,
   ColorLineRegular,
   GridRegular,
   LineThicknessRegular,
@@ -68,6 +69,8 @@ const renderControls = (item: EditorItem | null): React.ReactNode => {
       );
     case "mosaic":
       return <BlockSizeDropdown item={item} />;
+    case "arrow":
+      return <ColorPicker item={item} label="Arrow color" icon={<ColorFillRegular />} />;
     default:
       return null;
   }

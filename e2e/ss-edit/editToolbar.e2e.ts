@@ -1,10 +1,13 @@
 import { expect, test } from "@playwright/test";
 import {
   addArrowByDrag,
+  addImage,
   addLabelledImage,
   addMosaicByDrag,
   addRectByDrag,
   addTextByDrag,
+  arrowColorButton,
+  arrowColorSwatch,
   blockSizeDropdown,
   boundingBoxOf,
   dropdownOption,
@@ -13,6 +16,7 @@ import {
   expectMode,
   fontSizeIcon,
   fontSizeInput,
+  imageItems,
   leaveEditMode,
   lineColorButton,
   lineColorSwatch,
@@ -67,7 +71,32 @@ test("shows the toolbar only while an item of a kind with controls is under edit
   await page.keyboard.press("Escape");
   await addArrowByDrag(page, ARROW_TAIL, ARROW_TIP);
   await editArrow(page);
+  await expect(editToolbar(page)).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await addImage(page, "320x240.png");
+  const image = imageItems(page).last();
+  await image.click();
+  await image.click();
+  await expectMode(page, "edit");
   await expect(editToolbar(page)).toBeHidden();
+});
+
+test("recolors an arrow item from the toolbar", async ({ page }) => {
+  await openApp(page);
+  await addArrowByDrag(page, ARROW_TAIL, ARROW_TIP);
+  await editArrow(page);
+
+  await arrowColorButton(page).click();
+  await arrowColorSwatch(page, "Blue").click();
+
+  await expect(arrowColorSwatch(page, "Blue")).toBeHidden();
+  await expectMode(page, "edit");
+
+  await page.keyboard.press("Escape");
+  await expectMode(page, "select");
+  await parkCursor(page);
+  await expect.soft(page).toHaveScreenshot("screenshot-arrow-recolored.png");
 });
 
 test("pixelates a mosaic item by the block size picked on the toolbar", async ({ page }) => {

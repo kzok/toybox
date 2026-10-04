@@ -120,6 +120,14 @@ export const lineColorButton = (page: Page): Locator =>
 export const lineColorSwatch = (page: Page, name: string): Locator =>
   page.getByRole("radiogroup", { name: "Line color" }).getByRole("radio", { name });
 
+/** the toolbar button that opens the arrow color swatches. */
+export const arrowColorButton = (page: Page): Locator =>
+  editToolbar(page).getByRole("button", { name: "Arrow color" });
+
+/** an arrow color swatch, by the name of its color. it is visible only while the swatches are open. */
+export const arrowColorSwatch = (page: Page, name: string): Locator =>
+  page.getByRole("radiogroup", { name: "Arrow color" }).getByRole("radio", { name });
+
 /** the toolbar button that opens the text color swatches. */
 export const textColorButton = (page: Page): Locator =>
   editToolbar(page).getByRole("button", { name: "Text color" });
