@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Vec2 } from "../../../utils/geometry";
 import { clampArrowLength } from "../arrowStyle";
 import { editorItemFromRange, type ItemRange } from "../fromRange";
+import { RECT_LINE_WIDTHS } from "../rectStyle";
 
 /**
  * @param from the point the drag began at
@@ -74,6 +75,12 @@ describe(editorItemFromRange, () => {
       expect(item.kind === "rect" && [item.width, item.height]).toStrictEqual([16, 16]);
       // the head of the drag is kept, so the item grows away from where it started.
       expect(item.offset).toStrictEqual([20, 40]);
+    });
+
+    it("takes a line width that the toolbar offers.", () => {
+      const item = editorItemFromRange("rect", range([20, 40], [420, 140]), "item-1");
+      if (item.kind !== "rect") throw new Error("not a rect item");
+      expect(RECT_LINE_WIDTHS).toContain(item.lineWidth);
     });
   });
 

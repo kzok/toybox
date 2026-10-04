@@ -9,7 +9,8 @@
   background-color: var(--colorNeutralBackground1);
   box-shadow: var(--shadow8);
 
-  .fontSize {
+  /* an icon labelling the control next to it */
+  .labelled {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
@@ -22,6 +23,10 @@
 
     .fontSizeInput {
       width: 72px;
+    }
+
+    .lineWidthDropdown {
+      min-width: 88px;
     }
   }
 

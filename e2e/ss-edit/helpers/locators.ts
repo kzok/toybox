@@ -99,6 +99,21 @@ export const fontSizeInput = (page: Page): Locator =>
 /** the icon in front of the font size input, which is a label of the input. */
 export const fontSizeIcon = (page: Page): Locator => editToolbar(page).locator("label");
 
+export const lineWidthDropdown = (page: Page): Locator =>
+  editToolbar(page).getByRole("combobox", { name: "Line width" });
+
+/** an option of the line width dropdown, by its text. it is visible only while the list is open. */
+export const lineWidthOption = (page: Page, name: string): Locator =>
+  page.getByRole("option", { name });
+
+/** the toolbar button that opens the line color swatches. */
+export const lineColorButton = (page: Page): Locator =>
+  editToolbar(page).getByRole("button", { name: "Line color" });
+
+/** a line color swatch, by the name of its color. it is visible only while the swatches are open. */
+export const lineColorSwatch = (page: Page, name: string): Locator =>
+  page.getByRole("radiogroup", { name: "Line color" }).getByRole("radio", { name });
+
 /** the toolbar button that opens the text color swatches. */
 export const textColorButton = (page: Page): Locator =>
   editToolbar(page).getByRole("button", { name: "Text color" });

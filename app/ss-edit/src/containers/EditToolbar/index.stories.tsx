@@ -12,42 +12,57 @@ const meta: Meta = {
 
 export default meta;
 
-const TEXT_ITEM: EditorItem.Text = {
-  kind: "text",
-  id: "story-text",
-  content: "Hello",
-  offset: [0, 0],
-  width: 200,
-  fontSize: 32,
-  color: "#EF3171",
+export const EditingText: StoryObj<typeof meta> = {
+  render: () =>
+    renderToolbar({
+      kind: "text",
+      id: "story-text",
+      content: "Hello",
+      offset: [0, 0],
+      width: 200,
+      fontSize: 32,
+      color: "#EF3171",
+    }),
 };
 
-export const EditingText: StoryObj<typeof meta> = {
-  render: () => {
-    const Wrapper: React.FC = () => {
-      const atoms = pageCtx.useAtoms();
-      useHydrateAtoms([
-        [
-          atoms.state,
-          produce(INITIAL_EDITOR_STATE, (draft) => {
-            draft.editorItems.push(castDraft(TEXT_ITEM));
-            draft.editorMode = { kind: "edit", itemId: TEXT_ITEM.id };
-          }),
-        ],
-      ]);
-      // NOTE: the toolbar is positioned against the nearest positioned ancestor.
-      return (
-        <div style={{ position: "relative", width: 300, height: 80 }}>
-          <EditToolbar />
-        </div>
-      );
-    };
+export const EditingRect: StoryObj<typeof meta> = {
+  render: () =>
+    renderToolbar({
+      kind: "rect",
+      id: "story-rect",
+      offset: [0, 0],
+      width: 200,
+      height: 100,
+      color: "#EF3171",
+      lineWidth: 4,
+    }),
+};
+
+/** @param item the item under edit */
+const renderToolbar = (item: EditorItem): React.ReactElement => {
+  const Wrapper: React.FC = () => {
+    const atoms = pageCtx.useAtoms();
+    useHydrateAtoms([
+      [
+        atoms.state,
+        produce(INITIAL_EDITOR_STATE, (draft) => {
+          draft.editorItems.push(castDraft(item));
+          draft.editorMode = { kind: "edit", itemId: item.id };
+        }),
+      ],
+    ]);
+    // NOTE: the toolbar is positioned against the nearest positioned ancestor.
     return (
-      <AppProvider>
-        <TextEditorProvider>
-          <Wrapper />
-        </TextEditorProvider>
-      </AppProvider>
+      <div style={{ position: "relative", width: 300, height: 80 }}>
+        <EditToolbar />
+      </div>
     );
-  },
+  };
+  return (
+    <AppProvider>
+      <TextEditorProvider>
+        <Wrapper />
+      </TextEditorProvider>
+    </AppProvider>
+  );
 };

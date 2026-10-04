@@ -138,6 +138,23 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       });
     },
     /**
+     * set the line width of a rect item, keeping its line where it is.
+     * @param lineWidth line width (px)
+     */
+    setRectLineWidth: (itemId: string, lineWidth: number): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "rect" || item.lineWidth === lineWidth) return;
+
+        const before = rectStyleSizeOf(item).padding;
+        item.lineWidth = lineWidth;
+        // `offset` is the top-left of the outline around the line,
+        // hence it moves by the change of the padding that the outline takes.
+        const shift = rectStyleSizeOf(item).padding - before;
+        item.offset = [item.offset[0] - shift, item.offset[1] - shift];
+      });
+    },
+    /**
      * resize a mosaic item, keeping its top-left offset fixed.
      * @param cursor [width, height] distance from the item's top-left offset to the pointer
      */

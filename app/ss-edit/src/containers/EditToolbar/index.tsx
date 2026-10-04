@@ -1,3 +1,4 @@
+import { TypedSingleDropdown } from "@~/ui/components/TypedSingleDropdown";
 import {
   ColorSwatch,
   Popover,
@@ -12,13 +13,19 @@ import {
   ToolbarButton,
   tokens,
 } from "@fluentui/react-components";
-import { TextColorRegular, TextFontSizeRegular } from "@fluentui/react-icons";
+import {
+  ColorLineRegular,
+  LineThicknessRegular,
+  TextColorRegular,
+  TextFontSizeRegular,
+} from "@fluentui/react-icons";
 import React from "react";
 import {
   type EditorItem,
   ITEM_COLORS,
   MAX_FONT_SIZE_PX,
   MIN_FONT_SIZE_PX,
+  RECT_LINE_WIDTHS,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
 import { useTextEditorRef } from "./context";
@@ -47,7 +54,14 @@ const renderControls = (item: EditorItem | null): React.ReactNode => {
       return (
         <>
           <FontSizeInput item={item} />
-          <ColorPicker item={item} />
+          <ColorPicker item={item} label="Text color" icon={<TextColorRegular />} />
+        </>
+      );
+    case "rect":
+      return (
+        <>
+          <LineWidthDropdown item={item} />
+          <ColorPicker item={item} label="Line color" icon={<ColorLineRegular />} />
         </>
       );
     default:
@@ -69,7 +83,7 @@ const FontSizeInput = React.memo<{
   };
 
   return (
-    <span className={styles.fontSize} title="Font size">
+    <span className={styles.labelled} title="Font size">
       {/* NOTE: `htmlFor` rather than wrapping the input: biome cannot see an input inside a component. */}
       <label className={styles.icon} htmlFor={inputId}>
         <TextFontSizeRegular />
@@ -87,9 +101,35 @@ const FontSizeInput = React.memo<{
   );
 });
 
+const LineWidthDropdown = React.memo<{
+  item: EditorItem.Rect;
+}>(({ item }) => {
+  const actions = pageCtx.useActions();
+  const dropdownId = React.useId();
+
+  return (
+    <span className={styles.labelled} title="Line width">
+      <label className={styles.icon} htmlFor={dropdownId}>
+        <LineThicknessRegular />
+      </label>
+      <TypedSingleDropdown
+        id={dropdownId}
+        className={styles.lineWidthDropdown}
+        aria-label="Line width"
+        value={item.lineWidth}
+        options={RECT_LINE_WIDTHS.map((value) => ({ value, label: `${value}px` }))}
+        onChange={({ value }) => actions.editMode.setRectLineWidth(item.id, value)}
+      />
+    </span>
+  );
+});
+
 const ColorPicker = React.memo<{
   item: Extract<EditorItem, { color: string }>;
-}>(({ item }) => {
+  /** what the color paints, shown to the user */
+  label: string;
+  icon: React.ReactElement;
+}>(({ item, label, icon }) => {
   const actions = pageCtx.useActions();
   const textEditorRef = useTextEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -112,18 +152,13 @@ const ColorPicker = React.memo<{
   return (
     <Popover open={open} onOpenChange={onOpenChange} positioning="below-start">
       <PopoverTrigger disableButtonEnhancement>
-        <ToolbarButton
-          className={styles.colorButton}
-          aria-label="Text color"
-          title="Text color"
-          icon={<TextColorRegular />}
-        >
+        <ToolbarButton className={styles.colorButton} aria-label={label} title={label} icon={icon}>
           <span className={styles.colorChip} style={{ backgroundColor: item.color }} />
         </ToolbarButton>
       </PopoverTrigger>
       <PopoverSurface>
         <SwatchPicker
-          aria-label="Text color"
+          aria-label={label}
           selectedValue={item.color}
           onSelectionChange={onSelectionChange}
         >

@@ -1,13 +1,21 @@
 import { expect, test } from "@playwright/test";
 import {
+  addMosaicByDrag,
   addRectByDrag,
   addTextByDrag,
+  boundingBoxOf,
   editToolbar,
   expectMode,
   fontSizeIcon,
   fontSizeInput,
   leaveEditMode,
+  lineColorButton,
+  lineColorSwatch,
+  lineWidthDropdown,
+  lineWidthOption,
   openApp,
+  parkCursor,
+  rectItems,
   textColorButton,
   textColorSwatch,
   textEditor,
@@ -20,8 +28,10 @@ import {
 const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 /** a second range, clear of `TEXT_RANGE`. */
 const SECOND_RANGE = { x: 200, y: 300, width: 400, height: 40 };
+/** a third range, clear of the two above. */
+const THIRD_RANGE = { x: 200, y: 400, width: 400, height: 40 };
 
-test("shows the toolbar only while a text item is under edit", async ({ page }) => {
+test("shows the toolbar only while a text or a rect item is under edit", async ({ page }) => {
   await openApp(page);
   await expect(editToolbar(page)).toBeHidden();
 
@@ -32,9 +42,61 @@ test("shows the toolbar only while a text item is under edit", async ({ page }) 
   await expect(editToolbar(page)).toBeHidden();
 
   const rect = await addRectByDrag(page, SECOND_RANGE);
+  await expect(editToolbar(page)).toBeHidden();
   await rect.click();
   await expectMode(page, "edit");
+  await expect(editToolbar(page)).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  const mosaic = await addMosaicByDrag(page, THIRD_RANGE);
+  await mosaic.click();
+  await expectMode(page, "edit");
   await expect(editToolbar(page)).toBeHidden();
+});
+
+test("sets the line width picked on the toolbar, keeping the line where it is", async ({
+  page,
+}) => {
+  await openApp(page);
+  const rect = await addRectByDrag(page, SECOND_RANGE);
+  await rect.click();
+  await expectMode(page, "edit");
+  await expect(lineWidthDropdown(page)).toHaveText("4px");
+  const before = await boundingBoxOf(rectItems(page));
+
+  await lineWidthDropdown(page).click();
+  await lineWidthOption(page, "12px").click();
+
+  await expect(lineWidthDropdown(page)).toHaveText("12px");
+  await expectMode(page, "edit");
+  // the outline grows from ceil(4 * 1.6) = 7 to ceil(12 * 1.6) = 20 on both sides of the line.
+  await expect
+    .poll(async () => await boundingBoxOf(rectItems(page)))
+    .toStrictEqual({
+      x: before.x - 6.5,
+      y: before.y - 6.5,
+      width: before.width + 13,
+      height: before.height + 13,
+    });
+});
+
+test("restyles the line of a rect item from the toolbar", async ({ page }) => {
+  await openApp(page);
+  const rect = await addRectByDrag(page, SECOND_RANGE);
+  await rect.click();
+
+  await lineWidthDropdown(page).click();
+  await lineWidthOption(page, "8px").click();
+  await lineColorButton(page).click();
+  await lineColorSwatch(page, "Blue").click();
+
+  await expect(lineColorSwatch(page, "Blue")).toBeHidden();
+  await expectMode(page, "edit");
+
+  await page.keyboard.press("Escape");
+  await expectMode(page, "select");
+  await parkCursor(page);
+  await expect.soft(page).toHaveScreenshot("screenshot-rect-restyled.png");
 });
 
 test("sets the font size typed into the toolbar, scaling the width with it", async ({ page }) => {

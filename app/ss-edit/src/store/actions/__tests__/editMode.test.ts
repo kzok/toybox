@@ -606,6 +606,55 @@ describe(createEditModeActions, () => {
     });
   });
 
+  describe("setRectLineWidth()", () => {
+    // lineWidth: 4, hence an outline of 7 and a padding of 3.5 around the line.
+    const setUp = () => {
+      const item = createRectItem("item-1", [100, 100]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    it("moves the offset out by the growth of the padding, keeping the line where it is.", () => {
+      const { store, actions, atoms, item } = setUp();
+      // an outline of ceil(12 * 1.6) = 20, hence a padding of 10.
+      actions.editMode.setRectLineWidth(item.id, 12);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 12, offset: [93.5, 93.5] },
+      ]);
+    });
+
+    it("moves the offset in by the shrink of the padding, keeping the line where it is.", () => {
+      const { store, actions, atoms, item } = setUp();
+      // an outline of ceil(1 * 1.6) = 2, hence a padding of 1.
+      actions.editMode.setRectLineWidth(item.id, 1);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 1, offset: [102.5, 102.5] },
+      ]);
+    });
+
+    it("keeps the very same items list on the current line width, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setRectLineWidth(item.id, item.lineWidth);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a rect item.", () => {
+      const textItem = createTextItem("item-1", "hello");
+      const { store, actions, atoms } = createTestTargetWithItems(textItem);
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setRectLineWidth(textItem.id, 12);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setRectLineWidth("missing-id", 12);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+  });
+
   describe("resizeMosaic()", () => {
     // width: 100, height: 50, drawn at exactly that size.
     const setUp = () => {
