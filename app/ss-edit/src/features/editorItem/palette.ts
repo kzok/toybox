@@ -12,11 +12,12 @@ export type PaletteColor = Readonly<{
 /** colors a text item can take */
 export const TEXT_COLORS: readonly PaletteColor[] = [
   { label: "Pink", value: NEW_ITEM_COLOR },
-  { label: "Red", value: "#E53935" },
-  { label: "Orange", value: "#FB8C00" },
-  { label: "Yellow", value: "#FDD835" },
-  { label: "Green", value: "#43A047" },
-  { label: "Blue", value: "#1E88E5" },
+  { label: "Red", value: "#F3353C" },
+  { label: "Orange", value: "#F68000" },
+  { label: "Yellow", value: "#EDD200" },
+  { label: "Green", value: "#00A62C" },
+  { label: "Blue", value: "#0F87FF" },
+  { label: "Purple", value: "#AA58F3" },
   { label: "Black", value: "#212121" },
   { label: "White", value: "#FFFFFF" },
 ];
