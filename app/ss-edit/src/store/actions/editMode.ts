@@ -84,9 +84,29 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
         const diagonal = Math.hypot(size.x, size.y);
         // project the pointer position onto the box's diagonal to get the target diagonal length.
         const targetDiagonal = scaledCursor.dot(size) / diagonal;
-        const fontSize = clampFontSize(item.fontSize * (targetDiagonal / diagonal));
-        item.width = Math.round(item.width * (fontSize / item.fontSize));
-        item.fontSize = fontSize;
+        scaleTextFontSize(item, item.fontSize * (targetDiagonal / diagonal));
+      });
+    },
+    /**
+     * set the font size of a text item, keeping its top-left offset fixed.
+     * @param fontSize desired font size (px), fractional or out of range
+     */
+    setTextFontSize: (itemId: string, fontSize: number): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "text") return;
+        scaleTextFontSize(item, fontSize);
+      });
+    },
+    /**
+     * set the color of a text item.
+     * @param color CSS color value
+     */
+    setTextColor: (itemId: string, color: string): void => {
+      updateAtom(atoms.state, (draft) => {
+        const item = draft.editorItems.find((item) => item.id === itemId);
+        if (item?.kind !== "text") return;
+        item.color = color;
       });
     },
     /**
@@ -167,4 +187,15 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       });
     },
   } as const;
+};
+
+/**
+ * set the font size of a text item and scale its width by the same factor, so that the same words
+ * stay on the same lines.
+ * @param fontSize desired font size (px), fractional or out of range
+ */
+const scaleTextFontSize = (item: { width: number; fontSize: number }, fontSize: number): void => {
+  const clamped = clampFontSize(fontSize);
+  item.width = Math.round(item.width * (clamped / item.fontSize));
+  item.fontSize = clamped;
 };

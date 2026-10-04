@@ -1,0 +1,94 @@
+import { expect, test } from "@playwright/test";
+import {
+  addRectByDrag,
+  addTextByDrag,
+  commitText,
+  editToolbar,
+  expectMode,
+  fontSizeIcon,
+  fontSizeInput,
+  openApp,
+  textColorButton,
+  textColorSwatch,
+  textEditor,
+} from "./helpers";
+
+/**
+ * a range dragged on an arbitrary spot of the pane, clear of the toolbar. its height gives a font
+ * size of 32px (`round(40 / 1.25)`), and its width is the wrapping width as it is.
+ */
+const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 40 };
+/** a second range, clear of `TEXT_RANGE`. */
+const SECOND_RANGE = { x: 200, y: 300, width: 400, height: 40 };
+
+test("shows the toolbar only while a text item is under edit", async ({ page }) => {
+  await openApp(page);
+  await expect(editToolbar(page)).toBeHidden();
+
+  await addTextByDrag(page, TEXT_RANGE, "Hello");
+  await expect(editToolbar(page)).toBeVisible();
+
+  await commitText(page);
+  await expect(editToolbar(page)).toBeHidden();
+
+  const rect = await addRectByDrag(page, SECOND_RANGE);
+  await rect.click();
+  await expectMode(page, "edit");
+  await expect(editToolbar(page)).toBeHidden();
+});
+
+test("sets the font size typed into the toolbar, scaling the width with it", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+  await expect(fontSizeInput(page)).toHaveValue("32");
+
+  await fontSizeInput(page).fill("48");
+  await fontSizeInput(page).press("Enter");
+
+  await expect(editor).toHaveCSS("font-size", "48px");
+  await expect(editor).toHaveCSS("width", "600px");
+  await expectMode(page, "edit");
+});
+
+test("focuses the font size input on a click on its icon", async ({ page }) => {
+  await openApp(page);
+  await addTextByDrag(page, TEXT_RANGE, "Hello");
+
+  await fontSizeIcon(page).click();
+
+  await expect(fontSizeInput(page)).toBeFocused();
+  await expectMode(page, "edit");
+});
+
+test("clamps the font size typed into the toolbar", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+
+  await fontSizeInput(page).fill("100");
+  await fontSizeInput(page).press("Enter");
+
+  await expect(editor).toHaveCSS("font-size", "72px");
+  await expect(fontSizeInput(page)).toHaveValue("72");
+});
+
+test("sets the color picked on the toolbar", async ({ page }) => {
+  await openApp(page);
+  await addTextByDrag(page, TEXT_RANGE, "Hello");
+
+  await textColorButton(page).click();
+  await textColorSwatch(page, "Blue").click();
+
+  await expect(textColorSwatch(page, "Blue")).toBeHidden();
+  await expectMode(page, "edit");
+  await expect(textEditor(page)).toHaveValue("Hello");
+
+  await textColorButton(page).click();
+  await expect(textColorSwatch(page, "Blue")).toBeChecked();
+  await page.keyboard.press("Escape");
+  await expect(textColorSwatch(page, "Blue")).toBeHidden();
+  await expectMode(page, "edit");
+
+  // NOTE: the click leaves the pointer on an empty corner, hence no hover highlight either.
+  await commitText(page);
+  await expect.soft(page).toHaveScreenshot("screenshot-text-recolored.png");
+});

@@ -89,6 +89,24 @@ export const dropOverlay = (page: Page): Locator => page.getByText("Drop images 
  */
 export const contextMenu = (page: Page): Locator => page.getByRole("menu");
 
+/** the toolbar over the pane, shown while a text item is under edit. */
+export const editToolbar = (page: Page): Locator =>
+  page.getByRole("toolbar", { name: "Text style" });
+
+export const fontSizeInput = (page: Page): Locator =>
+  editToolbar(page).getByRole("spinbutton", { name: "Font size" });
+
+/** the icon in front of the font size input, which is a label of the input. */
+export const fontSizeIcon = (page: Page): Locator => editToolbar(page).locator("label");
+
+/** the toolbar button that opens the text color swatches. */
+export const textColorButton = (page: Page): Locator =>
+  editToolbar(page).getByRole("button", { name: "Text color" });
+
+/** a text color swatch, by the name of its color. it is visible only while the swatches are open. */
+export const textColorSwatch = (page: Page, name: string): Locator =>
+  page.getByRole("radiogroup", { name: "Text color" }).getByRole("radio", { name });
+
 /** the dialog asking whether the unsaved picture may be discarded. */
 export const confirmClearDialog = (page: Page): Locator => page.getByText("Unsaved Changes");
 

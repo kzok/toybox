@@ -321,6 +321,120 @@ describe(createEditModeActions, () => {
     });
   });
 
+  describe("setTextFontSize()", () => {
+    // width: 100, fontSize: 32
+    const setUp = () => {
+      const textItem = createTextItem("item-1", "hello");
+      const imageItem = createImageItem("item-2", [0, 0]);
+      const target = createTestTargetWithItems(textItem, imageItem);
+      return { ...target, textItem, imageItem } as const;
+    };
+
+    const textItemOf = (items: readonly EditorItem[], id: string) => {
+      const item = items.find((item) => item.id === id);
+      if (item?.kind !== "text") throw new Error("not a text item");
+      return { width: item.width, fontSize: item.fontSize, offset: item.offset };
+    };
+
+    it("scales the width by the same factor as the font size, keeping the offset.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 48);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toStrictEqual({
+        width: 150,
+        fontSize: 48,
+        offset: [0, 0],
+      });
+    });
+
+    it("rounds a fractional font size.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 40.4);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toMatchObject({
+        width: 125,
+        fontSize: 40,
+      });
+    });
+
+    it("stops at the minimum font size, and the width with it.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 1);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toMatchObject({
+        width: 38,
+        fontSize: 12,
+      });
+    });
+
+    it("stops at the maximum font size, and the width with it.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 1000);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toMatchObject({
+        width: 225,
+        fontSize: 72,
+      });
+    });
+
+    it("keeps the very same items list on the current font size, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextFontSize(textItem.id, textItem.fontSize);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a text item.", () => {
+      const { store, actions, atoms, imageItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextFontSize(imageItem.id, 48);
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextFontSize("missing-id", 48);
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
+  describe("setTextColor()", () => {
+    const setUp = () => {
+      const textItem = createTextItem("item-1", "hello");
+      const imageItem = createImageItem("item-2", [0, 0]);
+      const target = createTestTargetWithItems(textItem, imageItem);
+      return { ...target, textItem, imageItem } as const;
+    };
+
+    it("updates the color of the specified text item.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextColor(textItem.id, "#000");
+      const items = store.get(atoms.editorItems);
+      expect(items.find((item) => item.id === textItem.id)).toStrictEqual({
+        ...textItem,
+        color: "#000",
+      });
+    });
+
+    it("keeps the very same items list on the current color, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextColor(textItem.id, textItem.color);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a text item.", () => {
+      const { store, actions, atoms, imageItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextColor(imageItem.id, "#000");
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextColor("missing-id", "#000");
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
   describe("resizeTextWidth()", () => {
     // width: 100, fontSize: 32, hence a minimum width of 128.
     const setUp = () => {

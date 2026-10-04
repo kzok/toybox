@@ -1,9 +1,9 @@
 import type { TextItemLayout } from "./types";
 
 /** font size a text item is never laid out below */
-const MIN_FONT_SIZE_PX = 12;
+export const MIN_FONT_SIZE_PX = 12;
 /** font size a text item is never laid out above */
-const MAX_FONT_SIZE_PX = 72;
+export const MAX_FONT_SIZE_PX = 72;
 
 /**
  * @param fontSize desired font size (px), fractional or out of range

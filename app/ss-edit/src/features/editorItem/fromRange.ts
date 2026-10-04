@@ -1,12 +1,10 @@
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { clampArrowLength } from "./arrowStyle";
 import { clampMosaicSide } from "./mosaicStyle";
+import { NEW_ITEM_COLOR } from "./palette";
 import { clampRectSide } from "./rectStyle";
 import { clampFontSize, clampTextWidth, LINE_HEIGHT_RATIO } from "./textStyle";
 import type { AddableItemKind, EditorItem } from "./types";
-
-/** color of a newly added item, whichever kind it is */
-const NEW_ITEM_COLOR = "#EF3171";
 
 /** line width (px) of a newly added rect item */
 const NEW_RECT_LINE_WIDTH = 4;
