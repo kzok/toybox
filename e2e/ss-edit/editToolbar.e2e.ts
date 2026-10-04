@@ -92,3 +92,35 @@ test("sets the color picked on the toolbar", async ({ page }) => {
   await commitText(page);
   await expect.soft(page).toHaveScreenshot("screenshot-text-recolored.png");
 });
+
+test("hands the focus back to the text editor, caret and all, once a color is picked", async ({
+  page,
+}) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+  await page.keyboard.press("Home");
+
+  await textColorButton(page).click();
+  await textColorSwatch(page, "Blue").click();
+
+  await expect(editor).toBeFocused();
+  await page.keyboard.type("X");
+  await expect(editor).toHaveValue("XHello");
+  await page.keyboard.press("Backspace");
+  await expect(editor).toHaveValue("Hello");
+  await expectMode(page, "edit");
+});
+
+test("hands the focus back to the text editor when Escape closes the colors", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+
+  await textColorButton(page).click();
+  await expect(textColorSwatch(page, "Blue")).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  await expect(textColorSwatch(page, "Blue")).toBeHidden();
+  await expect(editor).toBeFocused();
+  await page.keyboard.type("!");
+  await expect(editor).toHaveValue("Hello!");
+});

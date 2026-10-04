@@ -1,6 +1,7 @@
 import {
   ColorSwatch,
   Popover,
+  type PopoverProps,
   PopoverSurface,
   PopoverTrigger,
   SpinButton,
@@ -20,7 +21,10 @@ import {
   TEXT_COLORS,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
+import { useTextEditorRef } from "./context";
 import styles from "./index.module.css";
+
+export { TextEditorProvider } from "./context";
 
 /** toolbar for edit mode, shown only on a text item */
 export const EditToolbar = React.memo(() => {
@@ -73,14 +77,26 @@ const ColorPicker = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
+  const textEditorRef = useTextEditorRef();
   const [open, setOpen] = React.useState(false);
+  const closeToTextEditor = () => {
+    textEditorRef.current?.focus();
+    setOpen(false);
+  };
+  const onOpenChange: PopoverProps["onOpenChange"] = (e, data) => {
+    if (!data.open && "key" in e && e.key === "Escape") {
+      closeToTextEditor();
+      return;
+    }
+    setOpen(data.open);
+  };
   const onSelectionChange: SwatchPickerProps["onSelectionChange"] = (_, data) => {
     actions.editMode.setTextColor(item.id, data.selectedValue);
-    setOpen(false);
+    closeToTextEditor();
   };
 
   return (
-    <Popover open={open} onOpenChange={(_, data) => setOpen(data.open)} positioning="below-start">
+    <Popover open={open} onOpenChange={onOpenChange} positioning="below-start">
       <PopoverTrigger disableButtonEnhancement>
         <ToolbarButton
           className={styles.colorButton}

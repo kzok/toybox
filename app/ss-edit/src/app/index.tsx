@@ -2,7 +2,7 @@ import { ImageAddRegular } from "@fluentui/react-icons";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import React from "react";
 import { EditorPane } from "../containers/EditorPane";
-import { EditToolbar } from "../containers/EditToolbar";
+import { EditToolbar, TextEditorProvider } from "../containers/EditToolbar";
 import { Footer } from "../containers/Footer";
 import { Header } from "../containers/Header";
 import { useBeforeUnload } from "../hooks/useBeforeUnload";
@@ -17,8 +17,10 @@ export const App: React.FC = () => (
     <div className={styles.container}>
       <Header className={styles.header} />
       <div className={styles.body}>
-        <EditorPane />
-        <EditToolbar />
+        <TextEditorProvider>
+          <EditorPane />
+          <EditToolbar />
+        </TextEditorProvider>
       </div>
       <Footer className={styles.footer} />
     </div>

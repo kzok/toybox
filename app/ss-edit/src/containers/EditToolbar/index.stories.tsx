@@ -4,7 +4,7 @@ import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
 import type { EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, pageCtx } from "../../store";
-import { EditToolbar } from "./index";
+import { EditToolbar, TextEditorProvider } from "./index";
 
 const meta: Meta = {
   component: EditToolbar,
@@ -44,7 +44,9 @@ export const EditingText: StoryObj<typeof meta> = {
     };
     return (
       <AppProvider>
-        <Wrapper />
+        <TextEditorProvider>
+          <Wrapper />
+        </TextEditorProvider>
       </AppProvider>
     );
   },

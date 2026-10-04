@@ -9,6 +9,7 @@ import {
 } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
 import { Vec2 } from "../../../utils/geometry";
+import { useTextEditorRef } from "../../EditToolbar/context";
 import { CanvasLayer } from "../CanvasLayer";
 import { ResizeContainer, ResizeHandle, ResizePointHandle } from "../ResizeHandle";
 import styles from "./index.module.css";
@@ -203,7 +204,7 @@ const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const elementRef = React.useRef<HTMLTextAreaElement>(null);
+  const elementRef = useTextEditorRef();
   const boxStyle = React.useMemo(
     (): React.CSSProperties => ({
       left: `${item.offset[0]}px`,
@@ -229,7 +230,7 @@ const TextItem = React.memo<{
     element.focus();
     // place the caret at the end of the content.
     element.setSelectionRange(element.value.length, element.value.length);
-  }, []);
+  }, [elementRef]);
 
   return (
     <ResizeContainer style={boxStyle}>

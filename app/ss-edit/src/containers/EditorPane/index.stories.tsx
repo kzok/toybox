@@ -5,6 +5,7 @@ import { AppProvider } from "../../app/AppProvider";
 import { clampArrowLength, type EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, type PageState, pageCtx } from "../../store";
 import { Vec2 } from "../../utils/geometry";
+import { TextEditorProvider } from "../EditToolbar";
 import testImage350x240 from "./fixtures/350x240.png";
 import { EditorPane } from "./index";
 
@@ -247,7 +248,9 @@ const renderEditor = (state: PageState): React.ReactElement => {
   };
   return (
     <AppProvider>
-      <Wrapper />
+      <TextEditorProvider>
+        <Wrapper />
+      </TextEditorProvider>
     </AppProvider>
   );
 };
