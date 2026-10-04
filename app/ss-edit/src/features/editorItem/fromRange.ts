@@ -9,6 +9,9 @@ import type { AddableItemKind, EditorItem } from "./types";
 /** line width (px) of a newly added rect item */
 const NEW_RECT_LINE_WIDTH = 4;
 
+/** block size (px) of a newly added mosaic item */
+const NEW_MOSAIC_BLOCK_SIZE = 8;
+
 /** the two points a drag on the pane ran between, in canvas coordinates */
 export type ItemRange = readonly [Vec2, Vec2];
 
@@ -57,6 +60,7 @@ export const editorItemFromRange = (
         offset: head.tuple(),
         width: clampMosaicSide(size.x),
         height: clampMosaicSide(size.y),
+        blockSize: NEW_MOSAIC_BLOCK_SIZE,
       };
     }
     case "arrow": {

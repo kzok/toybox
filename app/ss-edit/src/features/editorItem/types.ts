@@ -88,6 +88,8 @@ export namespace EditorItem {
     width: number;
     /** display height */
     height: number;
+    /** side (px) of a single square block, in canvas coordinates */
+    blockSize: number;
   }>;
 }
 

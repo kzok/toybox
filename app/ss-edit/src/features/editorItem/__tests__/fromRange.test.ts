@@ -92,6 +92,7 @@ describe(editorItemFromRange, () => {
         offset: [20, 40],
         width: 400,
         height: 100,
+        blockSize: expect.any(Number),
       });
     });
 
