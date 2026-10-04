@@ -16,9 +16,9 @@ import { TextColorRegular, TextFontSizeRegular } from "@fluentui/react-icons";
 import React from "react";
 import {
   type EditorItem,
+  ITEM_COLORS,
   MAX_FONT_SIZE_PX,
   MIN_FONT_SIZE_PX,
-  TEXT_COLORS,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
 import { useTextEditorRef } from "./context";
@@ -26,20 +26,34 @@ import styles from "./index.module.css";
 
 export { TextEditorProvider } from "./context";
 
-/** toolbar for edit mode, shown only on a text item */
+/** toolbar for edit mode, shown only on a kind of item that has controls */
 export const EditToolbar = React.memo(() => {
-  const item = pageCtx.useEditingTextItem();
+  const controls = renderControls(pageCtx.useEditingItem());
 
-  if (item == null) {
+  if (controls == null) {
     return null;
   }
   return (
-    <Toolbar className={styles.container} aria-label="Text style">
-      <FontSizeInput item={item} />
-      <ColorPicker item={item} />
+    <Toolbar className={styles.container} aria-label="Item style">
+      {controls}
     </Toolbar>
   );
 });
+
+/** @returns the controls for the item under edit, or null if its kind has none */
+const renderControls = (item: EditorItem | null): React.ReactNode => {
+  switch (item?.kind) {
+    case "text":
+      return (
+        <>
+          <FontSizeInput item={item} />
+          <ColorPicker item={item} />
+        </>
+      );
+    default:
+      return null;
+  }
+};
 
 const FontSizeInput = React.memo<{
   item: EditorItem.Text;
@@ -74,7 +88,7 @@ const FontSizeInput = React.memo<{
 });
 
 const ColorPicker = React.memo<{
-  item: EditorItem.Text;
+  item: Extract<EditorItem, { color: string }>;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
   const textEditorRef = useTextEditorRef();
@@ -91,7 +105,7 @@ const ColorPicker = React.memo<{
     setOpen(data.open);
   };
   const onSelectionChange: SwatchPickerProps["onSelectionChange"] = (_, data) => {
-    actions.editMode.setTextColor(item.id, data.selectedValue);
+    actions.editMode.setColor(item.id, data.selectedValue);
     closeToTextEditor();
   };
 
@@ -113,7 +127,7 @@ const ColorPicker = React.memo<{
           selectedValue={item.color}
           onSelectionChange={onSelectionChange}
         >
-          {TEXT_COLORS.map((color) => (
+          {ITEM_COLORS.map((color) => (
             <ColorSwatch
               key={color.value}
               color={color.value}

@@ -9,8 +9,8 @@ export type PaletteColor = Readonly<{
   value: string;
 }>;
 
-/** colors a text item can take */
-export const TEXT_COLORS: readonly PaletteColor[] = [
+/** colors an item with a `color` can take */
+export const ITEM_COLORS: readonly PaletteColor[] = [
   { label: "Pink", value: NEW_ITEM_COLOR },
   { label: "Red", value: "#F3353C" },
   { label: "Orange", value: "#F68000" },

@@ -48,15 +48,14 @@ export const createAtoms = () => {
   /** if the picture has anything to save. */
   const canSave = atom((get): boolean => get(editorItems).length > 0);
 
-  /** the text item under edit, or null unless edit mode is on a text item. */
-  const editingTextItem = atom((get): EditorItem.Text | null => {
+  /** the item under edit, or null outside edit mode. */
+  const editingItem = atom((get): EditorItem | null => {
     const mode = get(editorMode);
     if (mode.kind !== "edit") return null;
-    const item = get(editorItems).find((item) => item.id === mode.itemId);
-    return item?.kind === "text" ? item : null;
+    return get(editorItems).find((item) => item.id === mode.itemId) ?? null;
   });
   /** if edit mode is on a text item. */
-  const isEditingText = atom((get): boolean => get(editingTextItem) != null);
+  const isEditingText = atom((get): boolean => get(editingItem)?.kind === "text");
 
   /**
    * the item the drag in add-item mode would add, or null while no such drag is under way.
@@ -81,7 +80,7 @@ export const createAtoms = () => {
     isDialogOpen,
     savedItems,
     canSave,
-    editingTextItem,
+    editingItem,
     isEditingText,
     addItemPreview,
     canvasOffset: atom((get) => canvasOffset(get(editorView))),

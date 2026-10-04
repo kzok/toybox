@@ -99,13 +99,13 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       });
     },
     /**
-     * set the color of a text item.
+     * set the color of an item, if its kind has one.
      * @param color CSS color value
      */
-    setTextColor: (itemId: string, color: string): void => {
+    setColor: (itemId: string, color: string): void => {
       updateAtom(atoms.state, (draft) => {
         const item = draft.editorItems.find((item) => item.id === itemId);
-        if (item?.kind !== "text") return;
+        if (item == null || !("color" in item)) return;
         item.color = color;
       });
     },

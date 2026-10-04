@@ -395,43 +395,40 @@ describe(createEditModeActions, () => {
     });
   });
 
-  describe("setTextColor()", () => {
-    const setUp = () => {
-      const textItem = createTextItem("item-1", "hello");
-      const imageItem = createImageItem("item-2", [0, 0]);
-      const target = createTestTargetWithItems(textItem, imageItem);
-      return { ...target, textItem, imageItem } as const;
-    };
-
-    it("updates the color of the specified text item.", () => {
-      const { store, actions, atoms, textItem } = setUp();
-      actions.editMode.setTextColor(textItem.id, "#000");
-      const items = store.get(atoms.editorItems);
-      expect(items.find((item) => item.id === textItem.id)).toStrictEqual({
-        ...textItem,
-        color: "#000",
-      });
+  describe("setColor()", () => {
+    it.each([
+      createTextItem("item-1", "hello"),
+      createRectItem("item-1", [0, 0]),
+      createArrowItem("item-1", [0, 0]),
+    ])("updates the color of a $kind item.", (item) => {
+      const { store, actions, atoms } = createTestTargetWithItems(item);
+      actions.editMode.setColor(item.id, "#000");
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, color: "#000" }]);
     });
 
     it("keeps the very same items list on the current color, which would count as unsaved otherwise.", () => {
-      const { store, actions, atoms, textItem } = setUp();
+      const item = createTextItem("item-1", "hello");
+      const { store, actions, atoms } = createTestTargetWithItems(item);
       const before = store.get(atoms.editorItems);
-      actions.editMode.setTextColor(textItem.id, textItem.color);
+      actions.editMode.setColor(item.id, item.color);
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
-    it("keeps items unchanged when the item is not a text item.", () => {
-      const { store, actions, atoms, imageItem } = setUp();
-      const before = store.get(atoms.editorItems);
-      actions.editMode.setTextColor(imageItem.id, "#000");
-      expect(store.get(atoms.editorItems)).toStrictEqual(before);
-    });
+    it.each([createImageItem("item-1", [0, 0]), createMosaicItem("item-1", [0, 0])])(
+      "keeps items unchanged on a $kind item, which has no color.",
+      (item) => {
+        const { store, actions, atoms } = createTestTargetWithItems(item);
+        const before = store.get(atoms.editorItems);
+        actions.editMode.setColor(item.id, "#000");
+        expect(store.get(atoms.editorItems)).toBe(before);
+      },
+    );
 
     it("keeps items unchanged when the item does not exist.", () => {
-      const { store, actions, atoms } = setUp();
+      const { store, actions, atoms } = createTestTargetWithItems(createTextItem("item-1", ""));
       const before = store.get(atoms.editorItems);
-      actions.editMode.setTextColor("missing-id", "#000");
-      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+      actions.editMode.setColor("missing-id", "#000");
+      expect(store.get(atoms.editorItems)).toBe(before);
     });
   });
 

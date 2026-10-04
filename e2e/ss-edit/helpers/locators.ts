@@ -89,9 +89,9 @@ export const dropOverlay = (page: Page): Locator => page.getByText("Drop images 
  */
 export const contextMenu = (page: Page): Locator => page.getByRole("menu");
 
-/** the toolbar over the pane, shown while a text item is under edit. */
+/** the toolbar over the pane, shown while an item of a kind with controls is under edit. */
 export const editToolbar = (page: Page): Locator =>
-  page.getByRole("toolbar", { name: "Text style" });
+  page.getByRole("toolbar", { name: "Item style" });
 
 export const fontSizeInput = (page: Page): Locator =>
   editToolbar(page).getByRole("spinbutton", { name: "Font size" });
