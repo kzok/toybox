@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { Vec2 } from "../../../utils/geometry";
 import { clampArrowLength } from "../arrowStyle";
 import { editorItemFromRange, type ItemRange } from "../fromRange";
+import { MOSAIC_BLOCK_SIZES } from "../mosaicStyle";
+import { RECT_LINE_WIDTHS } from "../rectStyle";
 
 /**
  * @param from the point the drag began at
@@ -75,6 +77,12 @@ describe(editorItemFromRange, () => {
       // the head of the drag is kept, so the item grows away from where it started.
       expect(item.offset).toStrictEqual([20, 40]);
     });
+
+    it("takes a line width that the toolbar offers.", () => {
+      const item = editorItemFromRange("rect", range([20, 40], [420, 140]), "item-1");
+      if (item.kind !== "rect") throw new Error("not a rect item");
+      expect(RECT_LINE_WIDTHS).toContain(item.lineWidth);
+    });
   });
 
   describe('"mosaic"', () => {
@@ -85,6 +93,7 @@ describe(editorItemFromRange, () => {
         offset: [20, 40],
         width: 400,
         height: 100,
+        blockSize: expect.any(Number),
       });
     });
 
@@ -99,6 +108,12 @@ describe(editorItemFromRange, () => {
       expect(item.kind === "mosaic" && [item.width, item.height]).toStrictEqual([16, 16]);
       // the head of the drag is kept, so the item grows away from where it started.
       expect(item.offset).toStrictEqual([20, 40]);
+    });
+
+    it("takes a block size that the toolbar offers.", () => {
+      const item = editorItemFromRange("mosaic", range([20, 40], [420, 140]), "item-1");
+      if (item.kind !== "mosaic") throw new Error("not a mosaic item");
+      expect(MOSAIC_BLOCK_SIZES).toContain(item.blockSize);
     });
   });
 

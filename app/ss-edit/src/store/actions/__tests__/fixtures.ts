@@ -79,6 +79,7 @@ export const createMosaicItem = (
   offset,
   width: 100,
   height: 50,
+  blockSize: 8,
 });
 
 /**

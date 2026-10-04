@@ -1,0 +1,45 @@
+.container {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  gap: 4px;
+
+  border: 1px solid var(--colorNeutralStroke2);
+  border-radius: var(--borderRadiusMedium);
+  background-color: var(--colorNeutralBackground1);
+  box-shadow: var(--shadow8);
+
+  /* an icon labelling the control next to it */
+  .labelled {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 4px;
+
+    .icon {
+      display: flex;
+      font-size: 20px;
+    }
+
+    .fontSizeInput {
+      width: 72px;
+    }
+
+    .lineWidthDropdown,
+    .blockSizeDropdown {
+      min-width: 88px;
+    }
+  }
+
+  .colorButton {
+    min-width: unset;
+  }
+
+  .colorChip {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: var(--borderRadiusSmall);
+  }
+}

@@ -321,6 +321,117 @@ describe(createEditModeActions, () => {
     });
   });
 
+  describe("setTextFontSize()", () => {
+    // width: 100, fontSize: 32
+    const setUp = () => {
+      const textItem = createTextItem("item-1", "hello");
+      const imageItem = createImageItem("item-2", [0, 0]);
+      const target = createTestTargetWithItems(textItem, imageItem);
+      return { ...target, textItem, imageItem } as const;
+    };
+
+    const textItemOf = (items: readonly EditorItem[], id: string) => {
+      const item = items.find((item) => item.id === id);
+      if (item?.kind !== "text") throw new Error("not a text item");
+      return { width: item.width, fontSize: item.fontSize, offset: item.offset };
+    };
+
+    it("scales the width by the same factor as the font size, keeping the offset.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 48);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toStrictEqual({
+        width: 150,
+        fontSize: 48,
+        offset: [0, 0],
+      });
+    });
+
+    it("rounds a fractional font size.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 40.4);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toMatchObject({
+        width: 125,
+        fontSize: 40,
+      });
+    });
+
+    it("stops at the minimum font size, and the width with it.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 1);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toMatchObject({
+        width: 38,
+        fontSize: 12,
+      });
+    });
+
+    it("stops at the maximum font size, and the width with it.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 1000);
+      expect(textItemOf(store.get(atoms.editorItems), textItem.id)).toMatchObject({
+        width: 225,
+        fontSize: 72,
+      });
+    });
+
+    it("keeps the very same items list on the current font size, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextFontSize(textItem.id, textItem.fontSize);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a text item.", () => {
+      const { store, actions, atoms, imageItem } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextFontSize(imageItem.id, 48);
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setTextFontSize("missing-id", 48);
+      expect(store.get(atoms.editorItems)).toStrictEqual(before);
+    });
+  });
+
+  describe("setColor()", () => {
+    it.each([
+      createTextItem("item-1", "hello"),
+      createRectItem("item-1", [0, 0]),
+      createArrowItem("item-1", [0, 0]),
+    ])("updates the color of a $kind item.", (item) => {
+      const { store, actions, atoms } = createTestTargetWithItems(item);
+      actions.editMode.setColor(item.id, "#000");
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, color: "#000" }]);
+    });
+
+    it("keeps the very same items list on the current color, which would count as unsaved otherwise.", () => {
+      const item = createTextItem("item-1", "hello");
+      const { store, actions, atoms } = createTestTargetWithItems(item);
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setColor(item.id, item.color);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it.each([createImageItem("item-1", [0, 0]), createMosaicItem("item-1", [0, 0])])(
+      "keeps items unchanged on a $kind item, which has no color.",
+      (item) => {
+        const { store, actions, atoms } = createTestTargetWithItems(item);
+        const before = store.get(atoms.editorItems);
+        actions.editMode.setColor(item.id, "#000");
+        expect(store.get(atoms.editorItems)).toBe(before);
+      },
+    );
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = createTestTargetWithItems(createTextItem("item-1", ""));
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setColor("missing-id", "#000");
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+  });
+
   describe("resizeTextWidth()", () => {
     // width: 100, fontSize: 32, hence a minimum width of 128.
     const setUp = () => {
@@ -495,6 +606,55 @@ describe(createEditModeActions, () => {
     });
   });
 
+  describe("setRectLineWidth()", () => {
+    // lineWidth: 4, hence an outline of 7 and a padding of 3.5 around the line.
+    const setUp = () => {
+      const item = createRectItem("item-1", [100, 100]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    it("moves the offset out by the growth of the padding, keeping the line where it is.", () => {
+      const { store, actions, atoms, item } = setUp();
+      // an outline of ceil(12 * 1.6) = 20, hence a padding of 10.
+      actions.editMode.setRectLineWidth(item.id, 12);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 12, offset: [93.5, 93.5] },
+      ]);
+    });
+
+    it("moves the offset in by the shrink of the padding, keeping the line where it is.", () => {
+      const { store, actions, atoms, item } = setUp();
+      // an outline of ceil(1 * 1.6) = 2, hence a padding of 1.
+      actions.editMode.setRectLineWidth(item.id, 1);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 1, offset: [102.5, 102.5] },
+      ]);
+    });
+
+    it("keeps the very same items list on the current line width, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setRectLineWidth(item.id, item.lineWidth);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a rect item.", () => {
+      const textItem = createTextItem("item-1", "hello");
+      const { store, actions, atoms } = createTestTargetWithItems(textItem);
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setRectLineWidth(textItem.id, 12);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setRectLineWidth("missing-id", 12);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+  });
+
   describe("resizeMosaic()", () => {
     // width: 100, height: 50, drawn at exactly that size.
     const setUp = () => {
@@ -554,6 +714,42 @@ describe(createEditModeActions, () => {
       actions.editMode.resizeMosaic(rectItem.id, [200, 100]);
 
       expect(store.get(atoms.editorItems)).toStrictEqual([rectItem]);
+    });
+  });
+
+  describe("setMosaicBlockSize()", () => {
+    const setUp = () => {
+      const item = createMosaicItem("item-1", [100, 100]);
+      const target = createTestTargetWithItems(item);
+      return { ...target, item } as const;
+    };
+
+    it("updates the block size, leaving the box where it is.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setMosaicBlockSize(item.id, 16);
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, blockSize: 16 }]);
+    });
+
+    it("keeps the very same items list on the current block size, which would count as unsaved otherwise.", () => {
+      const { store, actions, atoms, item } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setMosaicBlockSize(item.id, item.blockSize);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item is not a mosaic item.", () => {
+      const rectItem = createRectItem("item-1", [0, 0]);
+      const { store, actions, atoms } = createTestTargetWithItems(rectItem);
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setMosaicBlockSize(rectItem.id, 16);
+      expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps items unchanged when the item does not exist.", () => {
+      const { store, actions, atoms } = setUp();
+      const before = store.get(atoms.editorItems);
+      actions.editMode.setMosaicBlockSize("missing-id", 16);
+      expect(store.get(atoms.editorItems)).toBe(before);
     });
   });
 

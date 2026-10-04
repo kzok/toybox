@@ -247,7 +247,7 @@ export const addTextByDrag = async (page: Page, rect: Box, content?: string): Pr
 /** adds a text item and ends the edit right away, for tests that only need one to exist. */
 export const addText = async (page: Page, rect: Box, content: string): Promise<void> => {
   await addTextByDrag(page, rect, content);
-  await commitText(page);
+  await leaveEditMode(page);
 };
 
 /**
@@ -267,17 +267,26 @@ export const eraseText = async (page: Page): Promise<void> => {
   await expect(textEditor(page)).toHaveValue("");
 };
 
-/** ends the edit by clicking an empty corner of the pane, as a user would. */
-export const commitText = async (page: Page): Promise<void> => {
+/**
+ * @returns an empty corner of the pane in viewport coordinates.
+ * @note the bottom-left one: the toolbar of a text item under edit covers the top-left one.
+ */
+const emptyCornerOf = async (page: Page): Promise<Point> => {
   const pane = await boundingBoxOf(editorPane(page));
-  await page.mouse.click(pane.x + 20, pane.y + 20);
+  return { x: pane.x + 20, y: pane.y + pane.height - 20 };
+};
+
+/** ends the edit by clicking an empty corner of the pane, as a user would. */
+export const leaveEditMode = async (page: Page): Promise<void> => {
+  const { x, y } = await emptyCornerOf(page);
+  await page.mouse.click(x, y);
   await expectMode(page, "select");
 };
 
 /** keeps the pointer off the items so that their `:hover` highlight stays out of screenshots. */
 export const parkCursor = async (page: Page): Promise<void> => {
-  const box = await boundingBoxOf(editorPane(page));
-  await page.mouse.move(box.x + 20, box.y + 20);
+  const { x, y } = await emptyCornerOf(page);
+  await page.mouse.move(x, y);
 };
 
 /**

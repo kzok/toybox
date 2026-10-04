@@ -4,13 +4,13 @@ import {
   addText,
   boundingBoxOf,
   centerOf,
-  commitText,
   dragBy,
   dragFromTo,
   eraseText,
   expectMode,
   expectMovedBy,
   imageItems,
+  leaveEditMode,
   openApp,
   parkCursor,
   pictureSize,
@@ -166,7 +166,7 @@ test("removes the item when its content is erased", async ({ page }) => {
   await expectMode(page, "edit");
 
   await eraseText(page);
-  await commitText(page);
+  await leaveEditMode(page);
 
   await expect(textItems(page)).toHaveCount(0);
   await expect(pictureSize(page)).toHaveText("0 x 0");

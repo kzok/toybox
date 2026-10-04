@@ -83,6 +83,11 @@ This does not leave Edit mode.
 
 Every size has limits, so the user can always grab the item again.
 
+Edit mode shows a toolbar for a kind with styles to change.
+The toolbar changes the styles of the item in Edit mode.
+It floats over the top-left corner of the pane.
+So showing or hiding it never changes the size of the view.
+
 ### Context menu
 
 In Select mode and Edit mode, a right-click on the pane opens the app's context menu.
@@ -161,6 +166,9 @@ Resizing changes its width and height independently.
 ## Hotkeys
 
 - **`Delete` and `Backspace` delete items in Select mode and Edit mode.**
+  Edit mode of a text item is the exception.
+  There, these keys never delete the item, even when the focus is outside the text editor.
+  A key meant to delete a character must not delete the whole item.
 - **Some hotkeys work during text editing, and some do not.** `Mod+S`
   and `Escape` work inside the text editor, because the user wants to save or leave there.
   The text editor handles `Delete` and `Backspace`, where they mean "delete a character".

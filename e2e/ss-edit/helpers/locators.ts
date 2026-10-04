@@ -89,6 +89,53 @@ export const dropOverlay = (page: Page): Locator => page.getByText("Drop images 
  */
 export const contextMenu = (page: Page): Locator => page.getByRole("menu");
 
+/** the toolbar over the pane, shown while an item of a kind with controls is under edit. */
+export const editToolbar = (page: Page): Locator =>
+  page.getByRole("toolbar", { name: "Item style" });
+
+export const fontSizeInput = (page: Page): Locator =>
+  editToolbar(page).getByRole("spinbutton", { name: "Font size" });
+
+/** the icon in front of the font size input, which is a label of the input. */
+export const fontSizeIcon = (page: Page): Locator => editToolbar(page).locator("label");
+
+export const lineWidthDropdown = (page: Page): Locator =>
+  editToolbar(page).getByRole("combobox", { name: "Line width" });
+
+export const blockSizeDropdown = (page: Page): Locator =>
+  editToolbar(page).getByRole("combobox", { name: "Block size" });
+
+/**
+ * an option of a toolbar dropdown, by its text. it is visible only while the list is open.
+ * @note it matches an option of any dropdown. open one dropdown at a time.
+ */
+export const dropdownOption = (page: Page, name: string): Locator =>
+  page.getByRole("option", { name });
+
+/** the toolbar button that opens the line color swatches. */
+export const lineColorButton = (page: Page): Locator =>
+  editToolbar(page).getByRole("button", { name: "Line color" });
+
+/** a line color swatch, by the name of its color. it is visible only while the swatches are open. */
+export const lineColorSwatch = (page: Page, name: string): Locator =>
+  page.getByRole("radiogroup", { name: "Line color" }).getByRole("radio", { name });
+
+/** the toolbar button that opens the arrow color swatches. */
+export const arrowColorButton = (page: Page): Locator =>
+  editToolbar(page).getByRole("button", { name: "Arrow color" });
+
+/** an arrow color swatch, by the name of its color. it is visible only while the swatches are open. */
+export const arrowColorSwatch = (page: Page, name: string): Locator =>
+  page.getByRole("radiogroup", { name: "Arrow color" }).getByRole("radio", { name });
+
+/** the toolbar button that opens the text color swatches. */
+export const textColorButton = (page: Page): Locator =>
+  editToolbar(page).getByRole("button", { name: "Text color" });
+
+/** a text color swatch, by the name of its color. it is visible only while the swatches are open. */
+export const textColorSwatch = (page: Page, name: string): Locator =>
+  page.getByRole("radiogroup", { name: "Text color" }).getByRole("radio", { name });
+
 /** the dialog asking whether the unsaved picture may be discarded. */
 export const confirmClearDialog = (page: Page): Locator => page.getByText("Unsaved Changes");
 

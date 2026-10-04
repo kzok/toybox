@@ -5,9 +5,9 @@ import {
   boundingBoxOf,
   centerOf,
   dragBy,
-  editorPane,
   expectBoxOnScreen,
   expectMode,
+  leaveEditMode,
   openApp,
   type Point,
   parkCursor,
@@ -82,10 +82,7 @@ test("keeps the resized rect in the exported picture", async ({ page }) => {
 
   await dragHandleBy(page, { x: 60, y: -30 });
 
-  // leave edit mode by clicking an empty corner of the pane, as a user would.
-  const pane = await boundingBoxOf(editorPane(page));
-  await page.mouse.click(pane.x + 20, pane.y + 20);
-  await expectMode(page, "select");
+  await leaveEditMode(page);
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-rect.png");

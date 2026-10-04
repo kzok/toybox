@@ -6,9 +6,9 @@ import {
   boundingBoxOf,
   centerOf,
   dragBy,
-  editorPane,
   expectBoxOnScreen,
   expectMode,
+  leaveEditMode,
   MOSAIC_PIXELS,
   mosaicItems,
   openApp,
@@ -67,9 +67,7 @@ test("keeps the resized mosaic in the exported picture", async ({ page }) => {
   // reaches past the right edge of the image, over nothing but the background.
   await dragHandleBy(page, { x: 60, y: 20 });
 
-  const pane = await boundingBoxOf(editorPane(page));
-  await page.mouse.click(pane.x + 20, pane.y + 20);
-  await expectMode(page, "select");
+  await leaveEditMode(page);
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-mosaic.png", MOSAIC_PIXELS);

@@ -4,8 +4,8 @@ import {
   bottomRightResizeHandle,
   boundingBoxOf,
   centerOf,
-  commitText,
   dragBy,
+  leaveEditMode,
   openApp,
   type Point,
   parkCursor,
@@ -154,7 +154,7 @@ test("keeps the resized text in the exported picture", async ({ page }) => {
   await addTextByDrag(page, MAIN_RANGE, "Hello");
 
   await dragHandleBy(page, { x: 100, y: 10 });
-  await commitText(page);
+  await leaveEditMode(page);
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-text.png");
@@ -210,7 +210,7 @@ test("keeps the narrowed text in the exported picture", async ({ page }) => {
   await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
 
   await dragWidthHandleBy(page, { x: -20, y: 0 });
-  await commitText(page);
+  await leaveEditMode(page);
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-narrowed-text.png");

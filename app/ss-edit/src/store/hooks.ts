@@ -13,4 +13,6 @@ export const useIsDialogOpen = () => useAtomValue(useAtoms().isDialogOpen);
 export const useCanvasOffset = () => useAtomValue(useAtoms().canvasOffset);
 export const useEditorPictureRect = () => useAtomValue(useAtoms().editorPictureRect);
 export const useCanSave = () => useAtomValue(useAtoms().canSave);
+export const useEditingItem = () => useAtomValue(useAtoms().editingItem);
+export const useIsEditingText = () => useAtomValue(useAtoms().isEditingText);
 export const useHasUnsavedChanges = () => useAtomValue(useAtoms().hasUnsavedChanges);

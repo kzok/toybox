@@ -1,3 +1,6 @@
+/** block sizes (px) the user can pick for a mosaic item */
+export const MOSAIC_BLOCK_SIZES: readonly number[] = [4, 8, 12, 16, 32];
+
 /** length a mosaic item's side is never laid out below */
 const MIN_SIDE_PX = 16;
 

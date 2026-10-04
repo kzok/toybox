@@ -7,9 +7,8 @@ import {
   centerOf,
   dragBy,
   editArrow,
-  editorPane,
   expectCenteredAt,
-  expectMode,
+  leaveEditMode,
   openApp,
   type Point,
   panePointToViewport,
@@ -95,10 +94,7 @@ test("keeps the resized arrow in the exported picture", async ({ page }) => {
 
   await dragHandleBy(page, "tip", { x: -100, y: 120 });
 
-  // leave edit mode by clicking an empty corner of the pane, as a user would.
-  const pane = await boundingBoxOf(editorPane(page));
-  await page.mouse.click(pane.x + 20, pane.y + 20);
-  await expectMode(page, "select");
+  await leaveEditMode(page);
 
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-resized-arrow.png");

@@ -1,15 +1,16 @@
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { clampArrowLength } from "./arrowStyle";
 import { clampMosaicSide } from "./mosaicStyle";
+import { NEW_ITEM_COLOR } from "./palette";
 import { clampRectSide } from "./rectStyle";
 import { clampFontSize, clampTextWidth, LINE_HEIGHT_RATIO } from "./textStyle";
 import type { AddableItemKind, EditorItem } from "./types";
 
-/** color of a newly added item, whichever kind it is */
-const NEW_ITEM_COLOR = "#EF3171";
-
 /** line width (px) of a newly added rect item */
 const NEW_RECT_LINE_WIDTH = 4;
+
+/** block size (px) of a newly added mosaic item */
+const NEW_MOSAIC_BLOCK_SIZE = 8;
 
 /** the two points a drag on the pane ran between, in canvas coordinates */
 export type ItemRange = readonly [Vec2, Vec2];
@@ -59,6 +60,7 @@ export const editorItemFromRange = (
         offset: head.tuple(),
         width: clampMosaicSide(size.x),
         height: clampMosaicSide(size.y),
+        blockSize: NEW_MOSAIC_BLOCK_SIZE,
       };
     }
     case "arrow": {

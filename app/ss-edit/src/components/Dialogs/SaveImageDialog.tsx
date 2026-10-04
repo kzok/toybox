@@ -33,7 +33,7 @@ export const SaveImageDialog = React.memo<{
     } finally {
       setLoading(false);
     }
-  }, [props.save, setLoading, option]);
+  }, [props.save, option]);
 
   return (
     <Dialog open>

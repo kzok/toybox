@@ -1,4 +1,3 @@
-import { atom, useAtomValue } from "jotai";
 import React from "react";
 import {
   arrowStyleSizeOf,
@@ -9,13 +8,14 @@ import {
 } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
 import { Vec2 } from "../../../utils/geometry";
+import { useTextEditorRef } from "../../EditToolbar/context";
 import { CanvasLayer } from "../CanvasLayer";
 import { ResizeContainer, ResizeHandle, ResizePointHandle } from "../ResizeHandle";
 import styles from "./index.module.css";
 
 /** editor overlay content for "edit" mode */
 export const EditMode = React.memo(() => {
-  const item = useEditingItem();
+  const item = pageCtx.useEditingItem();
   const children = React.useMemo((): React.ReactNode => {
     switch (item?.kind) {
       case "image":
@@ -203,7 +203,7 @@ const TextItem = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const elementRef = React.useRef<HTMLTextAreaElement>(null);
+  const elementRef = useTextEditorRef();
   const boxStyle = React.useMemo(
     (): React.CSSProperties => ({
       left: `${item.offset[0]}px`,
@@ -229,7 +229,7 @@ const TextItem = React.memo<{
     element.focus();
     // place the caret at the end of the content.
     element.setSelectionRange(element.value.length, element.value.length);
-  }, []);
+  }, [elementRef]);
 
   return (
     <ResizeContainer style={boxStyle}>
@@ -283,21 +283,3 @@ const stopPropagationAndCapturePointer = (e: React.PointerEvent): void => {
 
 /** @note stopping `keydown` would kill every hotkey: the manager listens on `document`. */
 const stopPropagation = (e: React.MouseEvent): void => e.stopPropagation();
-
-/**
- * @returns the text item being edited, or null if there is none.
- */
-const useEditingItem = (): EditorItem | null => {
-  const atoms = pageCtx.useAtoms();
-  return useAtomValue(
-    React.useMemo(
-      () =>
-        atom((get): EditorItem | null => {
-          const editorMode = get(atoms.editorMode);
-          if (editorMode.kind !== "edit") return null;
-          return get(atoms.editorItems).find((item) => item.id === editorMode.itemId) ?? null;
-        }),
-      [atoms],
-    ),
-  );
-};

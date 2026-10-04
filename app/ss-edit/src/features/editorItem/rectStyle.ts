@@ -6,6 +6,9 @@ const OUTLINE_RATIO = 1.6;
 /** how far the shadow is blurred, relative to the outline casting it. */
 const SHADOW_BLUR_RATIO = 1.6;
 
+/** line widths (px) the user can pick for a rect item */
+export const RECT_LINE_WIDTHS: readonly number[] = [1, 2, 3, 4, 8, 12];
+
 /** length a rect item's side is never laid out below */
 const MIN_SIDE_PX = 16;
 

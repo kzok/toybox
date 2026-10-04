@@ -3,13 +3,13 @@ import {
   addItemLayer,
   type Box,
   boundingBoxOf,
-  commitText,
   dragBy,
   dragFromTo,
   editorPane,
   enterAddText,
   expectBoxOnScreen,
   expectMode,
+  leaveEditMode,
   openApp,
   paneRectToViewport,
   parkCursor,
@@ -70,7 +70,7 @@ test("adds a text item by dragging a range", async ({ page }) => {
   });
 
   await test.step("keep the text as an item once the edit ends", async () => {
-    await commitText(page);
+    await leaveEditMode(page);
     await expect(textItems(page)).toHaveCount(1);
     await expect(textItems(page).first()).toHaveText("Hello");
     // the picture spans the width of the item and a single line of its line height.
@@ -106,7 +106,7 @@ test("sorts the corners of a range dragged up and left", async ({ page }) => {
   // the item is anchored on the top left corner no matter which way the range was drawn.
   await expectBoxOnScreen(textEditor(page), range);
   await typeText(page, "Hello");
-  await commitText(page);
+  await leaveEditMode(page);
   await expectBoxOnScreen(textItems(page).first(), range);
 });
 
@@ -131,7 +131,7 @@ test("discards a text item left blank", async ({ page }) => {
   await dragFromTo(page, range, { x: range.x + range.width, y: range.y + range.height });
   await expectMode(page, "edit");
 
-  await commitText(page);
+  await leaveEditMode(page);
 
   // nothing was typed, hence the item never made it into the picture.
   await expect(textItems(page)).toHaveCount(0);
@@ -156,7 +156,7 @@ test("wraps a long text into multiple lines", async ({ page }) => {
   await parkCursor(page);
   await expect.soft(page).toHaveScreenshot("screenshot-text-wrapped.png");
 
-  await commitText(page);
+  await leaveEditMode(page);
   expect.soft(await saveAsImage(page)).toMatchSnapshot("export-text-wrapped.png");
 });
 
@@ -177,7 +177,7 @@ test("adds the text where it was dragged after zooming and panning", async ({ pa
   await enterAddText(page);
   await dragFromTo(page, range, { x: range.x + range.width, y: range.y + range.height });
   await typeText(page, "Hello");
-  await commitText(page);
+  await leaveEditMode(page);
 
   // the range is mapped through the current offset and scale, so it lands where it was drawn.
   await expectBoxOnScreen(textItems(page).first(), range);

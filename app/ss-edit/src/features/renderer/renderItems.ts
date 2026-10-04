@@ -204,9 +204,6 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   ctx.restore();
 };
 
-/** side of a single square block of mosaic item */
-const MOSAIC_BLOCK_SIZE = 8;
-
 /**
  * @note reads back what `ctx` already holds, so every item behind the mosaic must have been painted
  *   before this is called.
@@ -215,11 +212,11 @@ const MOSAIC_BLOCK_SIZE = 8;
  */
 const renderMosaic = (ctx: CanvasContext2D, item: EditorItem.Mosaic): void => {
   const [x, y] = item.offset;
-  const columns = Math.ceil(item.width / MOSAIC_BLOCK_SIZE);
-  const rows = Math.ceil(item.height / MOSAIC_BLOCK_SIZE);
+  const columns = Math.ceil(item.width / item.blockSize);
+  const rows = Math.ceil(item.height / item.blockSize);
   // whole blocks, the last column and row reaching past the item and clipped off below.
-  const gridWidth = columns * MOSAIC_BLOCK_SIZE;
-  const gridHeight = rows * MOSAIC_BLOCK_SIZE;
+  const gridWidth = columns * item.blockSize;
+  const gridHeight = rows * item.blockSize;
 
   const transform = ctx.getTransform();
   const sourceHead = transform.transformPoint({ x, y });

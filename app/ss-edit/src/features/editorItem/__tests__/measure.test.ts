@@ -75,6 +75,7 @@ const createMosaicItem = (
   offset,
   width: size[0],
   height: size[1],
+  blockSize: 8,
 });
 
 describe(textItemSizeOf, () => {

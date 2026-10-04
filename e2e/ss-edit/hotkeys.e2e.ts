@@ -144,6 +144,19 @@ test("still closes the File menu on Escape", async ({ page }) => {
   await expect(page.getByRole("menuitem", { name: "New instance" })).toBeHidden();
 });
 
+test("keeps the selection when Escape closes a menu", async ({ page }) => {
+  await openApp(page);
+  await addText(page, TEXT_RANGE, "Hello");
+  await textItems(page).first().click();
+  await page.getByRole("button", { name: "File" }).click();
+  await expect(page.getByRole("menuitem", { name: "New instance" })).toBeVisible();
+
+  await page.keyboard.press("Escape");
+
+  await expect(page.getByRole("menuitem", { name: "New instance" })).toBeHidden();
+  await expect(textItems(page).first()).toHaveAttribute("data-selected", "true");
+});
+
 for (const key of ["Delete", "Backspace"] as const) {
   test(`deletes the selected item on ${key}`, async ({ page }) => {
     await openApp(page);
@@ -198,6 +211,21 @@ test("leaves Delete and Backspace to the text editor in edit mode", async ({ pag
 
   await page.keyboard.press("Escape");
   await expect(items(page)).toHaveCount(2);
+});
+
+test("keeps the text item under edit on Delete and Backspace outside its editor", async ({
+  page,
+}) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+  await editor.blur();
+  await expect(editor).not.toBeFocused();
+
+  await page.keyboard.press("Delete");
+  await page.keyboard.press("Backspace");
+
+  await expect(editor).toHaveValue("Hello");
+  await expectMode(page, "edit");
 });
 
 test("leaves Backspace to the text editor after a drag on its handle", async ({ page }) => {
