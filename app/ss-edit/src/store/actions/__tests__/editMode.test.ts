@@ -616,16 +616,16 @@ describe(createEditModeActions, () => {
 
     it("moves the offset out by the growth of the padding, keeping the line where it is.", () => {
       const { store, actions, atoms, item } = setUp();
-      // an outline of ceil(12 * 1.6) = 20, hence a padding of 10.
+      // an outline of ceil(12 * 1.7) = 21, hence a padding of 10.5.
       actions.editMode.setRectLineWidth(item.id, 12);
       expect(store.get(atoms.editorItems)).toStrictEqual([
-        { ...item, lineWidth: 12, offset: [93.5, 93.5] },
+        { ...item, lineWidth: 12, offset: [93, 93] },
       ]);
     });
 
     it("moves the offset in by the shrink of the padding, keeping the line where it is.", () => {
       const { store, actions, atoms, item } = setUp();
-      // an outline of ceil(1 * 1.6) = 2, hence a padding of 1.
+      // an outline of ceil(1 * 1.7) = 2, hence a padding of 1.
       actions.editMode.setRectLineWidth(item.id, 1);
       expect(store.get(atoms.editorItems)).toStrictEqual([
         { ...item, lineWidth: 1, offset: [102.5, 102.5] },

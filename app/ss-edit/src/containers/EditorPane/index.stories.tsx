@@ -164,8 +164,8 @@ const exampleState = (image: ImageBitmap): PageState =>
  * @param image image item data
  * @returns `exampleState` with two rect items laid over it
  * @note a thin one laid fully on the screenshot and a thick one hanging off its bottom right
- *   corner, so that the outline and the shadow can be read against the screenshot and against the
- *   transparent plane alike.
+ *   corner, so that the outline can be read against the screenshot and against the transparent
+ *   plane alike.
  */
 const rectsState = (image: ImageBitmap): PageState =>
   produce(exampleState(image), (draft) => {

@@ -46,8 +46,6 @@ const scaleOf = (length: number): number => Math.min(length / FULL_SIZE_LENGTH_P
 /**
  * @param length the arrow's length (px)
  * @returns shared style/layout size (px) for arrow item rendering
- * @note every value is scaled here, the shadow included, rather than through `ctx.scale()`:
- *   a canvas shadow ignores the current transform.
  */
 export const arrowStyleSizeOf = (length: number) => {
   const scale = scaleOf(length);
@@ -59,8 +57,6 @@ export const arrowStyleSizeOf = (length: number) => {
     headWidth: HEAD_WIDTH * scale,
     headLength: HEAD_LENGTH * scale,
     headNotchControl: HEAD_NOTCH_CONTROL * scale,
-    shadowBlur: 9 * scale,
-    shadowOffset: 4 * scale,
 
     /** the width to stroke a shape at so that it gains `OUTLINE_BAND` of outline. */
     outlineWidth: OUTLINE_BAND * 2 * scale,
