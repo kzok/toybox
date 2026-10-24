@@ -135,14 +135,14 @@ test("sets the line width picked on the toolbar, keeping the line where it is", 
 
   await expect(lineWidthDropdown(page)).toHaveText("12px");
   await expectMode(page, "edit");
-  // the outline grows from ceil(4 * 1.6) = 7 to ceil(12 * 1.6) = 20 on both sides of the line.
+  // the outline grows from ceil(4 * 1.7) = 7 to ceil(12 * 1.7) = 21 on both sides of the line.
   await expect
     .poll(async () => await boundingBoxOf(rectItems(page)))
     .toStrictEqual({
-      x: before.x - 6.5,
-      y: before.y - 6.5,
-      width: before.width + 13,
-      height: before.height + 13,
+      x: before.x - 7,
+      y: before.y - 7,
+      width: before.width + 14,
+      height: before.height + 14,
     });
 });
 
