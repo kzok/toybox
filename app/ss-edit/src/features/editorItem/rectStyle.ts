@@ -1,10 +1,7 @@
 import type { EditorItem } from "./types";
 
 /** how much wider the outline is than the line it surrounds. */
-const OUTLINE_RATIO = 1.6;
-
-/** how far the shadow is blurred, relative to the outline casting it. */
-const SHADOW_BLUR_RATIO = 1.6;
+const OUTLINE_RATIO = 1.7;
 
 /** line widths (px) the user can pick for a rect item */
 export const RECT_LINE_WIDTHS: readonly number[] = [1, 2, 3, 4, 8, 12];
@@ -27,7 +24,5 @@ export const rectStyleSizeOf = (item: EditorItem.Rect) => {
   return {
     strokeWidth,
     padding: strokeWidth / 2,
-    shadowBlur: strokeWidth * SHADOW_BLUR_RATIO,
-    shadowOffset: strokeWidth / 2,
   } as const;
 };

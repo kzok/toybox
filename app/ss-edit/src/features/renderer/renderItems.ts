@@ -34,27 +34,17 @@ export const renderEditorItem = (ctx: CanvasContext2D, item: EditorItem) => {
   }
 };
 
+const SHADOW_COLOR = "rgba(0,0,0,0.6)";
+
 const renderImage = (ctx: CanvasContext2D, item: EditorItem.Image): void => {
   ctx.drawImage(item.data, item.offset[0], item.offset[1], item.width, item.height);
 };
 
-/**
- * @param fontSize font size (px)
- * @returns blur radius of the shadow cast by the text (px)
- */
-const textShadowBlurOf = (fontSize: number): number => Math.ceil(fontSize / 3);
-
-/**
- * @param fontSize font size (px)
- * @returns distance the shadow is offset towards the bottom right (px)
- */
-const textShadowOffsetOf = (fontSize: number): number => Math.ceil(fontSize / 12);
-
 const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
   const { lineHeight, letterSpacing } = textStyleSizeOf(item);
   const strokeWidth = Math.ceil(item.fontSize / 6);
-  const shadowBlur = textShadowBlurOf(item.fontSize);
-  const shadowOffset = textShadowOffsetOf(item.fontSize);
+  const shadowBlur = Math.ceil(item.fontSize / 24);
+  const shadowOffset = Math.ceil(item.fontSize / 12);
 
   ctx.save();
   ctx.translate(...item.offset);
@@ -83,7 +73,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
     const y = firstBaseline + index * lineHeight;
 
     // shadow
-    ctx.shadowColor = "#000";
+    ctx.shadowColor = SHADOW_COLOR;
     ctx.strokeStyle = "#000";
     ctx.strokeText(line, 0, y);
     ctx.shadowColor = "transparent";
@@ -100,7 +90,7 @@ const renderText = (ctx: CanvasContext2D, item: EditorItem.Text): void => {
 };
 
 const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
-  const { strokeWidth, padding, shadowBlur, shadowOffset } = rectStyleSizeOf(item);
+  const { strokeWidth, padding } = rectStyleSizeOf(item);
 
   // rect path
   const path = new Path2D();
@@ -110,18 +100,9 @@ const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
   ctx.translate(...item.offset);
   ctx.translate(padding, padding);
   ctx.lineJoin = "round";
-  ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetX = shadowOffset;
-  ctx.shadowOffsetY = shadowOffset;
-
-  // shadow
-  ctx.lineWidth = strokeWidth;
-  ctx.shadowColor = "#000";
-  ctx.strokeStyle = "#000";
-  ctx.stroke(path);
-  ctx.shadowColor = "transparent";
 
   // outline
+  ctx.lineWidth = strokeWidth;
   ctx.strokeStyle = "#fff";
   ctx.stroke(path);
 
@@ -138,16 +119,8 @@ const renderRect = (ctx: CanvasContext2D, item: EditorItem.Rect): void => {
  *   dimensional. `angle` is exactly what `ctx.rotate()` takes (see `EditorItem.Arrow`).
  */
 const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
-  const {
-    outlineWidth,
-    headLength,
-    headWidth,
-    headNotchControl,
-    shaftTailWidth,
-    shaftHeadWidth,
-    shadowBlur,
-    shadowOffset,
-  } = arrowStyleSizeOf(item.length);
+  const { outlineWidth, headLength, headWidth, headNotchControl, shaftTailWidth, shaftHeadWidth } =
+    arrowStyleSizeOf(item.length);
   /** where the back two corners of the head sit on the axis */
   const backX = item.length - headLength;
   /** the control point of the curve that dents the head's back edge. */
@@ -174,12 +147,12 @@ const renderArrow = (ctx: CanvasContext2D, item: EditorItem.Arrow): void => {
   ctx.rotate(item.angle);
   ctx.lineJoin = "miter";
   ctx.lineWidth = outlineWidth;
-  ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetX = shadowOffset;
-  ctx.shadowOffsetY = shadowOffset;
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
 
   // shadow
-  ctx.shadowColor = "#000";
+  ctx.shadowColor = SHADOW_COLOR;
   ctx.strokeStyle = "#000";
   ctx.stroke(shaft);
   ctx.stroke(head);

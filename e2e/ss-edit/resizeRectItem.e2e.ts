@@ -17,7 +17,7 @@ import {
 
 /**
  * the range a rect is dragged out of. drawn, that is a 407 x 107 box: a new rect is given a 4px
- * line, whose outline is `ceil(4 * 1.6)` = 7px wide and straddles the line's own box.
+ * line, whose outline is `ceil(4 * 1.7)` = 7px wide and straddles the line's own box.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 100 };
 

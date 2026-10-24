@@ -20,7 +20,7 @@ import {
 /** a range dragged on an arbitrary spot of the pane. */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 100 };
 /**
- * a new rect is given a 4px line, whose outline is `ceil(4 * 1.6)` = 7px wide. half of that lies
+ * a new rect is given a 4px line, whose outline is `ceil(4 * 1.7)` = 7px wide. half of that lies
  * outside the line's own box on every edge, hence 7px on both the width and the height.
  */
 const MAIN_RANGE_OUTLINE = 7;
