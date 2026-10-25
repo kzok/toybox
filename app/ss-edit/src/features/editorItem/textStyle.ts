@@ -27,6 +27,20 @@ export const clampTextWidth = (width: number, fontSize: number): number =>
   Math.max(Math.round(width), fontSize * MIN_WIDTH_IN_GRAPHEMES);
 
 /**
+ * @param layout the width and the font size a text item has now
+ * @param fontSize desired font size (px), fractional or out of range
+ * @returns the font size the item can take, and its width scaled by the same factor, so that the
+ *   same words stay on the same lines
+ */
+export const scaleTextFontSize = (
+  layout: Pick<TextItemLayout, "width" | "fontSize">,
+  fontSize: number,
+): Pick<TextItemLayout, "width" | "fontSize"> => {
+  const clamped = clampFontSize(fontSize);
+  return { width: Math.round(layout.width * (clamped / layout.fontSize)), fontSize: clamped };
+};
+
+/**
  * @returns shared style/layout size (px) for text item rendering
  */
 export const textStyleSizeOf = (layout: TextItemLayout) =>

@@ -1,6 +1,5 @@
 import {
   clampArrowLength,
-  clampFontSize,
   clampMosaicBlockSize,
   clampMosaicSide,
   clampRectLineWidth,
@@ -8,6 +7,7 @@ import {
   clampTextWidth,
   type NewItemStyle,
   rectStyleSizeOf,
+  scaleTextFontSize,
   textItemSizeOf,
 } from "../../features/editorItem";
 import { Vec2 } from "../../utils/geometry";
@@ -97,7 +97,7 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
         const diagonal = Math.hypot(size.x, size.y);
         // project the pointer position onto the box's diagonal to get the target diagonal length.
         const targetDiagonal = scaledCursor.dot(size) / diagonal;
-        scaleTextFontSize(item, item.fontSize * (targetDiagonal / diagonal));
+        Object.assign(item, scaleTextFontSize(item, item.fontSize * (targetDiagonal / diagonal)));
         rememberStyle({ fontSize: item.fontSize });
       });
     },
@@ -109,7 +109,7 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       updateAtom(atoms.state, (draft) => {
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item?.kind !== "text") return;
-        scaleTextFontSize(item, fontSize);
+        Object.assign(item, scaleTextFontSize(item, fontSize));
         rememberStyle({ fontSize: item.fontSize });
       });
     },
@@ -234,15 +234,4 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       });
     },
   } as const;
-};
-
-/**
- * set the font size of a text item and scale its width by the same factor, so that the same words
- * stay on the same lines.
- * @param fontSize desired font size (px), fractional or out of range
- */
-const scaleTextFontSize = (item: { width: number; fontSize: number }, fontSize: number): void => {
-  const clamped = clampFontSize(fontSize);
-  item.width = Math.round(item.width * (clamped / item.fontSize));
-  item.fontSize = clamped;
 };
