@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { clampArrowLength } from "./arrowStyle";
 import { clampMosaicBlockSize, clampMosaicSide } from "./mosaicStyle";
@@ -17,6 +18,19 @@ export type NewItemStyle = Readonly<{
   /** block size (px) of a mosaic item */
   blockSize: number;
 }>;
+
+/**
+ * the schema that a stored `NewItemStyle` must fit to be read back, with every field optional.
+ * @note it lets a value out of range through: `editorItemFromRange` clamps every style anyway.
+ */
+export const newItemStyleSchema = z
+  .object({
+    color: z.string(),
+    fontSize: z.number(),
+    lineWidth: z.number(),
+    blockSize: z.number(),
+  })
+  .partial();
 
 /** the styles a new item starts with until the user sets any */
 export const DEFAULT_NEW_ITEM_STYLE: NewItemStyle = {
