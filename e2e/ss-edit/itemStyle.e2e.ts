@@ -29,8 +29,8 @@ import {
 } from "./helpers";
 
 /**
- * a range dragged on an arbitrary spot of the pane. its height gives a font size of 32px
- * (`round(40 / 1.25)`), and its width is the wrapping width as it is.
+ * a range dragged on an arbitrary spot of the pane. a text item in it starts at the default 32px,
+ * and its width is the wrapping width as it is.
  */
 const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 /** a second range, clear of `TEXT_RANGE`. */

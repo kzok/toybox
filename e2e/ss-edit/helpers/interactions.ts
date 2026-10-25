@@ -4,11 +4,13 @@ import { expectMode } from "./assertions";
 import {
   arrowItems,
   editorPane,
+  fontSizeInput,
   imageItems,
   mosaicItems,
   rectItems,
   saveImageDialog,
   textEditor,
+  textItems,
 } from "./locators";
 import { type Box, boundingBoxOf, fixture, type Point } from "./support";
 
@@ -242,6 +244,19 @@ export const addTextByDrag = async (page: Page, rect: Box, content?: string): Pr
     await typeText(page, content);
   }
   return textEditor(page);
+};
+
+/**
+ * makes the next text item start at `fontSize`, as a user would: sets it on a blank text item in
+ * edit mode, which the end of the edit then drops for being blank.
+ * @note a new text item takes the font size last set in edit mode, not the height of the drag.
+ */
+export const setNextTextFontSize = async (page: Page, fontSize: number): Promise<void> => {
+  await addTextByDrag(page, { x: 40, y: 40, width: 0, height: 0 });
+  await fontSizeInput(page).fill(String(fontSize));
+  await fontSizeInput(page).press("Enter");
+  await leaveEditMode(page);
+  await expect(textItems(page)).toHaveCount(0);
 };
 
 /** adds a text item and ends the edit right away, for tests that only need one to exist. */
