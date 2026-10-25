@@ -37,10 +37,8 @@ function.
 
 [`splitLines`](../src/features/editorItem/textLayout.ts)
 caches its lines and uses that derived style in the cache key.
-Every write to `width` or `fontSize` uses
-[`clampTextWidth` / `clampFontSize`](../src/features/editorItem/textStyle.ts).
-These functions clamp the value.
-They also round it because a fractional value would miss the cache on every frame of a resize drag.
+So `width` and `fontSize` must always be integers.
+A fractional value would miss the cache on every frame of a resize drag.
 
 ## Arrow geometry
 
