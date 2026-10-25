@@ -60,6 +60,9 @@ The app adds nothing until the user releases the pointer.
 During a drag, the app paints the item exactly as it will add it.
 After the release, the new item becomes the target of the next action, as described below.
 
+A new item takes the styles that the user last set in Edit mode.
+The app keeps these styles across reloads.
+
 ### Select mode
 
 - A click selects an item.
@@ -132,8 +135,6 @@ A text item holds text content.
 The app deletes the item if its content is blank when the edit ends.
 This applies however the edit ends.
 
-The height of the drag sets the font size.
-That height is one line box.
 The width of the drag sets the wrapping width.
 The content then wraps to that width, and this decides the height of the item.
 

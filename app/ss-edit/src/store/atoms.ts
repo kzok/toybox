@@ -1,5 +1,13 @@
+import { ValidatedLocalStorage } from "@~/storage/localStorage";
 import { atom } from "jotai";
-import { type EditorItem, editorItemFromRange, measurePicture } from "../features/editorItem";
+import {
+  DEFAULT_NEW_ITEM_STYLE,
+  type EditorItem,
+  editorItemFromRange,
+  measurePicture,
+  type NewItemStyle,
+  newItemStyleSchema,
+} from "../features/editorItem";
 import { Vec2 } from "../utils/geometry";
 import { canvasOffset } from "./selectors";
 import type { PageState } from "./types";
@@ -10,6 +18,14 @@ import type { PageState } from "./types";
  *   drawn rather than looked up, so nothing ever matches on it.
  */
 const PREVIEW_ITEM_ID = "add-item-preview";
+
+/** the `localStorage` key of `newItemStyle`, prefixed so that it never meets a key of another app. */
+const NEW_ITEM_STYLE_KEY = "ss-edit:new-item-style";
+const newItemStyleStorage = new ValidatedLocalStorage<NewItemStyle>(
+  NEW_ITEM_STYLE_KEY,
+  newItemStyleSchema,
+  DEFAULT_NEW_ITEM_STYLE,
+);
 
 /** a dialog on the stack. */
 export type DialogEntry = {
@@ -35,6 +51,8 @@ export const createAtoms = () => {
    *   update that does not touch it, hence zooming, panning or selecting never counts as a change.
    */
   const savedItems = atom<readonly EditorItem[] | null>(null);
+  /** (primitive) the styles the next added item starts with, as last set in edit mode. */
+  const newItemStyle = newItemStyleStorage.toJotaiAtom();
   /** (primitive) dialog stack, the last entry is on top. */
   const dialogStack = atom<readonly DialogEntry[]>([]);
   /** the dialog on top of the stack, or null if there is none. */
@@ -67,11 +85,12 @@ export const createAtoms = () => {
   const addItemPreview = atom((get): EditorItem | null => {
     const mode = get(editorMode);
     if (mode.kind !== "add-item" || mode.range == null) return null;
-    return editorItemFromRange(mode.itemKind, mode.range, PREVIEW_ITEM_ID);
+    return editorItemFromRange(mode.itemKind, mode.range, PREVIEW_ITEM_ID, get(newItemStyle));
   });
 
   return {
     state,
+    newItemStyle,
     editorMode,
     editorView,
     editorItems,

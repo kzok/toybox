@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clampFontSize, clampTextWidth } from "../textStyle";
+import { clampFontSize, clampTextWidth, scaleTextFontSize } from "../textStyle";
 
 describe(clampFontSize, () => {
   it("keeps a font size that is already in range.", () => {
@@ -42,5 +42,29 @@ describe(clampTextWidth, () => {
   it("takes the minimum from the font size it is given.", () => {
     expect(clampTextWidth(0, 12)).toBe(48);
     expect(clampTextWidth(0, 72)).toBe(288);
+  });
+});
+
+describe(scaleTextFontSize, () => {
+  const layout = { width: 100, fontSize: 32 } as const;
+
+  it("scales the width by the same factor as the font size.", () => {
+    expect(scaleTextFontSize(layout, 48)).toStrictEqual({ width: 150, fontSize: 48 });
+  });
+
+  it("scales the width by the factor of the font size as clamped, not as asked.", () => {
+    expect(scaleTextFontSize(layout, 1)).toStrictEqual({ width: 38, fontSize: 12 });
+    expect(scaleTextFontSize(layout, 1000)).toStrictEqual({ width: 225, fontSize: 72 });
+  });
+
+  it("rounds the width, so that it never misses the line cache.", () => {
+    // 100 * 41 / 32 = 128.125
+    expect(scaleTextFontSize(layout, 41)).toStrictEqual({ width: 128, fontSize: 41 });
+  });
+
+  it("leaves the layout it is given as it is.", () => {
+    const given = { ...layout };
+    scaleTextFontSize(given, 48);
+    expect(given).toStrictEqual(layout);
   });
 });

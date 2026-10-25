@@ -1,12 +1,13 @@
 import {
   clampArrowLength,
-  clampFontSize,
   clampMosaicBlockSize,
   clampMosaicSide,
   clampRectLineWidth,
   clampRectSide,
   clampTextWidth,
+  type NewItemStyle,
   rectStyleSizeOf,
+  scaleTextFontSize,
   textItemSizeOf,
 } from "../../features/editorItem";
 import { Vec2 } from "../../utils/geometry";
@@ -18,6 +19,16 @@ const MIN_IMAGE_SIZE = 36;
 
 /** actions specific to edit mode */
 export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+  /**
+   * keep the given styles for the next added item.
+   * @param partial the styles as the item takes them, hence within range
+   */
+  const rememberStyle = (partial: Partial<NewItemStyle>): void => {
+    updateAtom(atoms.newItemStyle, (draft) => {
+      Object.assign(draft, partial);
+    });
+  };
+
   return {
     /** get into edit mode for the specified item. */
     enter: (itemId: string): void => {
@@ -86,7 +97,8 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
         const diagonal = Math.hypot(size.x, size.y);
         // project the pointer position onto the box's diagonal to get the target diagonal length.
         const targetDiagonal = scaledCursor.dot(size) / diagonal;
-        scaleTextFontSize(item, item.fontSize * (targetDiagonal / diagonal));
+        Object.assign(item, scaleTextFontSize(item, item.fontSize * (targetDiagonal / diagonal)));
+        rememberStyle({ fontSize: item.fontSize });
       });
     },
     /**
@@ -97,7 +109,8 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       updateAtom(atoms.state, (draft) => {
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item?.kind !== "text") return;
-        scaleTextFontSize(item, fontSize);
+        Object.assign(item, scaleTextFontSize(item, fontSize));
+        rememberStyle({ fontSize: item.fontSize });
       });
     },
     /**
@@ -109,6 +122,7 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item == null || !("color" in item)) return;
         item.color = color;
+        rememberStyle({ color });
       });
     },
     /**
@@ -148,6 +162,7 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
         const item = draft.editorItems.find((item) => item.id === itemId);
         const clamped = clampRectLineWidth(lineWidth);
         if (item?.kind !== "rect" || item.lineWidth === clamped) return;
+        rememberStyle({ lineWidth: clamped });
 
         const before = rectStyleSizeOf(item).padding;
         item.lineWidth = clamped;
@@ -180,6 +195,7 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item?.kind !== "mosaic") return;
         item.blockSize = clampMosaicBlockSize(blockSize);
+        rememberStyle({ blockSize: item.blockSize });
       });
     },
     /**
@@ -218,15 +234,4 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
       });
     },
   } as const;
-};
-
-/**
- * set the font size of a text item and scale its width by the same factor, so that the same words
- * stay on the same lines.
- * @param fontSize desired font size (px), fractional or out of range
- */
-const scaleTextFontSize = (item: { width: number; fontSize: number }, fontSize: number): void => {
-  const clamped = clampFontSize(fontSize);
-  item.width = Math.round(item.width * (clamped / item.fontSize));
-  item.fontSize = clamped;
 };

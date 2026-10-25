@@ -11,20 +11,20 @@ import {
   parkCursor,
   rightResizeHandle,
   saveAsImage,
+  setNextTextFontSize,
 } from "./helpers";
 
 /**
- * a range whose height drives the font size (`round(40 / 1.25)` = 32px) and whose width stays
- * above `fontSize * 4`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
- * 400 x 40 box: a single 40px line.
+ * a range whose width stays above `fontSize * 4` at the default 32px, so that the item starts out
+ * exactly 400px wide at 32px. drawn, that is a 400 x 40 box: a single 40px line.
  * @note `x` keeps the item inside the pane when it grows to the maximum font size (900px wide).
  *   the resize handle outside the pane cannot be grabbed.
  */
 const MAIN_RANGE = { x: 100, y: 160, width: 400, height: 40 };
 
 /**
- * narrow enough that `WRAPPED_TEXT` cannot fit on a single line. drawn, a 240 x 50 box: two 25px
- * lines at 20px.
+ * narrow enough that `WRAPPED_TEXT` cannot fit on a single line at 20px. drawn, a 240 x 50 box:
+ * two 25px lines.
  */
 const WRAPPED_RANGE = { x: 200, y: 160, width: 240, height: 25 };
 /**
@@ -33,6 +33,12 @@ const WRAPPED_RANGE = { x: 200, y: 160, width: 240, height: 25 };
  * graphemes the same drift stays hidden — both 10 and 11 per line come to two lines.
  */
 const WRAPPED_TEXT = "あいうえおかきくけこさしすせそたちつてとなに";
+
+/** adds `WRAPPED_TEXT` at 20px in `WRAPPED_RANGE`, leaving the editor open. */
+const addWrappedText = async (page: Page): Promise<Locator> => {
+  await setNextTextFontSize(page, 20);
+  return addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+};
 
 /** the item's laid out width and font size, which the resize has to keep proportional. */
 const layoutOf = (editor: Locator): Promise<{ width: number; fontSize: number }> =>
@@ -89,7 +95,7 @@ test("scales the font size and the width together, keeping the top-left corner f
 
 test("keeps a wrapped text on the same number of lines", async ({ page }) => {
   await openApp(page);
-  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  const editor = await addWrappedText(page);
 
   // the `rows` of the `<textarea/>` is the line count the text was laid out into.
   await expect(editor).toHaveAttribute("rows", "2");
@@ -109,7 +115,7 @@ test("keeps a wrapped text on the same number of lines", async ({ page }) => {
  */
 test("does not re-wrap the text on the way through a drag", async ({ page }) => {
   await openApp(page);
-  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  const editor = await addWrappedText(page);
   await expect(editor).toHaveAttribute("rows", "2");
 
   const handle = centerOf(await boundingBoxOf(bottomRightResizeHandle(page)));
@@ -165,7 +171,7 @@ test("keeps the resized text in the exported picture", async ({ page }) => {
 
 test("narrows the width alone, re-wrapping the text at the same font size", async ({ page }) => {
   await openApp(page);
-  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  const editor = await addWrappedText(page);
   await expect(editor).toHaveAttribute("rows", "2");
 
   const before = await boundingBoxOf(editor);
@@ -186,7 +192,7 @@ test("narrows the width alone, re-wrapping the text at the same font size", asyn
 
 test("widens the width alone, leaving the font size where it was", async ({ page }) => {
   await openApp(page);
-  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  const editor = await addWrappedText(page);
 
   await dragWidthHandleBy(page, { x: 100, y: 0 });
 
@@ -198,7 +204,7 @@ test("widens the width alone, leaving the font size where it was", async ({ page
 
 test("stops narrowing at the minimum width", async ({ page }) => {
   await openApp(page);
-  const editor = await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  const editor = await addWrappedText(page);
 
   await dragWidthHandleBy(page, { x: -2000, y: 0 });
 
@@ -209,7 +215,7 @@ test("stops narrowing at the minimum width", async ({ page }) => {
 
 test("keeps the narrowed text in the exported picture", async ({ page }) => {
   await openApp(page);
-  await addTextByDrag(page, WRAPPED_RANGE, WRAPPED_TEXT);
+  await addWrappedText(page);
 
   await dragWidthHandleBy(page, { x: -20, y: 0 });
   await leaveEditMode(page);
