@@ -4,17 +4,17 @@ import { useHydrateAtoms } from "jotai/utils";
 import { AppProvider } from "../../app/AppProvider";
 import type { EditorItem } from "../../features/editorItem";
 import { INITIAL_EDITOR_STATE, pageCtx } from "../../store";
-import { EditToolbar, TextEditorProvider } from "./index";
+import { ItemStyle, TextEditorProvider } from "./index";
 
 const meta: Meta = {
-  component: EditToolbar,
+  component: ItemStyle,
 };
 
 export default meta;
 
 export const EditingText: StoryObj<typeof meta> = {
   render: () =>
-    renderToolbar({
+    renderItemStyle({
       kind: "text",
       id: "story-text",
       content: "Hello",
@@ -27,7 +27,7 @@ export const EditingText: StoryObj<typeof meta> = {
 
 export const EditingRect: StoryObj<typeof meta> = {
   render: () =>
-    renderToolbar({
+    renderItemStyle({
       kind: "rect",
       id: "story-rect",
       offset: [0, 0],
@@ -40,7 +40,7 @@ export const EditingRect: StoryObj<typeof meta> = {
 
 export const EditingMosaic: StoryObj<typeof meta> = {
   render: () =>
-    renderToolbar({
+    renderItemStyle({
       kind: "mosaic",
       id: "story-mosaic",
       offset: [0, 0],
@@ -52,7 +52,7 @@ export const EditingMosaic: StoryObj<typeof meta> = {
 
 export const EditingArrow: StoryObj<typeof meta> = {
   render: () =>
-    renderToolbar({
+    renderItemStyle({
       kind: "arrow",
       id: "story-arrow",
       offset: [0, 0],
@@ -62,8 +62,21 @@ export const EditingArrow: StoryObj<typeof meta> = {
     }),
 };
 
+export const EditingImage: StoryObj<typeof meta> = {
+  loaders: [async () => ({ image: await createImageBitmap(new ImageData(1, 1)) })],
+  render: (_args, { loaded }) =>
+    renderItemStyle({
+      kind: "image",
+      id: "story-image",
+      data: loaded.image as ImageBitmap,
+      offset: [0, 0],
+      width: 1,
+      height: 1,
+    }),
+};
+
 /** @param item the item under edit */
-const renderToolbar = (item: EditorItem): React.ReactElement => {
+const renderItemStyle = (item: EditorItem): React.ReactElement => {
   const Wrapper: React.FC = () => {
     const atoms = pageCtx.useAtoms();
     useHydrateAtoms([
@@ -75,10 +88,9 @@ const renderToolbar = (item: EditorItem): React.ReactElement => {
         }),
       ],
     ]);
-    // NOTE: the toolbar is positioned against the nearest positioned ancestor.
     return (
-      <div style={{ position: "relative", width: 300, height: 80 }}>
-        <EditToolbar />
+      <div style={{ width: 240, padding: 8 }}>
+        <ItemStyle />
       </div>
     );
   };

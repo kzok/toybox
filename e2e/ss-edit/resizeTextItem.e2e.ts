@@ -17,8 +17,10 @@ import {
  * a range whose height drives the font size (`round(40 / 1.25)` = 32px) and whose width stays
  * above `fontSize * 4`, so that the item starts out exactly 400px wide at 32px. drawn, that is a
  * 400 x 40 box: a single 40px line.
+ * @note `x` keeps the item inside the pane when it grows to the maximum font size (900px wide).
+ *   the resize handle outside the pane cannot be grabbed.
  */
-const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 40 };
+const MAIN_RANGE = { x: 100, y: 160, width: 400, height: 40 };
 
 /**
  * narrow enough that `WRAPPED_TEXT` cannot fit on a single line. drawn, a 240 x 50 box: two 25px

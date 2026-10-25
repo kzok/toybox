@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { Vec2 } from "../../../utils/geometry";
 import { clampArrowLength } from "../arrowStyle";
 import { editorItemFromRange, type ItemRange } from "../fromRange";
-import { MOSAIC_BLOCK_SIZES } from "../mosaicStyle";
-import { RECT_LINE_WIDTHS } from "../rectStyle";
+import { clampMosaicBlockSize } from "../mosaicStyle";
+import { clampRectLineWidth } from "../rectStyle";
 
 /**
  * @param from the point the drag began at
@@ -78,10 +78,10 @@ describe(editorItemFromRange, () => {
       expect(item.offset).toStrictEqual([20, 40]);
     });
 
-    it("takes a line width that the toolbar offers.", () => {
+    it("takes a line width within the range that the item style offers.", () => {
       const item = editorItemFromRange("rect", range([20, 40], [420, 140]), "item-1");
       if (item.kind !== "rect") throw new Error("not a rect item");
-      expect(RECT_LINE_WIDTHS).toContain(item.lineWidth);
+      expect(clampRectLineWidth(item.lineWidth)).toBe(item.lineWidth);
     });
   });
 
@@ -110,10 +110,10 @@ describe(editorItemFromRange, () => {
       expect(item.offset).toStrictEqual([20, 40]);
     });
 
-    it("takes a block size that the toolbar offers.", () => {
+    it("takes a block size within the range that the item style offers.", () => {
       const item = editorItemFromRange("mosaic", range([20, 40], [420, 140]), "item-1");
       if (item.kind !== "mosaic") throw new Error("not a mosaic item");
-      expect(MOSAIC_BLOCK_SIZES).toContain(item.blockSize);
+      expect(clampMosaicBlockSize(item.blockSize)).toBe(item.blockSize);
     });
   });
 

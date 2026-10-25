@@ -1,6 +1,6 @@
 import React from "react";
 
-/** the `<textarea/>` of the text item under edit, to which the toolbar hands the focus back. */
+/** the `<textarea/>` of the text item under edit, to which the item style hands the focus back. */
 type TextEditorRefType = React.RefObject<HTMLTextAreaElement | null>;
 
 const context = React.createContext<TextEditorRefType | null>(null);

@@ -639,6 +639,30 @@ describe(createEditModeActions, () => {
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
+    it("rounds a fractional line width.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setRectLineWidth(item.id, 11.6);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 12, offset: [93, 93] },
+      ]);
+    });
+
+    it("stops at the minimum line width.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setRectLineWidth(item.id, 0);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 1, offset: [102.5, 102.5] },
+      ]);
+    });
+
+    it("stops at the maximum line width.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setRectLineWidth(item.id, 100);
+      expect(store.get(atoms.editorItems)).toStrictEqual([
+        { ...item, lineWidth: 12, offset: [93, 93] },
+      ]);
+    });
+
     it("keeps items unchanged when the item is not a rect item.", () => {
       const textItem = createTextItem("item-1", "hello");
       const { store, actions, atoms } = createTestTargetWithItems(textItem);
@@ -735,6 +759,24 @@ describe(createEditModeActions, () => {
       const before = store.get(atoms.editorItems);
       actions.editMode.setMosaicBlockSize(item.id, item.blockSize);
       expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("rounds a fractional block size.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setMosaicBlockSize(item.id, 15.6);
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, blockSize: 16 }]);
+    });
+
+    it("stops at the minimum block size.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setMosaicBlockSize(item.id, 0);
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, blockSize: 4 }]);
+    });
+
+    it("stops at the maximum block size.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setMosaicBlockSize(item.id, 100);
+      expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, blockSize: 32 }]);
     });
 
     it("keeps items unchanged when the item is not a mosaic item.", () => {

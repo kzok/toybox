@@ -21,8 +21,9 @@
 
 .body {
   grid-area: body;
-  position: relative;
   display: grid;
+  /** side-menu, canvas panel */
+  grid-template-columns: 240px 1fr;
 }
 
 .footer {
