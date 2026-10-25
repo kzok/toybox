@@ -1,6 +1,11 @@
 import { castDraft, produce } from "immer";
 import { describe, expect, it } from "vitest";
-import { editorItemFromRange, type ItemRange } from "../../../features/editorItem";
+import {
+  DEFAULT_NEW_ITEM_STYLE,
+  editorItemFromRange,
+  type ItemRange,
+  type NewItemStyle,
+} from "../../../features/editorItem";
 import { Vec2 } from "../../../utils/geometry";
 import { INITIAL_EDITOR_STATE } from "../../atoms";
 import type { PageState } from "../../types";
@@ -145,13 +150,18 @@ describe(createAddItemModeActions, () => {
     /**
      * @param itemKind kind the drag was made in
      * @param drag the drag `setUpAs` was given
+     * @param style the styles the item starts with
      * @returns the item that drag describes, with any id allowed
      * @note the construction rules are `fromRange.test.ts`'s concern, and restating them here
      *   would only pin the same arithmetic twice. what is `commit`'s own is that it hands the
      *   drag to the factory as it stands and adds back whatever comes of it.
      */
-    const itemOf = (itemKind: PageState.Mode.AddItem["itemKind"], drag: ItemRange) => ({
-      ...editorItemFromRange(itemKind, drag, "any-id"),
+    const itemOf = (
+      itemKind: PageState.Mode.AddItem["itemKind"],
+      drag: ItemRange,
+      style: NewItemStyle = DEFAULT_NEW_ITEM_STYLE,
+    ) => ({
+      ...editorItemFromRange(itemKind, drag, "any-id", style),
       id: expect.any(String),
     });
 
@@ -207,6 +217,17 @@ describe(createAddItemModeActions, () => {
       actions.addItemMode.commit();
 
       expect(store.get(atoms.editorItems)[0]).toStrictEqual(itemOf("arrow", drag));
+    });
+
+    it("starts the item in the styles last set in edit mode.", () => {
+      const style: NewItemStyle = { color: "#123456", fontSize: 40, lineWidth: 6, blockSize: 12 };
+      const drag: ItemRange = [new Vec2(20, 40), new Vec2(420, 140)];
+      const { store, actions, atoms } = setUpAs("rect", ...drag);
+      store.set(atoms.newItemStyle, style);
+
+      actions.addItemMode.commit();
+
+      expect(store.get(atoms.editorItems)[0]).toStrictEqual(itemOf("rect", drag, style));
     });
 
     it("keeps the state as it is when the drag never began.", () => {

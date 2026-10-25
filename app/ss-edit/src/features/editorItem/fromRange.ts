@@ -1,16 +1,30 @@
 import { Rect, type Vec2 } from "../../utils/geometry";
 import { clampArrowLength } from "./arrowStyle";
-import { clampMosaicSide } from "./mosaicStyle";
+import { clampMosaicBlockSize, clampMosaicSide } from "./mosaicStyle";
 import { NEW_ITEM_COLOR } from "./palette";
-import { clampRectSide } from "./rectStyle";
-import { clampFontSize, clampTextWidth, LINE_HEIGHT_RATIO } from "./textStyle";
+import { clampRectLineWidth, clampRectSide } from "./rectStyle";
+import { clampFontSize, clampTextWidth } from "./textStyle";
 import type { AddableItemKind, EditorItem } from "./types";
 
-/** line width (px) of a newly added rect item */
-const NEW_RECT_LINE_WIDTH = 4;
+/** the styles a new item starts with, one value for each property whichever kind has it */
+export type NewItemStyle = Readonly<{
+  /** color of a kind that has a `color` */
+  color: string;
+  /** font size (px) of a text item */
+  fontSize: number;
+  /** line width (px) of a rect item */
+  lineWidth: number;
+  /** block size (px) of a mosaic item */
+  blockSize: number;
+}>;
 
-/** block size (px) of a newly added mosaic item */
-const NEW_MOSAIC_BLOCK_SIZE = 8;
+/** the styles a new item starts with until the user sets any */
+export const DEFAULT_NEW_ITEM_STYLE: NewItemStyle = {
+  color: NEW_ITEM_COLOR,
+  fontSize: 32,
+  lineWidth: 4,
+  blockSize: 8,
+};
 
 /** the two points a drag on the pane ran between, in canvas coordinates */
 export type ItemRange = readonly [Vec2, Vec2];
@@ -19,19 +33,20 @@ export type ItemRange = readonly [Vec2, Vec2];
  * builds the item a drag on the pane asks for, without adding it anywhere.
  * @param range the drag, from the point it began at to the point it currently reaches
  * @param id item.id to give it
+ * @param style the styles to give it, out of range or not
  * @returns the item that drag describes
  */
 export const editorItemFromRange = (
   itemKind: AddableItemKind,
   range: ItemRange,
   id: string,
+  style: NewItemStyle,
 ): EditorItem => {
   const { head, size } = new Rect(...range);
 
   switch (itemKind) {
     case "text": {
-      // the dragged height is a single line box, hence the inverse of the `lineHeight`.
-      const fontSize = clampFontSize(size.y / LINE_HEIGHT_RATIO);
+      const fontSize = clampFontSize(style.fontSize);
       return {
         kind: "text",
         id,
@@ -39,7 +54,7 @@ export const editorItemFromRange = (
         offset: head.tuple(),
         width: clampTextWidth(size.x, fontSize),
         fontSize,
-        color: NEW_ITEM_COLOR,
+        color: style.color,
       };
     }
     case "rect": {
@@ -49,8 +64,8 @@ export const editorItemFromRange = (
         offset: head.tuple(),
         width: clampRectSide(size.x),
         height: clampRectSide(size.y),
-        color: NEW_ITEM_COLOR,
-        lineWidth: NEW_RECT_LINE_WIDTH,
+        color: style.color,
+        lineWidth: clampRectLineWidth(style.lineWidth),
       };
     }
     case "mosaic": {
@@ -60,7 +75,7 @@ export const editorItemFromRange = (
         offset: head.tuple(),
         width: clampMosaicSide(size.x),
         height: clampMosaicSide(size.y),
-        blockSize: NEW_MOSAIC_BLOCK_SIZE,
+        blockSize: clampMosaicBlockSize(style.blockSize),
       };
     }
     case "arrow": {
@@ -72,7 +87,7 @@ export const editorItemFromRange = (
         offset: tail.tuple(),
         length: clampArrowLength(tip.distance(tail)),
         angle: tip.sub(tail).angle(),
-        color: NEW_ITEM_COLOR,
+        color: style.color,
       };
     }
     default:

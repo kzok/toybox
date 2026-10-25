@@ -246,6 +246,12 @@ describe(createEditModeActions, () => {
       });
     });
 
+    it("keeps the new font size for the next added item.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.resizeTextFontSize(item.id, [150, 120]);
+      expect(store.get(atoms.newItemStyle).fontSize).toBe(48);
+    });
+
     it("projects an off-ratio target onto the diagonal and rounds the font size.", () => {
       const { store, actions, atoms, item } = setUp();
 
@@ -346,6 +352,19 @@ describe(createEditModeActions, () => {
       });
     });
 
+    it("keeps the font size the item takes for the next added item.", () => {
+      const { store, actions, atoms, textItem } = setUp();
+      actions.editMode.setTextFontSize(textItem.id, 1000);
+      expect(store.get(atoms.newItemStyle).fontSize).toBe(72);
+    });
+
+    it("keeps the styles for the next added item as they are when the item is not a text item.", () => {
+      const { store, actions, atoms, imageItem } = setUp();
+      const before = store.get(atoms.newItemStyle);
+      actions.editMode.setTextFontSize(imageItem.id, 48);
+      expect(store.get(atoms.newItemStyle)).toBe(before);
+    });
+
     it("rounds a fractional font size.", () => {
       const { store, actions, atoms, textItem } = setUp();
       actions.editMode.setTextFontSize(textItem.id, 40.4);
@@ -404,6 +423,31 @@ describe(createEditModeActions, () => {
       const { store, actions, atoms } = createTestTargetWithItems(item);
       actions.editMode.setColor(item.id, "#000");
       expect(store.get(atoms.editorItems)).toStrictEqual([{ ...item, color: "#000" }]);
+    });
+
+    it.each([
+      createTextItem("item-1", "hello"),
+      createRectItem("item-1", [0, 0]),
+      createArrowItem("item-1", [0, 0]),
+    ])("keeps the color of a $kind item for the next added item of any kind.", (item) => {
+      const { store, actions, atoms } = createTestTargetWithItems(item);
+      actions.editMode.setColor(item.id, "#000");
+      expect(store.get(atoms.newItemStyle).color).toBe("#000");
+    });
+
+    it("keeps the styles for the next added item as they are on a kind without a color.", () => {
+      const item = createMosaicItem("item-1", [0, 0]);
+      const { store, actions, atoms } = createTestTargetWithItems(item);
+      const before = store.get(atoms.newItemStyle);
+      actions.editMode.setColor(item.id, "#000");
+      expect(store.get(atoms.newItemStyle)).toBe(before);
+    });
+
+    it("keeps the styles for the next added item as they are when the item does not exist.", () => {
+      const { store, actions, atoms } = createTestTarget();
+      const before = store.get(atoms.newItemStyle);
+      actions.editMode.setColor("missing-id", "#000");
+      expect(store.get(atoms.newItemStyle)).toBe(before);
     });
 
     it("keeps the very same items list on the current color, which would count as unsaved otherwise.", () => {
@@ -639,6 +683,12 @@ describe(createEditModeActions, () => {
       expect(store.get(atoms.editorItems)).toBe(before);
     });
 
+    it("keeps the line width the item takes for the next added item.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setRectLineWidth(item.id, 100);
+      expect(store.get(atoms.newItemStyle).lineWidth).toBe(12);
+    });
+
     it("rounds a fractional line width.", () => {
       const { store, actions, atoms, item } = setUp();
       actions.editMode.setRectLineWidth(item.id, 11.6);
@@ -759,6 +809,12 @@ describe(createEditModeActions, () => {
       const before = store.get(atoms.editorItems);
       actions.editMode.setMosaicBlockSize(item.id, item.blockSize);
       expect(store.get(atoms.editorItems)).toBe(before);
+    });
+
+    it("keeps the block size the item takes for the next added item.", () => {
+      const { store, actions, atoms, item } = setUp();
+      actions.editMode.setMosaicBlockSize(item.id, 15.6);
+      expect(store.get(atoms.newItemStyle).blockSize).toBe(16);
     });
 
     it("rounds a fractional block size.", () => {

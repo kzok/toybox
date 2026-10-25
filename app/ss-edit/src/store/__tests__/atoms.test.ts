@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Vec2 } from "../../utils/geometry";
 import {
   createRectItem,
   createTestTarget,
@@ -36,5 +37,25 @@ describe("editingItem", () => {
     actions.editMode.enter("item-1");
     expect(store.get(atoms.editingItem)).toBeNull();
     expect(store.get(atoms.isEditingText)).toBe(false);
+  });
+});
+
+describe("addItemPreview", () => {
+  it("is the item the drag would add, in the same styles.", () => {
+    const { store, actions, atoms } = createTestTarget();
+    store.set(atoms.newItemStyle, {
+      color: "#123456",
+      fontSize: 40,
+      lineWidth: 6,
+      blockSize: 12,
+    });
+    actions.addItemMode.enter("rect");
+    actions.addItemMode.updateRange(new Vec2(20, 40));
+    actions.addItemMode.updateRange(new Vec2(420, 140));
+    const preview = store.get(atoms.addItemPreview);
+
+    actions.addItemMode.commit();
+
+    expect(store.get(atoms.editorItems)).toStrictEqual([{ ...preview, id: expect.any(String) }]);
   });
 });
