@@ -14,6 +14,7 @@ import {
   expectMode,
   fontSizeInput,
   fontSizeLabel,
+  fontSizeSlider,
   imageItems,
   itemStyle,
   leaveEditMode,
@@ -171,6 +172,23 @@ test("sets the font size typed into the item style, scaling the width with it", 
 
   await expect(editor).toHaveCSS("font-size", "48px");
   await expect(editor).toHaveCSS("width", "600px");
+  await expectMode(page, "edit");
+});
+
+test("sets the font size moved on the slider, keeping the input in step", async ({ page }) => {
+  await openApp(page);
+  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
+
+  await fontSizeSlider(page).focus();
+  await page.keyboard.press("ArrowRight");
+
+  await expect(editor).toHaveCSS("font-size", "33px");
+  await expect(fontSizeInput(page)).toHaveValue("33");
+
+  await page.keyboard.press("End");
+
+  await expect(editor).toHaveCSS("font-size", "72px");
+  await expect(fontSizeInput(page)).toHaveValue("72");
   await expectMode(page, "edit");
 });
 

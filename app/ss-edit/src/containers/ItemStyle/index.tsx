@@ -2,6 +2,8 @@ import { TypedSingleDropdown } from "@~/ui/components/TypedSingleDropdown";
 import {
   ColorSwatch,
   Field,
+  Label,
+  Slider,
   SpinButton,
   type SpinButtonProps,
   SwatchPicker,
@@ -85,23 +87,59 @@ const FontSizeInput = React.memo<{
   item: EditorItem.Text;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
-  const onChange: SpinButtonProps["onChange"] = (_, data) => {
+
+  return (
+    <NumberInput
+      label="Font size"
+      value={item.fontSize}
+      min={MIN_FONT_SIZE_PX}
+      max={MAX_FONT_SIZE_PX}
+      onChange={(fontSize) => actions.editMode.setTextFontSize(item.id, fontSize)}
+    />
+  );
+});
+
+/**
+ * a slider and a spin button side by side, both for the same number.
+ */
+const NumberInput = React.memo<{
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}>(({ label, value, min, max, onChange }) => {
+  const inputId = React.useId();
+  const onSpinButtonChange: SpinButtonProps["onChange"] = (_, data) => {
     // NOTE: `value` is undefined when the user typed the number rather than spun it.
-    const fontSize = data.value ?? Number.parseFloat(data.displayValue ?? "");
-    if (Number.isFinite(fontSize)) {
-      actions.editMode.setTextFontSize(item.id, fontSize);
+    const typed = data.value ?? Number.parseFloat(data.displayValue ?? "");
+    if (Number.isFinite(typed)) {
+      onChange(typed);
     }
   };
 
   return (
-    <Field label="Font size">
-      <SpinButton
-        value={item.fontSize}
-        min={MIN_FONT_SIZE_PX}
-        max={MAX_FONT_SIZE_PX}
-        onChange={onChange}
-      />
-    </Field>
+    <div className={styles.numberInput}>
+      <Label htmlFor={inputId}>{label}</Label>
+      <div className={styles.numberInputRow}>
+        <Slider
+          className={styles.slider}
+          aria-label={label}
+          value={value}
+          min={min}
+          max={max}
+          onChange={(_, data) => onChange(data.value)}
+        />
+        <SpinButton
+          id={inputId}
+          className={styles.spinButton}
+          value={value}
+          min={min}
+          max={max}
+          onChange={onSpinButtonChange}
+        />
+      </div>
+    </div>
   );
 });
 

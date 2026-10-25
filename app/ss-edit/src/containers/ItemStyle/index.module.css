@@ -11,6 +11,28 @@
     color: var(--colorNeutralForeground3);
   }
 
+  .numberInput {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 2px;
+
+    .numberInputRow {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .slider {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .spinButton {
+      width: 72px;
+    }
+  }
+
   .dropdown {
     min-width: 0;
   }

@@ -102,6 +102,9 @@ export const itemStyle = (page: Page): Locator => page.getByRole("region", { nam
 export const fontSizeInput = (page: Page): Locator =>
   itemStyle(page).getByRole("spinbutton", { name: "Font size" });
 
+export const fontSizeSlider = (page: Page): Locator =>
+  itemStyle(page).getByRole("slider", { name: "Font size" });
+
 /** the label of the font size input. */
 export const fontSizeLabel = (page: Page): Locator =>
   itemStyle(page).getByText("Font size", { exact: true });
