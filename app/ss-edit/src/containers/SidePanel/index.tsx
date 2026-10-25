@@ -11,6 +11,7 @@ import clsx from "clsx";
 import React from "react";
 import type { AddableItemKind } from "../../features/editorItem";
 import { type PageState, pageCtx } from "../../store";
+import { ItemStyle } from "../ItemStyle";
 import styles from "./index.module.css";
 
 type Tool = "select" | AddableItemKind;
@@ -34,6 +35,9 @@ export const SidePanel = React.memo<{
   const editorMode = pageCtx.useEditorMode();
   const currentTool = toolOf(editorMode);
 
+  if (editorMode.kind === "edit") {
+    return <ItemStyle className={clsx(props.className, styles.container)} />;
+  }
   return (
     <div className={clsx(props.className, styles.container)}>
       <Toolbar className={styles.toolbar} aria-label="Tools" vertical>

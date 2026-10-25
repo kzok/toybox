@@ -6,19 +6,17 @@ import {
   addMosaicByDrag,
   addRectByDrag,
   addTextByDrag,
-  arrowColorButton,
   arrowColorSwatch,
   blockSizeDropdown,
   boundingBoxOf,
   dropdownOption,
   editArrow,
-  editToolbar,
   expectMode,
-  fontSizeIcon,
   fontSizeInput,
+  fontSizeLabel,
   imageItems,
+  itemStyle,
   leaveEditMode,
-  lineColorButton,
   lineColorSwatch,
   lineWidthDropdown,
   MOSAIC_PIXELS,
@@ -26,14 +24,13 @@ import {
   type Point,
   parkCursor,
   rectItems,
-  textColorButton,
   textColorSwatch,
   textEditor,
 } from "./helpers";
 
 /**
- * a range dragged on an arbitrary spot of the pane, clear of the toolbar. its height gives a font
- * size of 32px (`round(40 / 1.25)`), and its width is the wrapping width as it is.
+ * a range dragged on an arbitrary spot of the pane. its height gives a font size of 32px
+ * (`round(40 / 1.25)`), and its width is the wrapping width as it is.
  */
 const TEXT_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 /** a second range, clear of `TEXT_RANGE`. */
@@ -44,34 +41,32 @@ const THIRD_RANGE = { x: 200, y: 400, width: 400, height: 40 };
 const ARROW_TAIL: Point = { x: 200, y: 250 };
 const ARROW_TIP: Point = { x: 600, y: 250 };
 
-test("shows the toolbar only while an item of a kind with controls is under edit", async ({
-  page,
-}) => {
+test("shows the item style only while an item is under edit", async ({ page }) => {
   await openApp(page);
-  await expect(editToolbar(page)).toBeHidden();
+  await expect(itemStyle(page)).toBeHidden();
 
   await addTextByDrag(page, TEXT_RANGE, "Hello");
-  await expect(editToolbar(page)).toBeVisible();
+  await expect(itemStyle(page).getByRole("heading", { name: "Text" })).toBeVisible();
 
   await leaveEditMode(page);
-  await expect(editToolbar(page)).toBeHidden();
+  await expect(itemStyle(page)).toBeHidden();
 
   const rect = await addRectByDrag(page, SECOND_RANGE);
-  await expect(editToolbar(page)).toBeHidden();
+  await expect(itemStyle(page)).toBeHidden();
   await rect.click();
   await expectMode(page, "edit");
-  await expect(editToolbar(page)).toBeVisible();
+  await expect(itemStyle(page).getByRole("heading", { name: "Rectangle" })).toBeVisible();
 
   await page.keyboard.press("Escape");
   const mosaic = await addMosaicByDrag(page, THIRD_RANGE);
   await mosaic.click();
   await expectMode(page, "edit");
-  await expect(editToolbar(page)).toBeVisible();
+  await expect(itemStyle(page).getByRole("heading", { name: "Mosaic" })).toBeVisible();
 
   await page.keyboard.press("Escape");
   await addArrowByDrag(page, ARROW_TAIL, ARROW_TIP);
   await editArrow(page);
-  await expect(editToolbar(page)).toBeVisible();
+  await expect(itemStyle(page).getByRole("heading", { name: "Arrow" })).toBeVisible();
 
   await page.keyboard.press("Escape");
   await addImage(page, "320x240.png");
@@ -79,18 +74,18 @@ test("shows the toolbar only while an item of a kind with controls is under edit
   await image.click();
   await image.click();
   await expectMode(page, "edit");
-  await expect(editToolbar(page)).toBeHidden();
+  await expect(itemStyle(page).getByRole("heading", { name: "Image" })).toBeVisible();
+  await expect(itemStyle(page).getByText("No styles")).toBeVisible();
 });
 
-test("recolors an arrow item from the toolbar", async ({ page }) => {
+test("recolors an arrow item from the item style", async ({ page }) => {
   await openApp(page);
   await addArrowByDrag(page, ARROW_TAIL, ARROW_TIP);
   await editArrow(page);
 
-  await arrowColorButton(page).click();
   await arrowColorSwatch(page, "Blue").click();
 
-  await expect(arrowColorSwatch(page, "Blue")).toBeHidden();
+  await expect(arrowColorSwatch(page, "Blue")).toBeChecked();
   await expectMode(page, "edit");
 
   await page.keyboard.press("Escape");
@@ -99,7 +94,7 @@ test("recolors an arrow item from the toolbar", async ({ page }) => {
   await expect.soft(page).toHaveScreenshot("screenshot-arrow-recolored.png");
 });
 
-test("pixelates a mosaic item by the block size picked on the toolbar", async ({ page }) => {
+test("pixelates a mosaic item by the block size picked on the item style", async ({ page }) => {
   await openApp(page);
   const mosaic = await addMosaicByDrag(page, await addLabelledImage(page));
   await mosaic.click();
@@ -120,7 +115,7 @@ test("pixelates a mosaic item by the block size picked on the toolbar", async ({
   await expect.soft(page).toHaveScreenshot("screenshot-mosaic-coarsened.png", MOSAIC_PIXELS);
 });
 
-test("sets the line width picked on the toolbar, keeping the line where it is", async ({
+test("sets the line width picked on the item style, keeping the line where it is", async ({
   page,
 }) => {
   await openApp(page);
@@ -146,17 +141,16 @@ test("sets the line width picked on the toolbar, keeping the line where it is", 
     });
 });
 
-test("restyles the line of a rect item from the toolbar", async ({ page }) => {
+test("restyles the line of a rect item from the item style", async ({ page }) => {
   await openApp(page);
   const rect = await addRectByDrag(page, SECOND_RANGE);
   await rect.click();
 
   await lineWidthDropdown(page).click();
   await dropdownOption(page, "8px").click();
-  await lineColorButton(page).click();
   await lineColorSwatch(page, "Blue").click();
 
-  await expect(lineColorSwatch(page, "Blue")).toBeHidden();
+  await expect(lineColorSwatch(page, "Blue")).toBeChecked();
   await expectMode(page, "edit");
 
   await page.keyboard.press("Escape");
@@ -165,7 +159,9 @@ test("restyles the line of a rect item from the toolbar", async ({ page }) => {
   await expect.soft(page).toHaveScreenshot("screenshot-rect-restyled.png");
 });
 
-test("sets the font size typed into the toolbar, scaling the width with it", async ({ page }) => {
+test("sets the font size typed into the item style, scaling the width with it", async ({
+  page,
+}) => {
   await openApp(page);
   const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
   await expect(fontSizeInput(page)).toHaveValue("32");
@@ -178,17 +174,17 @@ test("sets the font size typed into the toolbar, scaling the width with it", asy
   await expectMode(page, "edit");
 });
 
-test("focuses the font size input on a click on its icon", async ({ page }) => {
+test("focuses the font size input on a click on its label", async ({ page }) => {
   await openApp(page);
   await addTextByDrag(page, TEXT_RANGE, "Hello");
 
-  await fontSizeIcon(page).click();
+  await fontSizeLabel(page).click();
 
   await expect(fontSizeInput(page)).toBeFocused();
   await expectMode(page, "edit");
 });
 
-test("clamps the font size typed into the toolbar", async ({ page }) => {
+test("clamps the font size typed into the item style", async ({ page }) => {
   await openApp(page);
   const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
 
@@ -199,22 +195,15 @@ test("clamps the font size typed into the toolbar", async ({ page }) => {
   await expect(fontSizeInput(page)).toHaveValue("72");
 });
 
-test("sets the color picked on the toolbar", async ({ page }) => {
+test("sets the color picked on the item style", async ({ page }) => {
   await openApp(page);
   await addTextByDrag(page, TEXT_RANGE, "Hello");
 
-  await textColorButton(page).click();
   await textColorSwatch(page, "Blue").click();
 
-  await expect(textColorSwatch(page, "Blue")).toBeHidden();
+  await expect(textColorSwatch(page, "Blue")).toBeChecked();
   await expectMode(page, "edit");
   await expect(textEditor(page)).toHaveValue("Hello");
-
-  await textColorButton(page).click();
-  await expect(textColorSwatch(page, "Blue")).toBeChecked();
-  await page.keyboard.press("Escape");
-  await expect(textColorSwatch(page, "Blue")).toBeHidden();
-  await expectMode(page, "edit");
 
   // NOTE: the click leaves the pointer on an empty corner, hence no hover highlight either.
   await leaveEditMode(page);
@@ -228,7 +217,6 @@ test("hands the focus back to the text editor, caret and all, once a color is pi
   const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
   await page.keyboard.press("Home");
 
-  await textColorButton(page).click();
   await textColorSwatch(page, "Blue").click();
 
   await expect(editor).toBeFocused();
@@ -237,18 +225,4 @@ test("hands the focus back to the text editor, caret and all, once a color is pi
   await page.keyboard.press("Backspace");
   await expect(editor).toHaveValue("Hello");
   await expectMode(page, "edit");
-});
-
-test("hands the focus back to the text editor when Escape closes the colors", async ({ page }) => {
-  await openApp(page);
-  const editor = await addTextByDrag(page, TEXT_RANGE, "Hello");
-
-  await textColorButton(page).click();
-  await expect(textColorSwatch(page, "Blue")).toBeVisible();
-  await page.keyboard.press("Escape");
-
-  await expect(textColorSwatch(page, "Blue")).toBeHidden();
-  await expect(editor).toBeFocused();
-  await page.keyboard.type("!");
-  await expect(editor).toHaveValue("Hello!");
 });

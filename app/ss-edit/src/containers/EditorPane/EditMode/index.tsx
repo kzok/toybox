@@ -8,7 +8,7 @@ import {
 } from "../../../features/editorItem";
 import { pageCtx } from "../../../store";
 import { Vec2 } from "../../../utils/geometry";
-import { useTextEditorRef } from "../../EditToolbar/context";
+import { useTextEditorRef } from "../../ItemStyle/context";
 import { CanvasLayer } from "../CanvasLayer";
 import { ResizeContainer, ResizeHandle, ResizePointHandle } from "../ResizeHandle";
 import styles from "./index.module.css";

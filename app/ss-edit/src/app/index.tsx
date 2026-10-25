@@ -2,9 +2,9 @@ import { ImageAddRegular } from "@fluentui/react-icons";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import React from "react";
 import { EditorPane } from "../containers/EditorPane";
-import { EditToolbar, TextEditorProvider } from "../containers/EditToolbar";
 import { Footer } from "../containers/Footer";
 import { Header } from "../containers/Header";
+import { TextEditorProvider } from "../containers/ItemStyle";
 import { SidePanel } from "../containers/SidePanel";
 import { useBeforeUnload } from "../hooks/useBeforeUnload";
 import { useWindowFileDrop } from "../hooks/useWindowFileDrop";
@@ -20,10 +20,7 @@ export const App: React.FC = () => (
       <div className={styles.body}>
         <TextEditorProvider>
           <SidePanel />
-          <div className={styles.paneArea}>
-            <EditorPane />
-            <EditToolbar />
-          </div>
+          <EditorPane />
         </TextEditorProvider>
       </div>
       <Footer className={styles.footer} />

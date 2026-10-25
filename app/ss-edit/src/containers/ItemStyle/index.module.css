@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 12px;
+
+  .heading {
+    margin: 0;
+  }
+
+  .noStyles {
+    color: var(--colorNeutralForeground3);
+  }
+
+  .dropdown {
+    min-width: 0;
+  }
+
+  .swatches {
+    flex-wrap: wrap;
+  }
+}

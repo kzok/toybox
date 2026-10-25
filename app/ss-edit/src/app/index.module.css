@@ -26,11 +26,6 @@
   grid-template-columns: 240px 1fr;
 }
 
-.paneArea {
-  position: relative;
-  display: grid;
-}
-
 .footer {
   grid-area: footer;
 }

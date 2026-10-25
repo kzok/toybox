@@ -49,7 +49,7 @@ The app starts in Select mode.
 
 A side panel on the left of the pane shows a button for each mode that the user can enter.
 The checked button shows the current mode.
-The Select button also works in Edit mode, and returns to Select mode.
+In Edit mode, the panel shows the styles of the item instead, as described below.
 
 ### Add item mode
 
@@ -80,17 +80,16 @@ Edit mode shows a real caret and text selection over the text on the canvas.
 It also accepts IME composition.
 So Japanese text under composition appears on the picture before the user confirms it.
 
-For every other kind, Edit mode shows only the handles.
-So the extra click that enters Edit mode only adds resizing.
+For every other kind, Edit mode shows only the handles on the canvas.
 A drag on the item away from the handles still moves the item, as in Select mode.
 This does not leave Edit mode.
 
 Every size has limits, so the user can always grab the item again.
 
-Edit mode shows a toolbar for a kind with styles to change.
-The toolbar changes the styles of the item in Edit mode.
-It floats over the top-left corner of the pane.
-So showing or hiding it never changes the size of the view.
+In Edit mode, the side panel shows the styles of the item in Edit mode.
+A heading names the kind of the item.
+For a kind without styles, the panel says so.
+The panel keeps its width, so a change of its content never changes the size of the view.
 
 ### Context menu
 
