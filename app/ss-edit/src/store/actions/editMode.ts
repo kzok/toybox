@@ -1,7 +1,9 @@
 import {
   clampArrowLength,
   clampFontSize,
+  clampMosaicBlockSize,
   clampMosaicSide,
+  clampRectLineWidth,
   clampRectSide,
   clampTextWidth,
   rectStyleSizeOf,
@@ -139,15 +141,16 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
     },
     /**
      * set the line width of a rect item, keeping its line where it is.
-     * @param lineWidth line width (px)
+     * @param lineWidth line width (px), fractional or out of range
      */
     setRectLineWidth: (itemId: string, lineWidth: number): void => {
       updateAtom(atoms.state, (draft) => {
         const item = draft.editorItems.find((item) => item.id === itemId);
-        if (item?.kind !== "rect" || item.lineWidth === lineWidth) return;
+        const clamped = clampRectLineWidth(lineWidth);
+        if (item?.kind !== "rect" || item.lineWidth === clamped) return;
 
         const before = rectStyleSizeOf(item).padding;
-        item.lineWidth = lineWidth;
+        item.lineWidth = clamped;
         // `offset` is the top-left of the outline around the line,
         // hence it moves by the change of the padding that the outline takes.
         const shift = rectStyleSizeOf(item).padding - before;
@@ -170,13 +173,13 @@ export const createEditModeActions = ({ atoms, updateAtom }: ActionCreatorParam)
     },
     /**
      * set the block size of a mosaic item.
-     * @param blockSize block size (px)
+     * @param blockSize block size (px), fractional or out of range
      */
     setMosaicBlockSize: (itemId: string, blockSize: number): void => {
       updateAtom(atoms.state, (draft) => {
         const item = draft.editorItems.find((item) => item.id === itemId);
         if (item?.kind !== "mosaic") return;
-        item.blockSize = blockSize;
+        item.blockSize = clampMosaicBlockSize(blockSize);
       });
     },
     /**

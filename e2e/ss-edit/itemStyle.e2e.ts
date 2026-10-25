@@ -7,9 +7,8 @@ import {
   addRectByDrag,
   addTextByDrag,
   arrowColorSwatch,
-  blockSizeDropdown,
+  blockSizeInput,
   boundingBoxOf,
-  dropdownOption,
   editArrow,
   expectMode,
   fontSizeInput,
@@ -19,7 +18,7 @@ import {
   itemStyle,
   leaveEditMode,
   lineColorSwatch,
-  lineWidthDropdown,
+  lineWidthInput,
   MOSAIC_PIXELS,
   openApp,
   type Point,
@@ -95,18 +94,18 @@ test("recolors an arrow item from the item style", async ({ page }) => {
   await expect.soft(page).toHaveScreenshot("screenshot-arrow-recolored.png");
 });
 
-test("pixelates a mosaic item by the block size picked on the item style", async ({ page }) => {
+test("pixelates a mosaic item by the block size typed into the item style", async ({ page }) => {
   await openApp(page);
   const mosaic = await addMosaicByDrag(page, await addLabelledImage(page));
   await mosaic.click();
   await expectMode(page, "edit");
-  await expect(blockSizeDropdown(page)).toHaveText("8px");
+  await expect(blockSizeInput(page)).toHaveValue("8");
   const before = await boundingBoxOf(mosaic);
 
-  await blockSizeDropdown(page).click();
-  await dropdownOption(page, "16px").click();
+  await blockSizeInput(page).fill("16");
+  await blockSizeInput(page).press("Enter");
 
-  await expect(blockSizeDropdown(page)).toHaveText("16px");
+  await expect(blockSizeInput(page)).toHaveValue("16");
   await expectMode(page, "edit");
   expect(await boundingBoxOf(mosaic)).toStrictEqual(before);
 
@@ -116,20 +115,20 @@ test("pixelates a mosaic item by the block size picked on the item style", async
   await expect.soft(page).toHaveScreenshot("screenshot-mosaic-coarsened.png", MOSAIC_PIXELS);
 });
 
-test("sets the line width picked on the item style, keeping the line where it is", async ({
+test("sets the line width typed into the item style, keeping the line where it is", async ({
   page,
 }) => {
   await openApp(page);
   const rect = await addRectByDrag(page, SECOND_RANGE);
   await rect.click();
   await expectMode(page, "edit");
-  await expect(lineWidthDropdown(page)).toHaveText("4px");
+  await expect(lineWidthInput(page)).toHaveValue("4");
   const before = await boundingBoxOf(rectItems(page));
 
-  await lineWidthDropdown(page).click();
-  await dropdownOption(page, "12px").click();
+  await lineWidthInput(page).fill("12");
+  await lineWidthInput(page).press("Enter");
 
-  await expect(lineWidthDropdown(page)).toHaveText("12px");
+  await expect(lineWidthInput(page)).toHaveValue("12");
   await expectMode(page, "edit");
   // the outline grows from ceil(4 * 1.7) = 7 to ceil(12 * 1.7) = 21 on both sides of the line.
   await expect
@@ -147,8 +146,8 @@ test("restyles the line of a rect item from the item style", async ({ page }) =>
   const rect = await addRectByDrag(page, SECOND_RANGE);
   await rect.click();
 
-  await lineWidthDropdown(page).click();
-  await dropdownOption(page, "8px").click();
+  await lineWidthInput(page).fill("8");
+  await lineWidthInput(page).press("Enter");
   await lineColorSwatch(page, "Blue").click();
 
   await expect(lineColorSwatch(page, "Blue")).toBeChecked();

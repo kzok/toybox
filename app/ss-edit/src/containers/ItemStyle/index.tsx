@@ -1,4 +1,3 @@
-import { TypedSingleDropdown } from "@~/ui/components/TypedSingleDropdown";
 import {
   ColorSwatch,
   Field,
@@ -17,9 +16,11 @@ import {
   type EditorItem,
   ITEM_COLORS,
   MAX_FONT_SIZE_PX,
+  MAX_MOSAIC_BLOCK_SIZE_PX,
+  MAX_RECT_LINE_WIDTH_PX,
   MIN_FONT_SIZE_PX,
-  MOSAIC_BLOCK_SIZES,
-  RECT_LINE_WIDTHS,
+  MIN_MOSAIC_BLOCK_SIZE_PX,
+  MIN_RECT_LINE_WIDTH_PX,
 } from "../../features/editorItem";
 import { pageCtx } from "../../store";
 import { useTextEditorRef } from "./context";
@@ -67,12 +68,12 @@ const renderControls = (item: EditorItem): React.ReactNode => {
     case "rect":
       return (
         <>
-          <LineWidthDropdown item={item} />
+          <LineWidthInput item={item} />
           <ColorPicker item={item} label="Line color" />
         </>
       );
     case "mosaic":
-      return <BlockSizeDropdown item={item} />;
+      return <BlockSizeInput item={item} />;
     case "arrow":
       return <ColorPicker item={item} label="Arrow color" />;
     case "image":
@@ -143,37 +144,35 @@ const NumberInput = React.memo<{
   );
 });
 
-const LineWidthDropdown = React.memo<{
+const LineWidthInput = React.memo<{
   item: EditorItem.Rect;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
 
   return (
-    <Field label="Line width">
-      <TypedSingleDropdown
-        className={styles.dropdown}
-        value={item.lineWidth}
-        options={RECT_LINE_WIDTHS.map((value) => ({ value, label: `${value}px` }))}
-        onChange={({ value }) => actions.editMode.setRectLineWidth(item.id, value)}
-      />
-    </Field>
+    <NumberInput
+      label="Line width"
+      value={item.lineWidth}
+      min={MIN_RECT_LINE_WIDTH_PX}
+      max={MAX_RECT_LINE_WIDTH_PX}
+      onChange={(lineWidth) => actions.editMode.setRectLineWidth(item.id, lineWidth)}
+    />
   );
 });
 
-const BlockSizeDropdown = React.memo<{
+const BlockSizeInput = React.memo<{
   item: EditorItem.Mosaic;
 }>(({ item }) => {
   const actions = pageCtx.useActions();
 
   return (
-    <Field label="Block size">
-      <TypedSingleDropdown
-        className={styles.dropdown}
-        value={item.blockSize}
-        options={MOSAIC_BLOCK_SIZES.map((value) => ({ value, label: `${value}px` }))}
-        onChange={({ value }) => actions.editMode.setMosaicBlockSize(item.id, value)}
-      />
-    </Field>
+    <NumberInput
+      label="Block size"
+      value={item.blockSize}
+      min={MIN_MOSAIC_BLOCK_SIZE_PX}
+      max={MAX_MOSAIC_BLOCK_SIZE_PX}
+      onChange={(blockSize) => actions.editMode.setMosaicBlockSize(item.id, blockSize)}
+    />
   );
 });
 

@@ -109,18 +109,11 @@ export const fontSizeSlider = (page: Page): Locator =>
 export const fontSizeLabel = (page: Page): Locator =>
   itemStyle(page).getByText("Font size", { exact: true });
 
-export const lineWidthDropdown = (page: Page): Locator =>
-  itemStyle(page).getByRole("combobox", { name: "Line width" });
+export const lineWidthInput = (page: Page): Locator =>
+  itemStyle(page).getByRole("spinbutton", { name: "Line width" });
 
-export const blockSizeDropdown = (page: Page): Locator =>
-  itemStyle(page).getByRole("combobox", { name: "Block size" });
-
-/**
- * an option of a dropdown, by its text. it is visible only while the list is open.
- * @note it matches an option of any dropdown. open one dropdown at a time.
- */
-export const dropdownOption = (page: Page, name: string): Locator =>
-  page.getByRole("option", { name });
+export const blockSizeInput = (page: Page): Locator =>
+  itemStyle(page).getByRole("spinbutton", { name: "Block size" });
 
 /** a line color swatch, by the name of its color. */
 export const lineColorSwatch = (page: Page, name: string): Locator =>
