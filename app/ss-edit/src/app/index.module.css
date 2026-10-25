@@ -21,6 +21,12 @@
 
 .body {
   grid-area: body;
+  display: grid;
+  /** side-menu, canvas panel */
+  grid-template-columns: 240px 1fr;
+}
+
+.paneArea {
   position: relative;
   display: grid;
 }

@@ -5,6 +5,7 @@ import { EditorPane } from "../containers/EditorPane";
 import { EditToolbar, TextEditorProvider } from "../containers/EditToolbar";
 import { Footer } from "../containers/Footer";
 import { Header } from "../containers/Header";
+import { SidePanel } from "../containers/SidePanel";
 import { useBeforeUnload } from "../hooks/useBeforeUnload";
 import { useWindowFileDrop } from "../hooks/useWindowFileDrop";
 import { pageCtx } from "../store";
@@ -18,8 +19,11 @@ export const App: React.FC = () => (
       <Header className={styles.header} />
       <div className={styles.body}>
         <TextEditorProvider>
-          <EditorPane />
-          <EditToolbar />
+          <SidePanel />
+          <div className={styles.paneArea}>
+            <EditorPane />
+            <EditToolbar />
+          </div>
         </TextEditorProvider>
       </div>
       <Footer className={styles.footer} />

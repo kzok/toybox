@@ -47,6 +47,10 @@ Each mode allows different actions.
 The app starts in Select mode.
 `Escape` returns to Select mode from any mode.
 
+A side panel on the left of the pane shows a button for each mode that the user can enter.
+The checked button shows the current mode.
+The Select button also works in Edit mode, and returns to Select mode.
+
 ### Add item mode
 
 In this mode, a drag adds a new item.
@@ -115,7 +119,8 @@ A new item becomes the target of the next action:
 
 An image item renders an image file that the user uploaded.
 
-The user adds image items from a header menu item, or by dropping files anywhere in the window.
+The user adds image items from a header menu item or the side panel,
+or by dropping files anywhere in the window.
 While the user drags files over the window, an overlay says so.
 The overlay is necessary because the drop target is the whole window, not the pane.
 Without the overlay, the user would have nothing to aim at.

@@ -89,6 +89,13 @@ export const dropOverlay = (page: Page): Locator => page.getByText("Drop images 
  */
 export const contextMenu = (page: Page): Locator => page.getByRole("menu");
 
+/** the toolbar on the side panel. */
+export const toolsToolbar = (page: Page): Locator => page.getByRole("toolbar", { name: "Tools" });
+
+/** a mode button of the side panel, by its label. the button of the current mode is pressed. */
+export const toolButton = (page: Page, name: string): Locator =>
+  toolsToolbar(page).getByRole("button", { name, exact: true });
+
 /** the toolbar over the pane, shown while an item of a kind with controls is under edit. */
 export const editToolbar = (page: Page): Locator =>
   page.getByRole("toolbar", { name: "Item style" });
