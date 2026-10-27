@@ -40,7 +40,7 @@
     "jsdom": "29.1.1",
     "rumdl": "0.2.62",
     "serve": "14.2.6",
-    "storybook": "10.5.8",
+    "storybook": "10.6.4",
     "typescript": "5.9.3",
     "vite": "7.3.6",
     "vitest": "4.1.11"
