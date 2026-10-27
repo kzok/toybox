@@ -7,7 +7,7 @@ import type { ActionCreatorParam } from "./types";
 import { switchMode } from "./utils";
 
 /** actions specific to add item mode */
-export const createAddItemModeActions = ({ atoms, updateAtom }: ActionCreatorParam) => {
+export const createAddItemModeActions = ({ store, atoms, updateAtom }: ActionCreatorParam) => {
   return {
     /** get into add-item mode */
     enter: (itemKind: PageState.Mode.AddItem["itemKind"]): void => {
@@ -39,12 +39,13 @@ export const createAddItemModeActions = ({ atoms, updateAtom }: ActionCreatorPar
     },
     /** add the item of "add-item" mode at the dragged range and leave the mode. */
     commit: (): void => {
+      const style = store.get(atoms.newItemStyle);
       updateAtom(atoms.state, (draft) => {
         if (draft.editorMode.kind !== "add-item") return;
         const { itemKind, range } = draft.editorMode;
         if (range == null) return; // the pointer never went down on the pane.
 
-        const newItem = editorItemFromRange(itemKind, range, crypto.randomUUID());
+        const newItem = editorItemFromRange(itemKind, range, crypto.randomUUID(), style);
         draft.editorItems.push(castDraft(newItem));
         switchMode(
           draft,

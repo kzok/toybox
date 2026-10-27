@@ -16,6 +16,7 @@ import {
   pictureSize,
   rangePreview,
   saveAsImage,
+  setNextTextFontSize,
   textEditor,
   textItems,
   typeText,
@@ -23,9 +24,9 @@ import {
 } from "./helpers";
 
 /**
- * a range dragged on an arbitrary spot of the pane. the height drives the font size
- * (`round(40 / 1.25)` = 32px) and the width is kept above `fontSize * 4`, so that the item's
- * layout (its wrap width and the dragged font size) keeps exactly the dragged size.
+ * a range dragged on an arbitrary spot of the pane. the width is kept above `fontSize * 4` at the
+ * default 32px, and the height is a single 40px line at that size, so that the item's layout keeps
+ * exactly the dragged size.
  */
 const MAIN_RANGE = { x: 200, y: 160, width: 400, height: 40 };
 
@@ -79,7 +80,7 @@ test("adds a text item by dragging a range", async ({ page }) => {
   });
 });
 
-test("falls back to the minimum size when clicked without dragging", async ({ page }) => {
+test("falls back to the minimum width when clicked without dragging", async ({ page }) => {
   await openApp(page);
   await enterAddText(page);
 
@@ -87,9 +88,9 @@ test("falls back to the minimum size when clicked without dragging", async ({ pa
   await page.mouse.click(point.x, point.y);
 
   await expectMode(page, "edit");
-  // an empty range falls back to the minimum font size, and the width to `fontSize * 4`.
-  await expect(textEditor(page)).toHaveCSS("font-size", "12px");
-  await expect(textEditor(page)).toHaveCSS("width", "48px");
+  // an empty range keeps the default font size, and falls back to the width of `fontSize * 4`.
+  await expect(textEditor(page)).toHaveCSS("font-size", "32px");
+  await expect(textEditor(page)).toHaveCSS("width", "128px");
 });
 
 test("sorts the corners of a range dragged up and left", async ({ page }) => {
@@ -110,17 +111,17 @@ test("sorts the corners of a range dragged up and left", async ({ page }) => {
   await expectBoxOnScreen(textItems(page).first(), range);
 });
 
-test("clamps the font size of a tall range", async ({ page }) => {
+test("takes the font size from the style, whatever height the range is dragged to", async ({
+  page,
+}) => {
   await openApp(page);
 
   const range = await paneRectToViewport(page, { ...MAIN_RANGE, width: 200, height: 300 });
   await enterAddText(page);
   await dragFromTo(page, range, { x: range.x + range.width, y: range.y + range.height });
 
-  // `round(300 / 1.25)` would be 240px, which is clamped down to the maximum.
-  await expect(textEditor(page)).toHaveCSS("font-size", "72px");
-  // the minimum width of `fontSize * 4` now exceeds the dragged width.
-  await expect(textEditor(page)).toHaveCSS("width", "288px");
+  await expect(textEditor(page)).toHaveCSS("font-size", "32px");
+  await expect(textEditor(page)).toHaveCSS("width", "200px");
 });
 
 test("discards a text item left blank", async ({ page }) => {
@@ -141,9 +142,10 @@ test("discards a text item left blank", async ({ page }) => {
 test("wraps a long text into multiple lines", async ({ page }) => {
   await openApp(page);
 
-  /** narrow enough that the text below cannot fit on a single line. */
+  /** narrow enough that the text below cannot fit on a single line at 20px. */
   const narrowRange = { x: 200, y: 160, width: 240, height: 25 };
   const range = await paneRectToViewport(page, narrowRange);
+  await setNextTextFontSize(page, 20);
   await enterAddText(page);
   await dragFromTo(page, range, { x: range.x + range.width, y: range.y + range.height });
   await typeText(page, "あいうえおかきくけこさしすせそたちつてと");

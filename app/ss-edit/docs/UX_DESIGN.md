@@ -47,6 +47,10 @@ Each mode allows different actions.
 The app starts in Select mode.
 `Escape` returns to Select mode from any mode.
 
+A side panel on the left of the pane shows a button for each mode that the user can enter.
+The checked button shows the current mode.
+In Edit mode, the panel shows the styles of the item instead, as described below.
+
 ### Add item mode
 
 In this mode, a drag adds a new item.
@@ -55,6 +59,9 @@ The app adds nothing until the user releases the pointer.
 
 During a drag, the app paints the item exactly as it will add it.
 After the release, the new item becomes the target of the next action, as described below.
+
+A new item takes the styles that the user last set in Edit mode.
+The app keeps these styles across reloads.
 
 ### Select mode
 
@@ -76,17 +83,16 @@ Edit mode shows a real caret and text selection over the text on the canvas.
 It also accepts IME composition.
 So Japanese text under composition appears on the picture before the user confirms it.
 
-For every other kind, Edit mode shows only the handles.
-So the extra click that enters Edit mode only adds resizing.
+For every other kind, Edit mode shows only the handles on the canvas.
 A drag on the item away from the handles still moves the item, as in Select mode.
 This does not leave Edit mode.
 
 Every size has limits, so the user can always grab the item again.
 
-Edit mode shows a toolbar for a kind with styles to change.
-The toolbar changes the styles of the item in Edit mode.
-It floats over the top-left corner of the pane.
-So showing or hiding it never changes the size of the view.
+In Edit mode, the side panel shows the styles of the item in Edit mode.
+A heading names the kind of the item.
+For a kind without styles, the panel says so.
+The panel keeps its width, so a change of its content never changes the size of the view.
 
 ### Context menu
 
@@ -115,7 +121,8 @@ A new item becomes the target of the next action:
 
 An image item renders an image file that the user uploaded.
 
-The user adds image items from a header menu item, or by dropping files anywhere in the window.
+The user adds image items from a header menu item or the side panel,
+or by dropping files anywhere in the window.
 While the user drags files over the window, an overlay says so.
 The overlay is necessary because the drop target is the whole window, not the pane.
 Without the overlay, the user would have nothing to aim at.
@@ -128,8 +135,6 @@ A text item holds text content.
 The app deletes the item if its content is blank when the edit ends.
 This applies however the edit ends.
 
-The height of the drag sets the font size.
-That height is one line box.
 The width of the drag sets the wrapping width.
 The content then wraps to that width, and this decides the height of the item.
 
